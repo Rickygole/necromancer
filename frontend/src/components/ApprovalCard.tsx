@@ -1,0 +1,175 @@
+import { useId, useState } from "react";
+import { casesOf } from "../status";
+import type { Report, Status } from "../types";
+import { StatusBadge } from "./StatusBadge";
+
+interface Props {
+  report: Report;
+  verdict: Status;
+  simulated: boolean;
+  replay: boolean;
+  onSubmit: (approved: boolean, reviewer: string, note: string) => Promise<void>;
+}
+
+function Hash({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="kv">
+      <dt>{label}</dt>
+      <dd className="mono hash" title={value}>
+        {value ? `${value.slice(0, 16)}…` : "Not recorded"}
+      </dd>
+    </div>
+  );
+}
+
+export function ApprovalCard({ report, verdict, simulated, replay, onSubmit }: Props) {
+  const id = useId();
+  const [reviewer, setReviewer] = useState("");
+  const [note, setNote] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [outcome, setOutcome] = useState<{ approved: boolean; reviewer: string } | null>(null);
+
+  const undecided = report.decision_coverage?.undecided ?? [];
+  const blocked = verdict === "MISMATCH" && undecided.length > 0;
+  const canApprove = verdict === "MATCH" || verdict === "APPROVAL REQUIRED" || (verdict === "MISMATCH" && !blocked);
+  const score =
+    report.mutation_score === undefined || report.mutation_score === null
+      ? "Not measured in this run"
+      : typeof report.mutation_score === "number"
+        ? `${Math.round(report.mutation_score * (report.mutation_score <= 1 ? 100 : 1))}% of mutations caught`
+        : report.mutation_score;
+
+  const send = async (approved: boolean) => {
+    if (!reviewer.trim()) {
+      setError("Add a reviewer name before signing.");
+      return;
+    }
+    if (!approved && !note.trim()) {
+      setError("Say why in the note when rejecting.");
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      await onSubmit(approved, reviewer.trim(), note.trim());
+      setOutcome({ approved, reviewer: reviewer.trim() });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <section className="card approval" aria-labelledby={`${id}-title`} id="approval">
+      <header className="card__head">
+        <div>
+          <h3 id={`${id}-title`} tabIndex={-1}>
+            Final approval
+          </h3>
+          {simulated ? (
+            <p className="tag tag--warn">Simulated: hosted demo, nothing is signed for real</p>
+          ) : null}
+          {replay ? <p className="tag tag--warn">Recorded evidence replay</p> : null}
+        </div>
+        {outcome ? (
+          <p className={outcome.approved ? "decided" : "rejected"}>
+            <span aria-hidden="true">{outcome.approved ? "✓" : "✕"}</span>{" "}
+            {outcome.approved ? "Approved" : "Rejected"} by {outcome.reviewer}
+          </p>
+        ) : (
+          <StatusBadge status="APPROVAL REQUIRED" />
+        )}
+      </header>
+
+      <p className="claim">
+        Evidence over {casesOf(report.cases, report.cases)}, seed {report.seed}. This is a record of what was tested,
+        not a proof of equivalence.
+      </p>
+
+      <dl className="kvs">
+        <div className="kv">
+          <dt>Verdict</dt>
+          <dd>
+            <StatusBadge status={verdict} />
+          </dd>
+        </div>
+        <div className="kv">
+          <dt>Cases</dt>
+          <dd className="num">{casesOf(report.matched, report.cases).replace("cases", "matched")}</dd>
+        </div>
+        <div className="kv">
+          <dt>Seed</dt>
+          <dd className="mono">{report.seed}</dd>
+        </div>
+        <div className="kv">
+          <dt>Profile</dt>
+          <dd className="mono">{report.profile}</dd>
+        </div>
+        <div className="kv">
+          <dt>Mutation</dt>
+          <dd className="mono">{report.mutation ?? "none"}</dd>
+        </div>
+        <div className="kv">
+          <dt>Mutation score</dt>
+          <dd>{score}</dd>
+        </div>
+        <div className="kv">
+          <dt>Compiler</dt>
+          <dd className="mono">{report.compiler || "Not recorded"}</dd>
+        </div>
+        <Hash label="Source hash" value={report.source_hash} />
+        <Hash label="Twin hash" value={report.twin_hash} />
+      </dl>
+
+      <h4 className="subhead">Limitations</h4>
+      {report.limitations?.length ? (
+        <ul className="limits">
+          {report.limitations.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      ) : (
+        <p className="empty">No limitations were recorded with this report.</p>
+      )}
+
+      {blocked ? (
+        <p className="notice notice--warn" role="note">
+          {undecided.length} mismatch {undecided.length === 1 ? "class has" : "classes have"} no human decision yet:{" "}
+          <span className="mono">{undecided.join(", ")}</span>. Approval waits until each is decided.
+        </p>
+      ) : null}
+
+      <div className="row">
+        <div className="field">
+          <label htmlFor={`${id}-reviewer`}>Reviewer</label>
+          <input
+            id={`${id}-reviewer`}
+            className="input"
+            value={reviewer}
+            onChange={(e) => setReviewer(e.target.value)}
+            autoComplete="name"
+          />
+        </div>
+      </div>
+      <div className="field">
+        <label htmlFor={`${id}-note`}>Note</label>
+        <textarea id={`${id}-note`} className="input" rows={2} value={note} onChange={(e) => setNote(e.target.value)} />
+      </div>
+      {error ? (
+        <p className="notice notice--error" role="alert">
+          {error}
+        </p>
+      ) : null}
+      <div className="button-row">
+        <button type="button" className="button button--match" disabled={saving || !canApprove} onClick={() => send(true)}>
+          Approve
+        </button>
+        <button type="button" className="button button--danger" disabled={saving} onClick={() => send(false)}>
+          Reject
+        </button>
+      </div>
+    </section>
+  );
+}
