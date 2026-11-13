@@ -55,7 +55,10 @@ def encode_record(claim):
 
 
 def decode_record(line):
-    if not isinstance(line, str) or len(line) != RECORD_LENGTH or not line.isascii():
+    if not isinstance(line, str):
+        return None, False
+    line = line.split("\r", 1)[0]
+    if len(line) != RECORD_LENGTH:
         return None, False
     numeric = [line[9:18], line[18:27], line[27:36], line[36:45], line[45:47],
                line[47:49], line[50:57], line[57:64]]
