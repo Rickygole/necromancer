@@ -1,0 +1,53 @@
+name: oracle-linux
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - legacy/UICALC.cbl
+      - .github/workflows/oracle-linux.yml
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: amazonlinux:2023
+    steps:
+      - name: Install build tools
+        run: dnf install -y gcc make tar xz gzip glibc-static git findutils which
+      - uses: actions/checkout@v4
+      - name: Build GMP
+        run: |
+          curl -fsSL -o gmp.tar.xz https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz
+          tar xf gmp.tar.xz
+          cd gmp-6.3.0
+          ./configure --prefix=/opt/cobol --disable-shared --enable-static
+          make -j4
+          make install
+      - name: Build GnuCOBOL 3.1.2
+        run: |
+          curl -fsSL -o gnucobol.tar.gz https://ftp.gnu.org/gnu/gnucobol/gnucobol-3.1.2.tar.gz
+          tar xzf gnucobol.tar.gz
+          cd gnucobol-3.1.2
+          CPPFLAGS="-I/opt/cobol/include" LDFLAGS="-L/opt/cobol/lib" ./configure --prefix=/opt/cobol --disable-shared --enable-static --without-db --without-curses --without-xml2 --without-json
+          make -j4
+          make install
+      - name: Compile the oracle statically
+        run: |
+          export PATH=/opt/cobol/bin:$PATH
+          mkdir -p bin
+          COB_LDFLAGS="-static" cobc -x -free -o bin/uicalc legacy/UICALC.cbl
+          file bin/uicalc || true
+          ldd bin/uicalc || true
+          printf 'CLM000001001250050000800000000900000000070000000200045N00000000000000N               \n' | ./bin/uicalc
+      - name: Publish release asset
+        run: |
+          cp bin/uicalc uicalc-linux-x64
+          dnf install -y gh
+          gh release delete oracle-latest --yes --cleanup-tag || true
+          gh release create oracle-latest uicalc-linux-x64 --title "Oracle binary" --notes "Static Linux build of UICALC compiled with GnuCOBOL 3.1.2.0"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
