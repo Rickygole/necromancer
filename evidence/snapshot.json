@@ -1,5 +1,5 @@
 {
-  "run_id": "run_20261113034221_0ca85b",
+  "run_id": "run_20261113041625_2af97f",
   "profile": "demo",
   "seed": 731942,
   "mutation": "M4",
@@ -8,7 +8,7 @@
   "limitations": [
     "Evidence is over the generated and curated cases counted in this report, not a proof of equivalence.",
     "Only the pinned GnuCOBOL compiler version recorded here was exercised.",
-    "Input was ASCII with 80 byte lines. Tabs, CRLF and a missing final newline were not exercised.",
+    "Input was ASCII or lightly non-ASCII text with 80 byte records. CRLF line ends and stray CR bytes are covered by a fixed set of cases. Tabs and a missing final newline were not exercised.",
     "A run that finds no mismatch means none were found, not that none exist."
   ],
   "compiler": "cobc (GnuCOBOL) 3.1.2.0",
@@ -51,9 +51,11 @@
     "observed": [
       "net"
     ],
-    "undecided": []
+    "undecided": [
+      "net"
+    ]
   },
-  "seconds": 6.81,
+  "seconds": 6.61,
   "events": [
     {
       "type": "build",
@@ -329,7 +331,7 @@
   "mutation_label": "clamp net",
   "runs": {
     "baseline": {
-      "run_id": "run_20261113034218_d18b18",
+      "run_id": "run_20261113041622_37c5c5",
       "profile": "demo",
       "seed": 731942,
       "mutation": null,
@@ -338,7 +340,7 @@
       "limitations": [
         "Evidence is over the generated and curated cases counted in this report, not a proof of equivalence.",
         "Only the pinned GnuCOBOL compiler version recorded here was exercised.",
-        "Input was ASCII with 80 byte lines. Tabs, CRLF and a missing final newline were not exercised.",
+        "Input was ASCII or lightly non-ASCII text with 80 byte records. CRLF line ends and stray CR bytes are covered by a fixed set of cases. Tabs and a missing final newline were not exercised.",
         "A run that finds no mismatch means none were found, not that none exist."
       ],
       "compiler": "cobc (GnuCOBOL) 3.1.2.0",
@@ -377,7 +379,7 @@
         "observed": [],
         "undecided": []
       },
-      "seconds": 3.3,
+      "seconds": 2.93,
       "events": [
         {
           "type": "build",
@@ -594,7 +596,7 @@
       "counterexamples": []
     },
     "injected": {
-      "run_id": "run_20261113034221_0ca85b",
+      "run_id": "run_20261113041625_2af97f",
       "profile": "demo",
       "seed": 731942,
       "mutation": "M4",
@@ -603,7 +605,7 @@
       "limitations": [
         "Evidence is over the generated and curated cases counted in this report, not a proof of equivalence.",
         "Only the pinned GnuCOBOL compiler version recorded here was exercised.",
-        "Input was ASCII with 80 byte lines. Tabs, CRLF and a missing final newline were not exercised.",
+        "Input was ASCII or lightly non-ASCII text with 80 byte records. CRLF line ends and stray CR bytes are covered by a fixed set of cases. Tabs and a missing final newline were not exercised.",
         "A run that finds no mismatch means none were found, not that none exist."
       ],
       "compiler": "cobc (GnuCOBOL) 3.1.2.0",
@@ -646,9 +648,11 @@
         "observed": [
           "net"
         ],
-        "undecided": []
+        "undecided": [
+          "net"
+        ]
       },
-      "seconds": 6.81,
+      "seconds": 6.61,
       "events": [
         {
           "type": "build",
@@ -923,7 +927,7 @@
       ]
     },
     "after_patch": {
-      "run_id": "run_20261113034228_712968",
+      "run_id": "run_20261113041632_cb4e2e",
       "profile": "full",
       "seed": 731942,
       "mutation": null,
@@ -932,7 +936,7 @@
       "limitations": [
         "Evidence is over the generated and curated cases counted in this report, not a proof of equivalence.",
         "Only the pinned GnuCOBOL compiler version recorded here was exercised.",
-        "Input was ASCII with 80 byte lines. Tabs, CRLF and a missing final newline were not exercised.",
+        "Input was ASCII or lightly non-ASCII text with 80 byte records. CRLF line ends and stray CR bytes are covered by a fixed set of cases. Tabs and a missing final newline were not exercised.",
         "A run that finds no mismatch means none were found, not that none exist."
       ],
       "compiler": "cobc (GnuCOBOL) 3.1.2.0",
@@ -971,7 +975,7 @@
         "observed": [],
         "undecided": []
       },
-      "seconds": 34.08,
+      "seconds": 33.38,
       "events": [
         {
           "type": "build",
@@ -1510,7 +1514,7 @@
   },
   "story": {
     "baseline": {
-      "run_id": "run_20261113034218_d18b18",
+      "run_id": "run_20261113041622_37c5c5",
       "profile": "demo",
       "verdict": "MATCH",
       "cases": 3394,
@@ -1520,7 +1524,7 @@
       "mutation": null
     },
     "injected": {
-      "run_id": "run_20261113034221_0ca85b",
+      "run_id": "run_20261113041625_2af97f",
       "profile": "demo",
       "verdict": "MISMATCH",
       "cases": 3394,
@@ -1530,7 +1534,7 @@
       "mutation": "M4"
     },
     "after_patch": {
-      "run_id": "run_20261113034228_712968",
+      "run_id": "run_20261113041632_cb4e2e",
       "profile": "full",
       "verdict": "APPROVAL REQUIRED",
       "cases": 42137,
