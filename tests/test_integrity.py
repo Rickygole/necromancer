@@ -35,10 +35,11 @@ def test_corpus_covers_case(name, record, expected):
     assert record in corpus.invalid_fixed()
 
 
-def test_decode_truncates_at_first_cr():
+def test_decode_drops_every_cr():
     assert decode_record(BASE + "\r")[1] is True
     assert decode_record(BASE[:79] + "\r")[1] is False
-    assert decode_record("\r" + BASE)[1] is False
+    assert decode_record("\r" + BASE)[1] is True
+    assert decode_record(BASE + "\rXXXXX")[1] is False
 
 
 def test_decode_accepts_non_ascii_where_cobol_does():

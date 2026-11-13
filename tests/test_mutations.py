@@ -11,7 +11,7 @@ def result(oracle_binary):
 
 def test_named_set_is_unchanged():
     assert sorted(MUTATIONS) == ["M1", "M2", "M3", "M4", "M5"]
-    assert sorted(HIDDEN_MUTANTS) == ["H1", "H2", "H3"]
+    assert sorted(HIDDEN_MUTANTS) == ["H1", "H2", "H3", "H4", "H5"]
 
 
 def test_baseline_matches_oracle(result):
@@ -30,6 +30,6 @@ def test_hidden_mutant_is_caught(result, mutation):
 
 def test_score_totals(result):
     assert result["named_total"] == 5
-    assert result["hidden_total"] == 3
+    assert result["hidden_total"] == 5
     assert result["named_caught"] == 5
-    assert result["hidden_caught"] == 3
+    assert result["hidden_caught"] == 5
