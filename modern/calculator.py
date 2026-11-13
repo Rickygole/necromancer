@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from modern.arith import truncate, store
 from modern.models import Claim, Result, decode_record, encode_result
+from modern.behaviors import preserved
 from modern.mutations import is_active
 
 MIN_WAGES = Decimal("2500.00")
@@ -11,6 +12,7 @@ MAX_DEPENDENTS = 4
 CEILING_RATE = Decimal("0.65")
 RETIREMENT_AGE = 62
 ZERO = Decimal("0.00")
+OFFSET_MAX = Decimal("99999.99")
 
 
 def validate(record):
@@ -31,7 +33,7 @@ def quarter_shift(claim):
 
 
 def total_wages(quarters):
-    total = store(sum(quarters, ZERO), 9, 2)
+    total = store(sum(quarters, ZERO), 10, 2)
     if total < MIN_WAGES:
         return total, (3,)
     return total, ()
@@ -44,24 +46,26 @@ def count_quarters(quarters):
     return count, ()
 
 
-def base_benefit(quarters, mutation=None):
+def base_benefit(quarters, mutation=None, behaviors=frozenset()):
     bits = [5]
     raw = max(quarters) / 26
     if is_active(mutation, "M1"):
         whole = store(raw, 7, 0, rounded=True)
     else:
         whole = truncate(raw, 0)
+    if "narrow_quotient" in behaviors:
+        whole = whole % 1000
     cap = BASE_CAP + 1 if is_active(mutation, "M2") else BASE_CAP
     if whole > cap:
         whole = cap
         bits.append(6)
-    return store(whole, 5, 2), tuple(bits)
+    return store(whole, 7, 2), tuple(bits)
 
 
 def dependency_allowance(dependents):
     allowance = PER_DEPENDENT * min(dependents, MAX_DEPENDENTS)
     if allowance > 0:
-        return store(allowance, 5, 2), (7,)
+        return store(allowance, 7, 2), (7,)
     return ZERO, ()
 
 
@@ -72,27 +76,34 @@ def wage_ceiling(base, allowance, total, mutation=None):
         weekly = truncate(weekly, 2)
     ceiling = truncate(weekly * CEILING_RATE, 2)
     if combined > ceiling:
-        return store(ceiling, 5, 2), (8,)
-    return store(combined, 5, 2), ()
+        return store(ceiling, 7, 2), (8,)
+    return store(combined, 7, 2), ()
 
 
-def offset(claim, mutation=None):
+def offset(claim, mutation=None, behaviors=frozenset()):
     threshold = RETIREMENT_AGE + 1 if is_active(mutation, "M3") else RETIREMENT_AGE
     if claim.age >= threshold and claim.retirement_code == "M":
         return ZERO, (10,)
-    amount = store(claim.pension + truncate(claim.severance / 2, 2), 5, 2)
+    amount = claim.pension + truncate(claim.severance / 2, 2)
+    if "offset_wrap" in behaviors:
+        amount = store(amount, 7, 2)
+    else:
+        amount = min(amount, OFFSET_MAX)
     if amount > 0:
         return amount, (9,)
     return ZERO, ()
 
 
-def net_payout(combined, total_offset, mutation=None):
+def net_payout(combined, total_offset, mutation=None, behaviors=frozenset()):
     net = combined - total_offset
     if net < 0:
-        net = ZERO
-    if is_active(mutation, "M4") and net < 0:
-        net = ZERO
-    return store(net, 5, 2), ()
+        if is_active(mutation, "M4"):
+            net = ZERO
+        elif "unsigned_net" in behaviors:
+            net = abs(net)
+        else:
+            net = ZERO
+    return store(net, 7, 2), ()
 
 
 def _trace(bits):
@@ -103,7 +114,8 @@ def _result(status, bits):
     return Result(status, ZERO, ZERO, ZERO, ZERO, _trace(bits))
 
 
-def calc(claim_or_record, mutation=None):
+def calc(claim_or_record, mutation=None, behaviors=None):
+    behaviors = preserved() if behaviors is None else behaviors
     bits = set()
     claim, found = validate(claim_or_record)
     bits.update(found)
@@ -123,19 +135,20 @@ def calc(claim_or_record, mutation=None):
     if found:
         return _result(2, bits)
 
-    base, found = base_benefit(quarters, mutation)
+    base, found = base_benefit(quarters, mutation, behaviors)
     bits.update(found)
     allowance, found = dependency_allowance(claim.dependents)
     bits.update(found)
     combined, found = wage_ceiling(base, allowance, total, mutation)
     bits.update(found)
-    total_offset, found = offset(claim, mutation)
+    total_offset, found = offset(claim, mutation, behaviors)
     bits.update(found)
-    net, found = net_payout(combined, total_offset, mutation)
+    net, found = net_payout(combined, total_offset, mutation, behaviors)
     bits.update(found)
 
     return Result(0, base, allowance, total_offset, net, _trace(bits))
 
 
-def calc_batch(records, mutation=None):
-    return [encode_result(calc(record, mutation)) for record in records]
+def calc_batch(records, mutation=None, behaviors=None):
+    behaviors = preserved() if behaviors is None else behaviors
+    return [encode_result(calc(record, mutation, behaviors)) for record in records]
