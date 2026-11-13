@@ -59,11 +59,30 @@ def oracle_env():
     return env
 
 
+PREBUILT = ROOT / "bin" / "uicalc"
+PREBUILT_VERSION = ROOT / "bin" / "ORACLE_VERSION"
+
+
+def cobc_available():
+    command = cobc_command()
+    return bool(Path(command).exists() or shutil.which(command))
+
+
+def prebuilt_available():
+    return PREBUILT.exists() and PREBUILT_VERSION.exists()
+
+
+def oracle_ready():
+    return cobc_available() or prebuilt_available()
+
+
 def source_hash(path=SOURCE):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
 def compiler_version():
+    if not cobc_available() and prebuilt_available():
+        return PREBUILT_VERSION.read_text().strip()
     try:
         out = subprocess.run(
             [cobc_command(), "--version"],
@@ -84,6 +103,8 @@ def build(source=SOURCE, out_dir=None):
 
 
 def _build(source, out_dir):
+    if not cobc_available() and prebuilt_available():
+        return BuildResult(PREBUILT, compiler_version(), source_hash(source), "prebuilt binary, not compiled on this host")
     out_dir = Path(out_dir) if out_dir else ROOT / "bin"
     out_dir.mkdir(parents=True, exist_ok=True)
     binary = out_dir / "uicalc"
