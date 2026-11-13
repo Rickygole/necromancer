@@ -78,9 +78,24 @@ export interface RunEvent {
   detail?: unknown;
 }
 
+export interface StoryRun {
+  run_id: string;
+  profile?: string;
+  verdict: string;
+  cases: number;
+  matched: number;
+  mismatched: number;
+  seed?: number;
+  mutation?: string | null;
+}
+
 export interface Snapshot extends Report {
   counterexamples: Counterexample[];
   events: RunEvent[];
+  mutation_label?: string;
+  families?: Record<string, { cases: number; mismatches: number }>;
+  runs?: Partial<Record<"baseline" | "injected" | "after_patch", Snapshot>>;
+  story?: Partial<Record<"baseline" | "injected" | "after_patch", StoryRun>>;
 }
 
 export interface RunRequest {
@@ -98,6 +113,8 @@ export interface Decision {
   choice: "preserve" | "correct";
   reviewer: string;
   note: string;
+  id?: string;
+  date?: string;
 }
 
 export interface FocusTrace {

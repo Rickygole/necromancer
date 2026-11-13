@@ -84,6 +84,8 @@ function reducer(state: RunState, action: Action): RunState {
             mismatched: event.mismatched ?? state.mismatched,
             family: event.family ?? state.family,
           };
+        case "planned":
+          return typeof event.planned === "number" ? { ...state, planned: event.planned } : state;
         case "mismatch":
           return { ...state, status: "MISMATCH" };
         case "shrinking":

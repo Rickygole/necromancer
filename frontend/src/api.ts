@@ -99,7 +99,7 @@ export const api = {
   liveRun: (body: RunRequest) => request<Snapshot>("POST", "/api/live", body),
 };
 
-const EVENT_TYPES = ["build", "built", "progress", "mismatch", "shrinking", "counterexample", "verdict", "error"];
+const EVENT_TYPES = ["build", "built", "planned", "progress", "mismatch", "shrinking", "counterexample", "verdict", "error"];
 
 export function streamRun(
   id: string,
