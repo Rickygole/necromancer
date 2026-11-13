@@ -17,7 +17,7 @@ def wages():
 
 
 def money():
-    return st.one_of(st.integers(0, 200000), st.integers(0, SMALL_MONEY), st.sampled_from([0, 1, 99999999]))
+    return st.one_of(st.integers(0, 200000), st.integers(0, SMALL_MONEY), st.sampled_from([0, 1, 9999999]))
 
 
 @st.composite
