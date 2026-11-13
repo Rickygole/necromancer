@@ -5,7 +5,7 @@ import { Circle, type Controls, type DemoStep } from "./components/Circle";
 import { Crypt } from "./components/Crypt";
 import { Twin, type PatchState } from "./components/Twin";
 import { SAMPLE_CLAIMS } from "./data";
-import { useRunner } from "./runner";
+import { setLiveMode, useRunner } from "./runner";
 import type { Counterexample, Decision, FocusTrace, Health, Mutation, RunRequest, Status } from "./types";
 
 const DEMO_LABELS = [
@@ -57,7 +57,10 @@ export function App() {
   useEffect(() => {
     api
       .health()
-      .then(setHealth)
+      .then((h) => {
+        setLiveMode(Boolean(h.hosted && h.oracle_available));
+        setHealth(h);
+      })
       .catch((err) => setHealthError(describeError(err).message));
     api
       .mutations()
@@ -135,20 +138,21 @@ export function App() {
     setPatch({ phase: "applying", diff: null, runId: null, error: null });
     const result = await api.applyPatch("fix-" + mutationId);
     const diff = typeof result.diff === "string" ? result.diff : typeof result.patch === "string" ? result.patch : null;
-    setPatch({ phase: "applied", diff, runId: result.run_id, error: null });
+    setPatch({ phase: "applied", diff, runId: result.run_id ?? null, error: null });
     setInjected(null);
     setControls((c) => ({ ...c, mutation: "" }));
-    return result.run_id;
+    return result.run_id ?? null;
   }, []);
 
   const onExorcise = useCallback(async () => {
     try {
       const runId = await applyPatch(injected ?? DEFAULT_PATCH_MUTATION);
       if (runId) await runner.follow(runId);
+      else await runner.start({ profile: "full", seed: controls.seed ? Number(controls.seed) : undefined });
     } catch (err) {
       setPatch({ phase: "error", diff: null, runId: null, error: describeError(err).message });
     }
-  }, [applyPatch, runner, injected]);
+  }, [applyPatch, runner, injected, controls.seed]);
 
   const onDemo = useCallback(async () => {
     setDemoRunning(true);
@@ -185,14 +189,14 @@ export function App() {
 
       current = 2;
       update(2, { state: "active" });
-      const broken = await runner.start({ profile: "demo", seed, use_demo_config: true });
+      const broken = await runner.start({ profile: "demo", seed, mutation: "M4", use_demo_config: true });
       update(2, { state: "done", result: broken, note: broken === "MISMATCH" ? "Counterexample shrunk" : undefined });
       await hold(HOLD_LONG);
 
       current = 3;
       update(3, { state: "active" });
       const rerunId = await applyPatch("M4");
-      const healed = await runner.follow(rerunId);
+      const healed = rerunId ? await runner.follow(rerunId) : await runner.start({ profile: "full", seed });
       update(3, { state: "done", result: healed });
 
       current = 4;
