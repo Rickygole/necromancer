@@ -153,6 +153,11 @@ def live_run(req: RunRequest):
     if req.profile not in PROFILES:
         raise bad("unknown profile", {"profile": req.profile, "known": sorted(PROFILES)})
     check_mutation(req.mutation)
+    if hosted() and req.profile == "full":
+        raise bad(
+            "the full profile takes longer than the hosted time limit, use /api/snapshot for the recorded full run or run it locally",
+            {"snapshot": "/api/snapshot"},
+        )
     if not oracle_available():
         raise errors.ApiError(
             "RUNTIME_ERROR",
