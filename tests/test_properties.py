@@ -2,12 +2,11 @@ import ast
 import random
 from pathlib import Path
 
-import pytest
 from hypothesis import HealthCheck, assume, given, settings, strategies as st
 
 from harness import corpus, decisions as decision_store
-from harness.records import encode_claim, parse_claim, split_result
-from modern import calculator
+from harness.records import Claim, encode_claim, parse_claim, split_result
+from modern import calculator, models
 from oracle import runner
 
 SETTINGS = settings(max_examples=40, deadline=None, suppress_health_check=list(HealthCheck))
@@ -65,19 +64,23 @@ def test_p5_record_round_trip(claim):
     assert encode_claim(parse_claim(record)) == record
 
 
-@pytest.mark.xfail(reason="legacy oracle stores an unsigned difference", strict=False)
-@SETTINGS
-@given(corpus.claims(), st.integers(0, 50000))
-def test_p6_offset_direction_oracle(oracle_binary, claim, extra):
-    low = claim
-    high = claim.__class__(**{**claim.__dict__, "severance": min(claim.severance + extra, 9999999)})
-    lines = oracle([encode_claim(low), encode_claim(high)], oracle_binary)
-    assert amounts(lines[1])["net"] <= amounts(lines[0])["net"]
+OFFSET_COUNTEREXAMPLE = encode_claim(Claim("P6LEGACY1", 2600000, 100000, 100000, 100000, 0, 40, "N", 1, 0, "N"))
+WAGE_COUNTEREXAMPLE = encode_claim(Claim("P7LEGACY1", 2600000, 100000, 100000, 100000))
+WAGE_NEIGHBOR = encode_claim(Claim("P7LEGACY2", 2599999, 100000, 100000, 100000))
+
+
+def test_p6_legacy_offset_direction_is_reproducible(oracle_binary):
+    line = oracle([OFFSET_COUNTEREXAMPLE], oracle_binary)[0]
+    parts = split_result(line)
+    assert parts["status"] == "00"
+    assert amounts(line) == {"base": 0, "allowance": 0, "offset": 1, "net": 1}
+    stated = calculator.calc_batch([OFFSET_COUNTEREXAMPLE], None, frozenset({"narrow_quotient"}))[0]
+    assert amounts(stated) == {"base": 0, "allowance": 0, "offset": 1, "net": 0}
 
 
 @SETTINGS
 @given(corpus.claims(), st.integers(0, 50000))
-def test_p6_offset_direction_twin(claim, extra):
+def test_p6_offset_direction_twin_with_stated_rules(claim, extra):
     assume(claim.pension <= 3000000 and claim.severance <= 3000000)
     low = claim
     high = claim.__class__(**{**claim.__dict__, "severance": min(claim.severance + extra, 4000000)})
@@ -85,15 +88,14 @@ def test_p6_offset_direction_twin(claim, extra):
     assert amounts(lines[1])["net"] <= amounts(lines[0])["net"]
 
 
-@pytest.mark.xfail(reason="legacy oracle wraps a narrow quotient", strict=False)
-@SETTINGS
-@given(corpus.claims(), st.integers(0, 5000000))
-def test_p7_wage_monotonicity_oracle(oracle_binary, claim, extra):
-    raised = claim.__class__(**{**claim.__dict__, "q1": min(claim.q1 + extra, 999999999)})
-    lines = oracle([encode_claim(claim), encode_claim(raised)], oracle_binary)
-    a, b = split_result(lines[0]), split_result(lines[1])
-    if a["status"] == "00" and b["status"] == "00":
-        assert int(b["base"]) >= int(a["base"]) or int(raised.q1) < int(claim.q1)
+def test_p7_legacy_wage_monotonicity_is_reproducible(oracle_binary):
+    high, neighbor = oracle([WAGE_COUNTEREXAMPLE, WAGE_NEIGHBOR], oracle_binary)
+    assert split_result(high)["status"] == "00"
+    assert split_result(neighbor)["status"] == "00"
+    assert amounts(high)["base"] == 0
+    assert amounts(neighbor)["base"] == 65000
+    stated = calculator.calc_batch([WAGE_COUNTEREXAMPLE], None, frozenset())[0]
+    assert amounts(stated)["base"] == 65000
 
 
 @SETTINGS
@@ -120,8 +122,19 @@ def test_p9_eligibility_consistency(oracle_binary, batch):
                 assert amounts(line) == {"base": 0, "allowance": 0, "offset": 0, "net": 0}
 
 
+@SETTINGS
+@given(corpus.valid_records())
+def test_p5_twin_round_trip(record):
+    claim, ok = models.decode_record(record)
+    assert ok
+    assert models.encode_record(claim) == record
+
+
 def test_p10_no_floats():
-    for path in Path("modern").glob("*.py"):
+    modern_dir = Path(__file__).resolve().parent.parent / "modern"
+    paths = sorted(modern_dir.glob("*.py"))
+    assert len(paths) >= 4
+    for path in paths:
         tree = ast.parse(path.read_text())
         for node in ast.walk(tree):
             if isinstance(node, ast.Constant):
