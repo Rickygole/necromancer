@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "Test guard",
+  "description": "Stop before any edit to the oracle, the evidence or the decisions unless the user asked for that edit.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": ["oracle/**", "evidence/**", "decisions/**"]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Stop unless the user explicitly asked for this edit. Revert it if they did not."
+  }
+}
