@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "oracle": {
+      "command": ".venv/bin/python",
+      "args": ["-m", "oracle_mcp.server"],
+      "disabled": false,
+      "autoApprove": ["parse_record"]
+    }
+  }
+}
