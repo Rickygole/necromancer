@@ -8,19 +8,36 @@ Results are evidence over N generated and curated cases. They are never a proof 
 
 ## Status
 
-Work in progress for Kiroween 2026, Resurrection category. All code in this repository was written on or after October 30, 2026. There is no pre-existing work.
+Built for Kiroween 2026, Resurrection category. All code in this repository was written on or after October 30, 2026. There is no pre-existing work.
+
+## How it works
+
+1. `legacy/UICALC.cbl` is compiled with GnuCOBOL 3.1.2.0 and is the oracle.
+2. `modern/` holds a Python twin written from the business rules only.
+3. `harness/` generates golden, boundary, invalid and property based cases, runs both sides on identical bytes, compares every field exactly, and shrinks each failure to a minimal claimant.
+4. Each class of difference needs a human decision: preserve the legacy behavior or correct it.
+5. Five named mutations check that the tests have teeth.
+
+## Run it
+
+    sh oracle/build.sh
+    python -m pytest tests -q
+    uvicorn index:app --port 8000
+
+Requirements: Python 3.12, GnuCOBOL 3.1.2 (`cobc` on the path), Node 22 for the console.
 
 ## Layout
 
-    legacy/    UICALC.cbl, sample claims, probes
-    oracle/    build script and batch runner
-    modern/    Python twin
-    backend/   FastAPI app
-    frontend/  Vite and React console
-    mcp/       oracle MCP server
-    decisions/ human authored decision records
-    evidence/  run reports and counterexamples
-    tests/     unit, property and mutation tests
+    legacy/      UICALC.cbl and semantics probes
+    oracle/      build script, batch runner, probe runner
+    modern/      Python twin
+    harness/     corpus, comparator, engine, mutation score
+    backend/     FastAPI app, SQLite store, patches
+    frontend/    Vite and React console
+    oracle_mcp/  MCP server exposing the oracle
+    decisions/   human authored decision records
+    evidence/    probe report, counterexamples, mutation score
+    tests/       unit, property, mutation and API tests
 
 ## License
 
