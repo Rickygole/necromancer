@@ -39,7 +39,7 @@ jobs:
         run: |
           export PATH=/opt/cobol/bin:$PATH
           mkdir -p bin
-          COB_LDFLAGS="-static" cobc -x -free -o bin/uicalc legacy/UICALC.cbl
+          COB_LDFLAGS="-static" COB_LIBS="-L/opt/cobol/lib -lcob -lgmp -lm" cobc -x -free -o bin/uicalc legacy/UICALC.cbl
           file bin/uicalc || true
           ldd bin/uicalc || true
           printf 'CLM000001001250050000800000000900000000070000000200045N00000000000000N               \n' | ./bin/uicalc
