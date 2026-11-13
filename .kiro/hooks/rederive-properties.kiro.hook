@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "Re-derive properties",
+  "description": "When a spec design or the legacy source changes, re-derive the property list and flag any rule without a property.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [".kiro/specs/*/design.md", "legacy/UICALC.cbl"]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Re-derive the property list from the requirements and flag any rule that has no property."
+  }
+}
