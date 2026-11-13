@@ -16,19 +16,24 @@ def captured(profile, mutation, seed, run_dir):
     return report, events, cxs
 
 
+def packed(report, events, cxs):
+    out = dict(report)
+    out["events"] = events
+    out["counterexamples"] = cxs
+    return out
+
+
 def build(profile="demo", seed=DEFAULT_SEED):
     scratch = EVIDENCE / "snapshot_runs"
-    baseline, _, _ = captured(profile, None, seed, scratch / "baseline")
-    injected, events, cxs = captured(profile, STORY_MUTATION, seed, scratch / "injected")
-    fixed, _, _ = captured(profile, None, seed, scratch / "fixed")
+    baseline = packed(*captured(profile, None, seed, scratch / "baseline"))
+    injected = packed(*captured(profile, STORY_MUTATION, seed, scratch / "injected"))
+    fixed = packed(*captured("full", None, seed, scratch / "fixed"))
     snapshot = dict(injected)
-    snapshot["events"] = events
-    snapshot["counterexamples"] = cxs
     snapshot["mutation_label"] = MUTATIONS[STORY_MUTATION]["label"]
+    snapshot["runs"] = {"baseline": baseline, "injected": injected, "after_patch": fixed}
     snapshot["story"] = {
-        "baseline": {k: baseline.get(k) for k in ("run_id", "verdict", "cases", "matched", "mismatched", "seed")},
-        "injected": {k: injected.get(k) for k in ("run_id", "verdict", "cases", "matched", "mismatched", "mutation")},
-        "after_patch": {k: fixed.get(k) for k in ("run_id", "verdict", "cases", "matched", "mismatched", "seed")},
+        key: {k: run.get(k) for k in ("run_id", "profile", "verdict", "cases", "matched", "mismatched", "seed", "mutation")}
+        for key, run in snapshot["runs"].items()
     }
     return snapshot
 
