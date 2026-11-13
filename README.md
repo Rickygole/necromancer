@@ -10,6 +10,8 @@ Results are evidence over N generated and curated cases. They are never a proof 
 
 Built for Kiroween 2026, Resurrection category. All code in this repository was written on or after October 30, 2026. There is no pre-existing work.
 
+Live demo: https://necromancer-rickygole32-8911s-projects.vercel.app (the hosted build replays a recorded run, because the COBOL compiler cannot run there. Run it locally for live comparisons.)
+
 ## How it works
 
 1. `legacy/UICALC.cbl` is compiled with GnuCOBOL 3.1.2.0 and is the oracle.
