@@ -1,0 +1,14 @@
+{
+  "seed": 731942,
+  "cases": 4040,
+  "baseline_mismatches": 0,
+  "caught": {
+    "M1": 1251,
+    "M2": 1462,
+    "M3": 15,
+    "M4": 2700,
+    "M5": 60
+  },
+  "score": 5,
+  "total": 5
+}
