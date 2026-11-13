@@ -1,0 +1,18 @@
+{
+  "framework": null,
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/dist",
+  "functions": {
+    "api/index.py": {
+      "includeFiles": "{backend,harness,modern,oracle,decisions,evidence,legacy}/**",
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index" }
+  ],
+  "env": {
+    "NECRO_HOSTED": "1",
+    "NECRO_DB": "/tmp/necromancer.sqlite3"
+  }
+}
