@@ -10,6 +10,9 @@ SMALL_MONEY = 9999999
 
 def wages():
     return st.one_of(
+        st.just(0),
+        st.just(0),
+        st.just(0),
         st.integers(0, 3000000),
         st.integers(0, WAGE_MAX),
         st.sampled_from([0, 1, 249999, 250000, 1690000, 2599999, 2600000, 2600001]),
@@ -28,8 +31,8 @@ def claims(draw):
         q2=draw(wages()),
         q3=draw(wages()),
         q4=draw(wages()),
-        dependents=draw(st.integers(0, 12)),
-        age=draw(st.one_of(st.integers(18, 99), st.sampled_from([61, 62, 63]))),
+        dependents=draw(st.one_of(st.integers(0, 12), st.integers(13, 99))),
+        age=draw(st.one_of(st.integers(0, 17), st.integers(18, 99), st.sampled_from([61, 62, 63]))),
         retirement=draw(st.sampled_from(["N", "V", "M"])),
         pension=draw(money()),
         severance=draw(money()),
@@ -44,7 +47,8 @@ def valid_records():
 @st.composite
 def invalid_records(draw):
     base = encode_claim(draw(claims()))
-    kind = draw(st.sampled_from(["letters", "retirement", "flag", "short", "long", "blank"]))
+    kind = draw(st.sampled_from(["letters", "retirement", "flag", "short", "long", "blank",
+                                    "cr_middle", "cr_trailing", "nonascii_id", "nonascii_filler", "nonascii_numeric"]))
     if kind == "letters":
         pos = draw(st.integers(9, 63))
         return base[:pos] + draw(st.sampled_from("AXZ-+ .")) + base[pos + 1:]
@@ -56,6 +60,20 @@ def invalid_records(draw):
         return base[: draw(st.integers(1, 79))]
     if kind == "long":
         return base + draw(st.text("0123 ", min_size=1, max_size=5))
+    if kind == "cr_middle":
+        pos = draw(st.integers(1, 78))
+        return base[:pos] + "\r" + base[pos + 1:]
+    if kind == "cr_trailing":
+        return base + "\r" * draw(st.integers(1, 3))
+    if kind == "nonascii_id":
+        pos = draw(st.integers(0, 8))
+        return base[:pos] + draw(st.sampled_from("\u00e9\u00fc\u4e2d")) + base[pos + 1:]
+    if kind == "nonascii_filler":
+        pos = draw(st.integers(65, 79))
+        return base[:pos] + draw(st.sampled_from("\u00e9\u00fc\u4e2d")) + base[pos + 1:]
+    if kind == "nonascii_numeric":
+        pos = draw(st.integers(9, 63))
+        return base[:pos] + draw(st.sampled_from("\u00e9\u0663\u4e2d")) + base[pos + 1:]
     return " " * 80
 
 
@@ -103,7 +121,26 @@ def invalid_fixed():
         base[:79],
         base + "0",
         " " * 80,
+    ] + crlf_cases(base)
+
+
+def crlf_cases(base):
+    return [
+        base + "\r",
+        base[:79] + "\r",
+        base[:70] + "\r" + base[71:],
+        base + "\r\r",
+        "CLM\u00e900001" + base[9:],
+        base[:70] + "\u00e9" + base[71:],
+        base[:20] + "\u00e9" + base[21:],
+        base[:45] + "\u0663\u0663" + base[47:],
     ]
+
+
+def random_wage(rng):
+    if rng.random() < 0.5:
+        return 0
+    return rng.choice([rng.randrange(0, 3000000), rng.randrange(0, WAGE_MAX)])
 
 
 def random_valid_batch(rng, size):
@@ -113,12 +150,12 @@ def random_valid_batch(rng, size):
             encode_claim(
                 Claim(
                     "CLM" + str(rng.randrange(1000000)).zfill(6),
-                    rng.choice([rng.randrange(0, 3000000), rng.randrange(0, WAGE_MAX)]),
-                    rng.choice([rng.randrange(0, 3000000), rng.randrange(0, WAGE_MAX)]),
-                    rng.choice([rng.randrange(0, 3000000), rng.randrange(0, WAGE_MAX)]),
-                    rng.choice([rng.randrange(0, 3000000), rng.randrange(0, WAGE_MAX)]),
-                    rng.randrange(0, 13),
-                    rng.randrange(18, 100),
+                    random_wage(rng),
+                    random_wage(rng),
+                    random_wage(rng),
+                    random_wage(rng),
+                    rng.choice([rng.randrange(0, 13), rng.randrange(13, 100)]),
+                    rng.choice([rng.randrange(0, 18), rng.randrange(18, 100), rng.randrange(61, 64)]),
                     rng.choice("NVM"),
                     rng.choice([0, rng.randrange(0, 200000), rng.randrange(0, SMALL_MONEY)]),
                     rng.choice([0, rng.randrange(0, 200000), rng.randrange(0, SMALL_MONEY)]),
