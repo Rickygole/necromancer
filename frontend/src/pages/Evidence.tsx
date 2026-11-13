@@ -114,7 +114,8 @@ export function Evidence() {
                         <span className="tag tag--ink">Recorded</span>
                       </p>
                       <p className="sheet__count num">
-                        {count(run.matched)} <span>of</span> {count(run.cases)}
+                        <span className="sheet__big">{count(run.matched)}</span>
+                        <span className="sheet__of">of {count(run.cases)}</span>
                       </p>
                       <p className="sheet__unit">cases matched</p>
                       <dl className="sheet__meta">

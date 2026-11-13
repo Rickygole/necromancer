@@ -63,7 +63,9 @@ export function Home() {
       </section>
 
       <div className="bleed" aria-hidden="true">
-        <span>NOBODY KNEW.</span>
+        <p className="bleed__text">
+          <span>NOBODY</span> <span>KNEW.</span>
+        </p>
       </div>
 
       <section className="tags" aria-labelledby="tags-title">
@@ -80,7 +82,8 @@ export function Home() {
               <span className="toe-tag__hole" aria-hidden="true" />
               <span className="toe-tag__label mono">specimen A, demo profile</span>
               <span className="toe-tag__num">
-                {count(DEMO_CASES)} <span className="toe-tag__of">of</span> {count(DEMO_CASES)}
+                <span className="toe-tag__big">{count(DEMO_CASES)}</span>
+                <span className="toe-tag__of">of {count(DEMO_CASES)}</span>
               </span>
               <span className="toe-tag__what">cases matched, twin as written</span>
               <span className="toe-tag__foot mono">0 mismatched</span>
@@ -91,7 +94,8 @@ export function Home() {
               <span className="toe-tag__hole" aria-hidden="true" />
               <span className="toe-tag__label mono">specimen B, mutations</span>
               <span className="toe-tag__num">
-                5 <span className="toe-tag__of">of</span> 5
+                <span className="toe-tag__big">5</span>
+                <span className="toe-tag__of">of 5</span>
               </span>
               <Tally count={5} className="toe-tag__tally" />
               <span className="toe-tag__what">planted bugs caught</span>
@@ -102,7 +106,9 @@ export function Home() {
             <TiltCard className="toe-tag">
               <span className="toe-tag__hole" aria-hidden="true" />
               <span className="toe-tag__label mono">specimen C, the oracle</span>
-              <span className="toe-tag__num">3</span>
+              <span className="toe-tag__num">
+                <span className="toe-tag__big">3</span>
+              </span>
               <span className="toe-tag__what">classes of legacy behavior found by the oracle</span>
               <span className="toe-tag__foot mono">3 of 3 have a decision record</span>
             </TiltCard>
