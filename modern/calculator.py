@@ -71,10 +71,10 @@ def dependency_allowance(dependents):
 
 def wage_ceiling(base, allowance, total, mutation=None):
     combined = base + allowance
-    weekly = total / 52
     if is_active(mutation, "M5"):
-        weekly = truncate(weekly, 2)
-    ceiling = truncate(weekly * CEILING_RATE, 2)
+        ceiling = truncate(truncate(total / 52, 2) * CEILING_RATE, 2)
+    else:
+        ceiling = truncate(CEILING_RATE * total / 52, 2)
     if combined > ceiling:
         return store(ceiling, 7, 2), (8,)
     return store(combined, 7, 2), ()
