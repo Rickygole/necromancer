@@ -155,7 +155,7 @@ def live_run(req: RunRequest):
             decisions=decision_store.load(decision_store.DECISIONS_DIR),
         )
         cx_dir = Path(scratch) / "counterexamples"
-        found = [json.loads(p.read_text()) for p in sorted(cx_dir.glob("cx_*.json"))] if cx_dir.exists() else []
+        found = [json.loads(p.read_text()) for p in sorted(cx_dir.glob("*x_*.json"))] if cx_dir.exists() else []
     result = dict(report)
     result["run_id"] = report.get("run_id") or runs.new_run_id()
     result["events"] = events

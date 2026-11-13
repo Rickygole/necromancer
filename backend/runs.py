@@ -84,6 +84,6 @@ def counterexamples(run_id):
     if not directory.exists():
         return []
     out = []
-    for path in sorted(directory.glob("cx_*.json")):
+    for path in sorted(directory.glob("*x_*.json")):
         out.append(json.loads(Path(path).read_text()))
     return out

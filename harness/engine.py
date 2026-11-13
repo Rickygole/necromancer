@@ -157,7 +157,7 @@ def run_verification(profile="demo", seed=DEFAULT_SEED, mutation=None, on_event=
         if sig in known:
             cx_id = known[sig]
         else:
-            cx_id = "cx_%04d" % next_number
+            cx_id = ("mx_%04d" if mutation else "cx_%04d") % next_number
             next_number += 1
         payload = counterexamples.to_payload(cx_id, seed, minimal, sig)
         payload["family"] = family

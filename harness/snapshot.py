@@ -12,7 +12,7 @@ def captured(profile, mutation, seed, run_dir):
     events = []
     report = run_verification(profile, seed, mutation, events.append, run_dir)
     cx_dir = Path(run_dir) / "counterexamples"
-    cxs = [json.loads(p.read_text()) for p in sorted(cx_dir.glob("cx_*.json"))] if cx_dir.exists() else []
+    cxs = [json.loads(p.read_text()) for p in sorted(cx_dir.glob("*x_*.json"))] if cx_dir.exists() else []
     return report, events, cxs
 
 
