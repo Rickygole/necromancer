@@ -43,12 +43,27 @@ jobs:
           file bin/uicalc || true
           ldd bin/uicalc || true
           printf 'CLM000001001250050000800000000900000000070000000200045N00000000000000N               \n' | ./bin/uicalc
-      - name: Publish release asset
+      - name: Collect artifacts
         run: |
           cp bin/uicalc uicalc-linux-x64
           sha256sum legacy/UICALC.cbl | cut -d' ' -f1 > uicalc-source.sha256
-          dnf install -y gh
-          gh release delete oracle-latest --yes --cleanup-tag || true
-          gh release create oracle-latest uicalc-linux-x64 uicalc-source.sha256 --title "Oracle binary" --notes "Static Linux build of UICALC compiled with GnuCOBOL 3.1.2.0"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: oracle
+          path: |
+            uicalc-linux-x64
+            uicalc-source.sha256
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: oracle
+      - name: Publish release asset
+        run: |
+          gh release delete oracle-latest --yes --cleanup-tag --repo "$GITHUB_REPOSITORY" || true
+          gh release create oracle-latest uicalc-linux-x64 uicalc-source.sha256 --repo "$GITHUB_REPOSITORY" --title "Oracle binary" --notes "Static Linux build of UICALC compiled with GnuCOBOL 3.1.2.0"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
