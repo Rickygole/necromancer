@@ -207,10 +207,17 @@ def test_approval_flow_and_simulated_flag(client, monkeypatch):
     hosted = client.post("/api/runs/run_x/approval", json={"approved": False, "reviewer": "r"}).json()
     assert hosted["verdict"] == "REJECTED"
     assert hosted["simulated"] is True
-    assert client.get("/api/runs/run_x").json()["approval"]["verdict"] == "REJECTED"
 
 
 def test_mutation_score_endpoint(client):
     body = client.get("/api/mutation-score").json()
     assert body["named_total"] == 5
     assert body["baseline_mismatches"] == 0
+
+
+def test_hosted_approval_is_simulated_and_stateless(client, monkeypatch):
+    monkeypatch.setenv("NECRO_HOSTED", "1")
+    body = client.post("/api/runs/run_recorded/approval", json={"approved": True, "reviewer": "r", "note": "n"}).json()
+    assert body["simulated"] is True
+    assert body["verdict"] == "APPROVED"
+    assert_error(client.post("/api/runs/run_recorded/approval", json={"approved": True, "reviewer": " "}), "BAD_REQUEST", 400)

@@ -226,6 +226,16 @@ def run_counterexamples(run_id: str):
 
 @app.post("/api/runs/{run_id}/approval")
 def approve(run_id: str, req: ApprovalRequest):
+    if hosted():
+        if not req.reviewer.strip():
+            raise bad("reviewer is required")
+        return {
+            "run_id": run_id,
+            "verdict": "APPROVED" if req.approved else "REJECTED",
+            "reviewer": req.reviewer.strip()[:80],
+            "note": req.note[:500],
+            "simulated": True,
+        }
     row = require_run(run_id)
     allowed = row["verdict"] == APPROVABLE or (row["verdict"] == "MATCH" and row["profile"] == "full")
     if not allowed:
