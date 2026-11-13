@@ -6,6 +6,7 @@ from harness.records import Claim, encode_claim
 
 WAGE_MAX = 999999999
 SMALL_MONEY = 9999999
+CR_BOUNDARIES = [0, 9, 18, 27, 36, 45, 47, 49, 50, 57, 64, 65, 79, 80]
 
 
 def wages():
@@ -48,7 +49,7 @@ def valid_records():
 def invalid_records(draw):
     base = encode_claim(draw(claims()))
     kind = draw(st.sampled_from(["letters", "retirement", "flag", "short", "long", "blank",
-                                    "cr_middle", "cr_trailing", "nonascii_id", "nonascii_filler", "nonascii_numeric"]))
+                                    "cr_middle", "cr_trailing", "cr_start", "cr_insert", "cr_boundary", "cr_junk", "cr_many", "nonascii_id", "nonascii_filler", "nonascii_numeric"]))
     if kind == "letters":
         pos = draw(st.integers(9, 63))
         return base[:pos] + draw(st.sampled_from("AXZ-+ .")) + base[pos + 1:]
@@ -65,6 +66,22 @@ def invalid_records(draw):
         return base[:pos] + "\r" + base[pos + 1:]
     if kind == "cr_trailing":
         return base + "\r" * draw(st.integers(1, 3))
+    if kind == "cr_start":
+        return "\r" * draw(st.integers(1, 3)) + base
+    if kind == "cr_insert":
+        pos = draw(st.integers(0, 80))
+        return base[:pos] + "\r" + base[pos:]
+    if kind == "cr_boundary":
+        pos = draw(st.sampled_from(CR_BOUNDARIES))
+        return base[:pos] + "\r" + base[pos:]
+    if kind == "cr_junk":
+        return base + "\r" + draw(st.text("GARBAGEX0123 ", min_size=1, max_size=8))
+    if kind == "cr_many":
+        out = base
+        for _ in range(draw(st.integers(4, 12))):
+            pos = draw(st.integers(0, len(out)))
+            out = out[:pos] + "\r" + out[pos:]
+        return out
     if kind == "nonascii_id":
         pos = draw(st.integers(0, 8))
         return base[:pos] + draw(st.sampled_from("\u00e9\u00fc\u4e2d")) + base[pos + 1:]
@@ -109,6 +126,19 @@ def boundary():
     out.append(encode_claim(Claim("BNDQ4Y", 100000, 100000, 100000, 5000000, 0, 40, "N", 0, 0, "Y")))
     out.append(encode_claim(Claim("BNDWRAP", 900000, 900000, 900000, 900000, 0, 40, "N", 9999999, 9999999)))
     out.append(encode_claim(Claim("BNDZERO", 0, 0, 0, 0)))
+    out.append(encode_claim(Claim("EQCEIL", 260000, 260000, 260000, 20000)))
+    out.append(encode_claim(Claim("SUBDOL", 500000, 50, 0, 0)))
+    for total in (249999, 250000, 250001):
+        splits = {
+            "Q1": (total, 0, 0, 0),
+            "Q12": (total // 2, total - total // 2, 0, 0),
+            "Q4W": (total // 4, total // 4, total // 4, total - 3 * (total // 4)),
+        }
+        for label, quarters in splits.items():
+            for flag in ("N", "Y"):
+                out.append(encode_claim(Claim("TH" + label + str(total)[-3:] + flag, *quarters, flag=flag)))
+        out.append(encode_claim(Claim("THQ3" + str(total)[-3:], 0, 0, total, 0)))
+        out.append(encode_claim(Claim("THQ34" + str(total)[-3:], 0, 0, total // 2, total - total // 2)))
     return out
 
 
@@ -130,6 +160,22 @@ def crlf_cases(base):
         base[:79] + "\r",
         base[:70] + "\r" + base[71:],
         base + "\r\r",
+        "\r" + base,
+        "\r\r\r" + base,
+        base + "\rGARBAGE",
+        base + "\rXXXXX",
+        base + "\r" + "0" * 40,
+        base[:9] + "\r" + base[9:],
+        base[:20] + "\r" + base[20:],
+        base[:45] + "\r" + base[45:],
+        base[:49] + "\r" + base[49:],
+        base[:64] + "\r" + base[64:],
+        base[:65] + "\r" + base[65:],
+        base[:40] + "\r\r" + base[40:] + "\r",
+        "\r".join(base),
+        base[:30] + "\r" + base[31:],
+        base[:9] + "\r" + base[10:],
+        base[:64] + "\r" + base[65:],
         "CLM\u00e900001" + base[9:],
         base[:70] + "\u00e9" + base[71:],
         base[:20] + "\u00e9" + base[21:],
