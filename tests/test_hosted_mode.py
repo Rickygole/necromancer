@@ -83,7 +83,7 @@ def test_busy_slots_return_retry(hosted):
     try:
         assert slots.acquire(blocking=False)
         try:
-            error = error_of(hosted.post("/api/live", json={"profile": "dev"}), "RUNTIME_ERROR", 500)
+            error = error_of(hosted.post("/api/live", json={"profile": "dev"}), "BUSY", 503)
             assert error["detail"]["retry"] is True
         finally:
             slots.release()
@@ -150,3 +150,27 @@ def test_patch_lookup_rejects_traversal_ids(monkeypatch, patch_id):
     with pytest.raises(errors.ApiError) as caught:
         patches.patch_file(patch_id)
     assert caught.value.code == "NOT_FOUND"
+
+
+def test_oversized_body_is_refused_with_413(hosted):
+    big = {"profile": "dev", "mutation": "x" * 70000}
+    error_of(hosted.post("/api/live", json=big), "BAD_REQUEST", 413)
+
+
+def test_oversized_streamed_body_is_refused_with_413(hosted):
+    def chunks():
+        for _ in range(80):
+            yield b" " * 1024
+
+    response = hosted.post("/api/live", content=chunks(), headers={"content-type": "application/json"})
+    error_of(response, "BAD_REQUEST", 413)
+
+
+def test_body_under_the_limit_is_accepted(hosted):
+    response = hosted.post("/api/live", json={"profile": "nope", "pad": "x" * 60000})
+    error_of(response, "BAD_REQUEST", 400)
+
+
+@pytest.mark.parametrize("seed", [True, False, "5", 1.5, [1]])
+def test_non_integer_seed_is_refused(hosted, seed):
+    error_of(hosted.post("/api/live", json={"profile": "dev", "seed": seed}), "BAD_REQUEST", 400)
