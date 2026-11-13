@@ -34,6 +34,14 @@ HIDDEN_MUTANTS = {
         "label": "age modulo 18",
         "description": "Age is read modulo 18 for the retirement exemption test.",
     },
+    "H4": {
+        "label": "ceiling at equality",
+        "description": "The wage ceiling check uses >= instead of >, so it trips when combined equals the ceiling.",
+    },
+    "H5": {
+        "label": "dollar quarter count",
+        "description": "A quarter counts only when wages reach 1.00 instead of being above zero.",
+    },
 }
 
 

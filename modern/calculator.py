@@ -42,7 +42,10 @@ def total_wages(quarters):
 def count_quarters(quarters, claim=None, mutation=None):
     if is_active(mutation, "H1"):
         quarters = [claim.q1, claim.q2, claim.q3, claim.q4]
-    count = sum(1 for wage in quarters if wage > 0)
+    if is_active(mutation, "H5"):
+        count = sum(1 for wage in quarters if wage >= 1)
+    else:
+        count = sum(1 for wage in quarters if wage > 0)
     if count < 2:
         return count, (4,)
     return count, ()
@@ -79,7 +82,8 @@ def wage_ceiling(base, allowance, total, mutation=None):
         ceiling = truncate(truncate(total / 52, 2) * CEILING_RATE, 2)
     else:
         ceiling = truncate(CEILING_RATE * total / 52, 2)
-    if combined > ceiling:
+    over = combined >= ceiling if is_active(mutation, "H4") else combined > ceiling
+    if over:
         return store(ceiling, 7, 2), (8,)
     return store(combined, 7, 2), ()
 
