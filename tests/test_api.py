@@ -78,8 +78,16 @@ def test_hosted_without_compiler(client, monkeypatch):
     monkeypatch.setenv("NECRO_HOSTED", "1")
     monkeypatch.setattr(app_module, "oracle_available", lambda: False)
     response = client.post("/api/runs", json={"profile": "dev"})
-    assert_error(response, "RUNTIME_ERROR", 500)
-    assert "/api/snapshot" in response.json()["error"]["message"]
+    assert_error(response, "BAD_REQUEST", 400)
+    live = client.post("/api/live", json={"profile": "dev"})
+    assert_error(live, "RUNTIME_ERROR", 500)
+    assert "/api/snapshot" in live.json()["error"]["message"]
+
+
+def test_hosted_rejects_decision_writes(client, monkeypatch):
+    monkeypatch.setenv("NECRO_HOSTED", "1")
+    response = client.post("/api/decisions", json={"class": "net"})
+    assert_error(response, "BAD_REQUEST", 400)
 
 
 def test_mutations(client):

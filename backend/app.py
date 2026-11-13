@@ -3,6 +3,8 @@ import json
 import os
 import re
 import tempfile
+import threading
+import time
 from pathlib import Path
 from typing import List, Literal, Optional
 
@@ -24,7 +26,15 @@ ROOT = runner.ROOT
 APPROVABLE = "APPROVAL REQUIRED"
 
 app = FastAPI(title="Necromancer", version=VERSION)
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[] if os.environ.get("NECRO_HOSTED") == "1" else ["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+LIVE_SLOTS = threading.BoundedSemaphore(2)
+SEED_MAX = 2**31 - 1
+STREAM_SECONDS = 180
 errors.install(app)
 
 
@@ -130,6 +140,8 @@ def list_mutations():
 
 @app.post("/api/runs")
 def create_run(req: RunRequest):
+    if hosted():
+        raise errors.ApiError("BAD_REQUEST", "use POST /api/live on the hosted build", {"live": "/api/live"})
     mutation = req.mutation
     if mutation is None and req.use_demo_config:
         mutation = patches.read_config().get("mutation")
@@ -149,13 +161,20 @@ def live_run(req: RunRequest):
         )
     events = []
     seed = DEFAULT_SEED if req.seed is None else req.seed
-    with tempfile.TemporaryDirectory(prefix="necro-live-") as scratch:
-        report = engine.run_verification(
-            req.profile, seed, req.mutation, events.append, run_dir=scratch,
-            decisions=decision_store.load(decision_store.DECISIONS_DIR),
-        )
-        cx_dir = Path(scratch) / "counterexamples"
-        found = [json.loads(p.read_text()) for p in sorted(cx_dir.glob("*x_*.json"))] if cx_dir.exists() else []
+    if not 0 <= seed <= SEED_MAX:
+        raise bad("seed out of range", {"max": SEED_MAX})
+    if not LIVE_SLOTS.acquire(blocking=False):
+        raise errors.ApiError("RUNTIME_ERROR", "the oracle is busy, try again in a moment", {"retry": True})
+    try:
+        with tempfile.TemporaryDirectory(prefix="necro-live-") as scratch:
+            report = engine.run_verification(
+                req.profile, seed, req.mutation, events.append, run_dir=scratch,
+                decisions=decision_store.load(decision_store.DECISIONS_DIR),
+            )
+            cx_dir = Path(scratch) / "counterexamples"
+            found = [json.loads(p.read_text()) for p in sorted(cx_dir.glob("*x_*.json"))] if cx_dir.exists() else []
+    finally:
+        LIVE_SLOTS.release()
     result = dict(report)
     result["run_id"] = report.get("run_id") or runs.new_run_id()
     result["events"] = events
@@ -179,7 +198,8 @@ async def run_events(run_id: str):
             yield {"event": "verdict", "data": json.dumps({"type": "verdict", "verdict": row["verdict"] or "NOT RUN", "cases": report.get("cases"), "matched": report.get("matched")})}
             return
         index = 0
-        while True:
+        deadline = time.monotonic() + STREAM_SECONDS
+        while time.monotonic() < deadline:
             batch, done = chan.since(index)
             for event in batch:
                 yield {"event": event["type"], "data": json.dumps(event)}
@@ -236,6 +256,8 @@ def next_decision_id(directory):
 
 @app.post("/api/decisions")
 def create_decision(payload: dict):
+    if hosted():
+        raise errors.ApiError("BAD_REQUEST", "decisions are recorded in the repository, not on the hosted build")
     try:
         req = DecisionRequest(
             class_=payload.get("class"),
