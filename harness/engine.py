@@ -93,7 +93,24 @@ def run_verification(profile="demo", seed=DEFAULT_SEED, mutation=None, on_event=
     planned_fixed = sum(len(r) for _, r in fixed_families)
     batches_total = cfg["random_batches"]
     state = {"cases": 0, "matched": 0, "seen": {}, "families": {}, "batches_done": 0}
-    planned_cases = planned_fixed + batches_total * cfg["batch_size"]
+
+    generated = []
+
+    def collect(batch):
+        generated.append(batch)
+
+    collector = given(corpus.record_batches(cfg["batch_size"]))(collect)
+    collector = hyp_seed(seed)(collector)
+    collector = settings(
+        max_examples=batches_total,
+        database=None,
+        deadline=None,
+        phases=[Phase.generate],
+        suppress_health_check=list(HealthCheck),
+    )(collector)
+    collector()
+    planned_cases = planned_fixed + sum(len(b) for b in generated)
+    on_event({"type": "planned", "planned": planned_cases})
 
     def process(family, records):
         oracle_lines = runner.run_batch(records, binary)
@@ -117,23 +134,11 @@ def run_verification(profile="demo", seed=DEFAULT_SEED, mutation=None, on_event=
             for part in chunks(records, runner.BATCH_LIMIT):
                 process(family, part)
             on_event(progress(state, planned_cases, family))
-
-        def explore(batch):
-            state["batches_done"] += 1
+        for index, batch in enumerate(generated, 1):
+            state["batches_done"] = index
             process("property", batch)
-            if state["batches_done"] % 5 == 0 or state["batches_done"] == batches_total:
+            if index % 5 == 0 or index == len(generated):
                 on_event(progress(state, planned_cases, "property"))
-
-        runner_test = given(corpus.record_batches(cfg["batch_size"]))(explore)
-        runner_test = hyp_seed(seed)(runner_test)
-        runner_test = settings(
-            max_examples=batches_total,
-            database=None,
-            deadline=None,
-            phases=[Phase.generate],
-            suppress_health_check=list(HealthCheck),
-        )(runner_test)
-        runner_test()
     except runner.OracleError as exc:
         report.update(verdict="RUNTIME ERROR", error={"code": exc.code, "message": str(exc), "detail": exc.detail})
         on_event({"type": "verdict", "verdict": "RUNTIME ERROR"})
@@ -179,6 +184,7 @@ def run_verification(profile="demo", seed=DEFAULT_SEED, mutation=None, on_event=
     report.update(
         verdict=verdict,
         cases=state["cases"],
+        planned=planned_cases,
         matched=state["matched"],
         mismatched=mismatch_total,
         families=state["families"],
