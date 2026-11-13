@@ -4,7 +4,7 @@ import random
 from harness import corpus
 from harness.compare import compare_batch, mismatches
 from modern import calculator
-from modern.mutations import MUTATIONS
+from modern.mutations import HIDDEN_MUTANTS, MUTATIONS
 from oracle import runner
 
 LEGACY = frozenset({"narrow_quotient", "unsigned_net", "offset_wrap"})
@@ -35,13 +35,19 @@ def score(seed=731942, batches=20, size=200, binary=None):
     caught = {}
     for mutation in MUTATIONS:
         caught[mutation] = mismatch_count(records, mutation, binary)
+    hidden = {}
+    for mutation in HIDDEN_MUTANTS:
+        hidden[mutation] = mismatch_count(records, mutation, binary)
     return {
         "seed": seed,
         "cases": len(records),
         "baseline_mismatches": baseline,
-        "caught": caught,
-        "score": sum(1 for v in caught.values() if v > 0),
-        "total": len(MUTATIONS),
+        "named": caught,
+        "named_caught": sum(1 for v in caught.values() if v > 0),
+        "named_total": len(MUTATIONS),
+        "hidden": hidden,
+        "hidden_caught": sum(1 for v in hidden.values() if v > 0),
+        "hidden_total": len(HIDDEN_MUTANTS),
     }
 
 
