@@ -1,0 +1,16 @@
+{
+  "id": "dec_0002",
+  "class": "net",
+  "field": "net",
+  "counterexample_ids": [
+    "cx_0002"
+  ],
+  "options_considered": [
+    "preserve",
+    "correct"
+  ],
+  "choice": "preserve",
+  "reviewer": "Ricky Gole",
+  "date": "2026-11-12",
+  "note": "Unsigned subtraction stores the absolute value. Reviewer delegated the choice during the build; preserving legacy behavior so the twin reproduces production until policy owners decide otherwise."
+}
