@@ -159,7 +159,10 @@ def run_verification(profile="demo", seed=DEFAULT_SEED, mutation=None, on_event=
         payload["mutation"] = mutation
         counterexamples.save(cx_dir_local, payload)
         if not mutation:
-            counterexamples.save(GLOBAL_CX, payload)
+            try:
+                counterexamples.save(GLOBAL_CX, payload)
+            except OSError:
+                pass
         saved.append(payload)
         on_event({"type": "counterexample", "counterexample": payload})
 
