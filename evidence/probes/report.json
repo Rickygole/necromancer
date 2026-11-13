@@ -1,0 +1,47 @@
+{
+  "compiler": "cobc (GnuCOBOL) 3.1.2.0",
+  "probes": {
+    "compound": {
+      "ok": true,
+      "lines": [
+        "compound 0000031.25",
+        "stepwise 0000031.24"
+      ]
+    },
+    "nonnumeric": {
+      "ok": true,
+      "lines": [
+        "spaces not-numeric",
+        "letters not-numeric",
+        "signed not-numeric",
+        "digits numeric"
+      ]
+    },
+    "overflow": {
+      "ok": true,
+      "lines": [
+        "move 234",
+        "compute 234",
+        "add 050",
+        "size-error-fired",
+        "after-size-error 777"
+      ]
+    },
+    "rounded": {
+      "ok": true,
+      "lines": [
+        "rounded-pos +003",
+        "rounded-neg -003",
+        "trunc-pos +002",
+        "trunc-neg -002"
+      ]
+    },
+    "sign": {
+      "ok": true,
+      "lines": [
+        "unsigned 00000.01",
+        "signed -00000.01"
+      ]
+    }
+  }
+}
