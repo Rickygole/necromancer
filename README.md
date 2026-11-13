@@ -12,7 +12,7 @@ Results are evidence over the cases counted in each run, with the count and the 
 - The three legacy quirks (narrow quotient wrap, unsigned subtraction, offset field wrap) were written into the COBOL on purpose so the oracle has something real to find. Their behavior was measured on the compiler, not assumed.
 - The mismatch shown in the guided demo is an injected mutation (M4), labelled as such. It is a demonstration of the harness catching a regression, not a legacy finding.
 - The three decision records in `decisions/` choose to preserve legacy behavior. The reviewer delegated those choices and has not yet confirmed them.
-- The case counts differ on purpose: the demo profile runs 3,394 cases, the full profile runs 42,137, and the mutation score uses a separate fixed set of 4,048 cases. All use seed 731942.
+- The case counts differ on purpose: the demo profile runs 3,291 cases, the full profile runs 41,260, and the mutation score uses a separate fixed set of 4,090 cases. All use seed 731942.
 
 ## Build disclosure
 
@@ -26,7 +26,7 @@ The repository was built in a single working session, so the commit history is d
 2. `modern/` holds a Python twin that was first written from the business rules table only, and committed before the first oracle run.
 3. `harness/` generates golden, boundary, invalid and property based cases, runs both sides on identical bytes, compares every field exactly, and shrinks each failure to a minimal claimant.
 4. Each class of difference needs a decision: preserve the legacy behavior or correct it.
-5. Five named mutations check that the tests have teeth. All five are caught. Three further hidden mutants, found by a review of the first corpus, are also caught.
+5. Five named mutations check that the tests have teeth. All five are caught. Five further hidden mutants, found by reviews of the corpus, are also caught.
 
 ## Run it
 

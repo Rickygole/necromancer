@@ -90,7 +90,7 @@ With no decision, or `correct`, the twin uses the stated rules. All three curren
 
 ## Mutations
 
-`modern/mutations.py` defines M1 to M5. A mutation id passed to `calc` changes one rule in the twin: M1 rounds the base, M2 caps at 651.00, M3 starts the exemption above 62, M4 clamps net to zero, M5 truncates wages / 52 before applying 65 percent. `harness/mutation_score.py` runs each against the oracle with the legacy behaviors on. `evidence/mutation_score.json` records 5 of 5 caught on 4048 cases, with 0 baseline mismatches. Runs with a mutation save counterexamples with `mx_` ids and never write to the global counterexample directory.
+`modern/mutations.py` defines M1 to M5. A mutation id passed to `calc` changes one rule in the twin: M1 rounds the base, M2 caps at 651.00, M3 starts the exemption above 62, M4 clamps net to zero, M5 truncates wages / 52 before applying 65 percent. `harness/mutation_score.py` runs each against the oracle with the legacy behaviors on. `evidence/mutation_score.json` records 5 of 5 named and 5 of 5 hidden mutants caught on 4090 cases, with 0 baseline mismatches. Runs with a mutation save counterexamples with `mx_` ids and never write to the global counterexample directory.
 
 The demo mutation is applied by patching `evidence/demo/twin.config.json` with `backend/patches/apply-Mx.patch` and reverted with `fix-Mx.patch`.
 
