@@ -1,0 +1,27 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install GnuCOBOL
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gnucobol3
+          sudo ln -sf "$(command -v cobc || command -v cobc3)" /usr/local/bin/cobc
+          cobc --version
+      - name: Install Python packages
+        run: pip install -r requirements.txt
+      - name: Build the oracle
+        run: sh oracle/build.sh
+      - name: Run tests
+        run: python -m pytest tests -q
