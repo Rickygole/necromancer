@@ -113,7 +113,7 @@ export function Legacy() {
                 </p>
                 <h3 className="quirk__name">{q.name}</h3>
                 <p className="quirk__cause">{q.cause}</p>
-                <pre className="crt crt--code" tabIndex={0} aria-label={`COBOL behind ${q.name}`}>
+                <pre className="crt crt--code" tabIndex={0} role="region" aria-label={`COBOL behind ${q.name}`}>
                   <code>{q.code}</code>
                 </pre>
                 <ol className="quirk__steps">

@@ -367,7 +367,7 @@ export function Circle(props: Props) {
       </form>
 
       {demo ? (
-        <div className="block" aria-labelledby="demo-title">
+        <div className="block" role="group" aria-labelledby="demo-title">
           <div className="block__head">
             <h3 id="demo-title">Guided demo</h3>
             <p className="hint">{replayOnly ? "Recorded runs, in order" : "Real API calls, in order"}</p>
@@ -400,7 +400,7 @@ export function Circle(props: Props) {
         </div>
       ) : null}
 
-      <div className="block" aria-labelledby="cx-title">
+      <div className="block" role="group" aria-labelledby="cx-title">
         <div className="block__head">
           <h3 id="cx-title">Counterexamples</h3>
           <p className="hint num">
@@ -439,7 +439,7 @@ export function Circle(props: Props) {
         )}
       </div>
 
-      <div className="block" aria-labelledby="decisions-title">
+      <div className="block" role="group" aria-labelledby="decisions-title">
         <div className="block__head">
           <h3 id="decisions-title">Human decisions</h3>
           <p className="hint">One per mismatch class</p>
@@ -470,7 +470,7 @@ export function Circle(props: Props) {
         )}
       </div>
 
-      <div className="block" aria-labelledby="recorded-decisions-title">
+      <div className="block" role="group" aria-labelledby="recorded-decisions-title">
         <div className="block__head">
           <h3 id="recorded-decisions-title">Recorded decisions</h3>
           <p className="hint num">{count(props.decisions.length)} on file</p>

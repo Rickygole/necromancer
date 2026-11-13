@@ -23,7 +23,7 @@ interface Props {
 function DiffText({ text }: { text: string }) {
   const lines = text.replace(/\n$/, "").split("\n");
   return (
-    <pre className="patch" tabIndex={0} aria-label="Patch diff">
+    <pre className="patch" tabIndex={0} role="region" aria-label="Patch diff">
       <code>
         {lines.map((line, i) => {
           let cls = "patch__line";

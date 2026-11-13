@@ -149,7 +149,7 @@ export function ApiTester({ runId }: { runId: string | null }) {
                 </span>{" "}
                 in {response.ms} ms
               </p>
-              <pre className="tester__body mono" tabIndex={0} aria-label="Response body">
+              <pre className="tester__body mono" tabIndex={0} role="region" aria-label="Response body">
                 {typeof response.body === "string" ? response.body : JSON.stringify(response.body, null, 2)}
               </pre>
             </div>

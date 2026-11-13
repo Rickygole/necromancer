@@ -37,9 +37,10 @@ export function SourceViewer({ label, text, error, lit, window: range }: Props) 
 
   if (!text) {
     return (
-      <div className="source source--loading" aria-busy="true" aria-label={`${label}, loading`}>
+      <div className="source source--loading" aria-busy="true">
+        <span className="visually-hidden">{`${label}, loading`}</span>
         {Array.from({ length: 12 }, (_, i) => (
-          <span key={i} className="skeleton-line" style={{ width: `${40 + ((i * 37) % 50)}%` }} />
+          <span key={i} className="skeleton-line" aria-hidden="true" style={{ width: `${40 + ((i * 37) % 50)}%` }} />
         ))}
       </div>
     );
@@ -48,7 +49,7 @@ export function SourceViewer({ label, text, error, lit, window: range }: Props) 
   const [from, to] = range ?? [0, lines.length];
 
   return (
-    <pre ref={scroller} className="source" tabIndex={0} aria-label={label}>
+    <pre ref={scroller} className="source" tabIndex={0} role="region" aria-label={label}>
       <code>
         {lines.slice(from, to).map((line, offset) => {
           const index = from + offset;

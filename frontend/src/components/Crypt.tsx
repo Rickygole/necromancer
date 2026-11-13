@@ -93,7 +93,7 @@ export function Crypt({ focus, claimId, onPickClaim }: Props) {
             </option>
           ))}
         </select>
-        <p className="record mono" aria-label="Raw 80 byte input record">
+        <p className="record mono" role="group" aria-label="Raw 80 byte input record">
           {claim.record.replace(/ /g, "·")}
         </p>
         <RecordFields record={claim.record} fields={INPUT_FIELDS} caption="Input record layout, 80 bytes" />
