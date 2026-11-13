@@ -1,0 +1,16 @@
+{
+  "id": "dec_0001",
+  "class": "base+net|t6.8",
+  "field": "base",
+  "counterexample_ids": [
+    "cx_0001"
+  ],
+  "options_considered": [
+    "preserve",
+    "correct"
+  ],
+  "choice": "preserve",
+  "reviewer": "Ricky Gole",
+  "date": "2026-11-12",
+  "note": "Narrow quotient wrap above 26000.00 high quarter. Reviewer delegated the choice during the build; preserving legacy behavior so the twin reproduces production until policy owners decide otherwise."
+}
