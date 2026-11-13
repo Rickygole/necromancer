@@ -4,9 +4,10 @@ interface Props {
   oracle: string;
   twin: string;
   caption: string;
+  mismatch?: boolean;
 }
 
-export function TraceTable({ oracle, twin, caption }: Props) {
+export function TraceTable({ oracle, twin, caption, mismatch = false }: Props) {
   const differences = TRACE_POSITIONS.filter((p) => (oracle[p.pos - 1] ?? "0") !== (twin[p.pos - 1] ?? "0")).length;
   return (
     <div className="trace-wrap">
@@ -14,7 +15,11 @@ export function TraceTable({ oracle, twin, caption }: Props) {
         <caption>
           {caption}
           <span className="trace__summary">
-            {differences === 0 ? "All 10 bits agree" : `${differences} of 10 bits differ`}
+            {differences === 0
+              ? mismatch
+                ? "All 10 trace bits agree. The disagreement is in the amounts, not the rule trace."
+                : "All 10 trace bits agree."
+              : `${differences} of 10 bits differ`}
           </span>
         </caption>
         <thead>

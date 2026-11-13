@@ -50,7 +50,7 @@ export function CounterexampleCard({ cx, focused, busy, onFocus, onRerun }: Prop
 
       <OutputDiff oracle={cx.oracle_output} twin={cx.twin_output} fields={OUTPUT_FIELDS} />
 
-      <TraceTable oracle={cx.trace_diff.oracle} twin={cx.trace_diff.twin} caption="Trace bits" />
+      <TraceTable oracle={cx.trace_diff.oracle} twin={cx.trace_diff.twin} caption="Trace bits" mismatch />
 
       <details className="disclosure">
         <summary>Input record, split into fields</summary>

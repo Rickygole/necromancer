@@ -11,9 +11,13 @@ export function MotionToggle() {
     );
   }
   return (
-    <button type="button" className="motion-toggle" aria-pressed={motion.paused} onClick={toggleMotion}>
+    <button
+      type="button"
+      className={`motion-toggle${motion.paused ? " motion-toggle--paused" : ""}`}
+      onClick={toggleMotion}
+    >
       <span aria-hidden="true" className="motion-toggle__dot" />
-      {motion.paused ? "motion paused" : "pause motion"}
+      <span className="motion-toggle__text">{motion.paused ? "resume motion" : "pause motion"}</span>
     </button>
   );
 }
