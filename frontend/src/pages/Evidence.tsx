@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api, describeError } from "../api";
 import { Blot, CoffeeRing, Stitches, Tally, WaxSeal } from "../components/Doodles";
 import { OutputDiff, RecordFields } from "../components/RecordFields";
@@ -11,6 +11,8 @@ import { DEMO_SEED, HIDDEN_MUTANTS, MUTATIONS, useMutationScore } from "../conte
 import { INPUT_FIELDS, OUTPUT_FIELDS, formatValue } from "../records";
 import { count, toStatus } from "../status";
 import type { Counterexample, Decision, Snapshot, StoryRun } from "../types";
+
+const SLOW_AFTER_MS = 6000;
 
 type Load = { phase: "loading" } | { phase: "error"; message: string } | { phase: "ready"; snapshot: Snapshot };
 
@@ -47,6 +49,9 @@ function shrunk(snapshot: Snapshot): Counterexample | null {
 
 export function Evidence() {
   const [load, setLoad] = useState<Load>({ phase: "loading" });
+  const [attempt, setAttempt] = useState(0);
+  const [slow, setSlow] = useState(false);
+  const statusRef = useRef<HTMLDivElement>(null);
   const [decisions, setDecisions] = useState<Decision[] | null>(null);
   const score = useMutationScore();
   const cases = score.cases;
@@ -56,10 +61,22 @@ export function Evidence() {
 
   useEffect(() => {
     let live = true;
+    setLoad({ phase: "loading" });
+    setSlow(false);
+    const timer = window.setTimeout(() => live && setSlow(true), SLOW_AFTER_MS);
     api
       .snapshot()
       .then((snapshot) => live && setLoad({ phase: "ready", snapshot }))
-      .catch((err) => live && setLoad({ phase: "error", message: describeError(err).message }));
+      .catch((err) => live && setLoad({ phase: "error", message: describeError(err).message }))
+      .finally(() => window.clearTimeout(timer));
+    return () => {
+      live = false;
+      window.clearTimeout(timer);
+    };
+  }, [attempt]);
+
+  useEffect(() => {
+    let live = true;
     api
       .decisions()
       .then((list) => live && setDecisions(list))
@@ -68,6 +85,11 @@ export function Evidence() {
       live = false;
     };
   }, []);
+
+  const retry = () => {
+    setAttempt((n) => n + 1);
+    statusRef.current?.focus();
+  };
 
   const snapshot = load.phase === "ready" ? load.snapshot : null;
   const cx = snapshot ? shrunk(snapshot) : null;
@@ -90,11 +112,35 @@ export function Evidence() {
         <h2 id="story-title" className="section-title">
           the recorded story
         </h2>
+        <div className="evidence__status" ref={statusRef} tabIndex={-1} role="status" aria-live="polite">
+          {load.phase === "loading" ? (
+            <div className="evidence__loading">
+              <span className="evidence__spinner" aria-hidden="true" />
+              <p>
+                {slow
+                  ? "Still fetching the recorded snapshot. The server is slow to answer; it may be waking up."
+                  : "Fetching the recorded snapshot from the server."}
+              </p>
+              {slow ? (
+                <button type="button" className="button button--small" onClick={retry}>
+                  Try again
+                </button>
+              ) : null}
+            </div>
+          ) : load.phase === "ready" ? (
+            <p className="visually-hidden">Recorded snapshot loaded.</p>
+          ) : null}
+        </div>
         {load.phase === "error" ? (
-          <p className="notice notice--error" role="alert">
-            The snapshot at /api/snapshot could not be loaded. {load.message} The story needs the server. The mutation
-            score further down is part of the page and still reads fine.
-          </p>
+          <div className="notice notice--error evidence__error" role="alert">
+            <p>
+              The snapshot at <span className="mono">/api/snapshot</span> could not be loaded. {load.message} The story
+              needs the server. The mutation score further down is part of the page and still reads fine.
+            </p>
+            <button type="button" className="button button--small" onClick={retry}>
+              Try again
+            </button>
+          </div>
         ) : null}
         <ol className="sheets">
           {STORY.map((item, i) => {
@@ -107,10 +153,10 @@ export function Evidence() {
                   <p className="sheet__kicker mono">{item.kicker}</p>
                   <h3 className="sheet__title">{item.title}</h3>
                   {load.phase === "loading" ? (
-                    <div className="sheet__skeleton" aria-hidden="true">
-                      <span />
-                      <span />
-                      <span />
+                    <div className="sheet__skeleton">
+                      <span aria-hidden="true" />
+                      <span aria-hidden="true" />
+                      <p className="sheet__skeleton-text">Loading this sheet</p>
                     </div>
                   ) : run ? (
                     <>
@@ -167,12 +213,12 @@ export function Evidence() {
         </p>
       </section>
 
-      <section className="specimen" aria-labelledby="cx-title">
+      <section className="specimen" aria-labelledby="specimen-title">
         <Reveal className="specimen__sheet paper">
           <Stitches className="specimen__stitch" />
           <header className="specimen__head">
             <p className="sheet__kicker mono">specimen</p>
-            <h2 id="cx-title" className="section-title">
+            <h2 id="specimen-title" className="section-title">
               the shrunk counterexample
             </h2>
             {cx ? (
@@ -189,7 +235,9 @@ export function Evidence() {
             ) : null}
           </header>
           {load.phase === "loading" ? (
-            <div className="specimen__skeleton" aria-hidden="true" />
+            <div className="specimen__skeleton">
+              <p className="sheet__skeleton-text">Loading the counterexample</p>
+            </div>
           ) : cx ? (
             <>
               {cx.mutation ? (
@@ -200,7 +248,7 @@ export function Evidence() {
                 the disagreement going too. This is what was left. Ids starting with mx_ come from injected mutations,
                 ids starting with cx_ are legacy findings.
               </p>
-              <p className="record mono specimen__raw" aria-label="Raw 80 byte input record">
+              <p className="record mono specimen__raw" role="group" aria-label="Raw 80 byte input record">
                 {cx.input_record.replace(/ /g, "·")}
               </p>
               <div className="specimen__grid">
@@ -312,9 +360,9 @@ export function Evidence() {
           </p>
           <Tally count={5} className="ledger__tally" />
           <div className="hidden-mutants">
-            <h3>three hidden mutants, added late</h3>
+            <h3>five hidden mutants, added late</h3>
             <p>
-              A review found gaps in the first corpus, so three more mutants went in afterwards. They are listed here
+              A review found gaps in the first corpus, so five more mutants went in afterwards. They are listed here
               because leaving them out would make the score above look tidier than the history was.{" "}
               {score.hidden_caught} of {score.hidden_total} hidden mutants caught, over the same {count(cases)} cases.
             </p>
