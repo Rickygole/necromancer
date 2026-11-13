@@ -543,6 +543,41 @@ textarea {
   transition: width 200ms var(--ease-out);
 }
 
+.progress__fill--wait {
+  width: 30%;
+  animation: wait-slide 1600ms var(--ease-out) infinite;
+}
+
+@keyframes wait-slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(340%);
+  }
+}
+
+.run-failed {
+  display: grid;
+  gap: var(--s-2);
+  justify-items: start;
+  padding: var(--s-3);
+  border-left: 3px solid var(--mismatch);
+  border-radius: var(--radius);
+  background: var(--mismatch-wash);
+}
+
+.run-failed__title {
+  margin: 0;
+  font-weight: 600;
+  color: var(--bone);
+}
+
+.run-failed .verdict__text,
+.run-failed .hint {
+  margin: 0;
+}
+
 .progress__stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
@@ -599,6 +634,10 @@ fieldset legend {
 
 .input:hover {
   border-color: var(--bone-faint);
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--mismatch);
 }
 
 .input::placeholder {
@@ -1430,6 +1469,20 @@ input[type="checkbox"] {
   color: var(--mismatch);
 }
 
+.step--skipped {
+  color: var(--bone-faint);
+}
+
+.step--skipped .step__mark {
+  border-style: dashed;
+}
+
+.step__time {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--bone-dim);
+}
+
 .patch {
   margin: 0;
   max-height: 18rem;
@@ -1554,6 +1607,14 @@ input[type="checkbox"] {
 }
 
 @media (max-width: 480px) {
+  .controls .row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .controls select.input {
+    font-size: var(--t-sm);
+  }
+
   .verdict {
     grid-template-columns: 1fr;
   }
@@ -1572,6 +1633,12 @@ input[type="checkbox"] {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .progress__fill--wait {
+    animation: none;
+    width: 100%;
+    opacity: 0.4;
+  }
+
   *,
   *::before,
   *::after {

@@ -209,7 +209,7 @@ a:hover {
   box-shadow: 0 0 6px var(--pumpkin);
 }
 
-.motion-toggle[aria-pressed="true"] .motion-toggle__dot,
+.motion-toggle--paused .motion-toggle__dot,
 .motion-toggle--system .motion-toggle__dot {
   background: transparent;
   box-shadow: inset 0 0 0 1.5px var(--bone-faint);
@@ -811,7 +811,7 @@ a:hover {
 
 .stone__small {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: var(--t-xs);
   letter-spacing: 0.32em;
   text-transform: uppercase;
 }
@@ -828,15 +828,15 @@ a:hover {
 .stone__pic {
   margin-top: 0.7rem;
   font-family: var(--font-mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.04em;
+  font-size: var(--t-xs);
+  letter-spacing: 0.02em;
 }
 
 .stone__epitaph {
   margin-top: 0.9rem;
   font-family: var(--font-text);
   font-style: italic;
-  font-size: 0.72rem;
+  font-size: var(--t-xs);
   line-height: 1.45;
 }
 
@@ -1100,7 +1100,7 @@ a:hover {
 }
 
 .toe-tag__label {
-  font-size: 0.68rem;
+  font-size: var(--t-xs);
   letter-spacing: 0.06em;
   color: var(--paper-dim);
   border-bottom: 1px solid rgba(28, 24, 20, 0.3);
@@ -2717,6 +2717,75 @@ a:hover {
   }
   to {
     transform: translate3d(-14px, 8px, 0) rotate(5deg);
+  }
+}
+
+@media (max-width: 700px) {
+  .site-head {
+    flex-wrap: nowrap;
+    gap: var(--s-3);
+    min-height: 3rem;
+    padding-block: var(--s-1);
+  }
+
+  .logo {
+    flex: none;
+  }
+
+  .logo__word {
+    font-size: 1.2rem;
+  }
+
+  .site-nav {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .site-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .site-nav ol {
+    flex-wrap: nowrap;
+    gap: var(--s-3);
+  }
+
+  .site-nav a {
+    white-space: nowrap;
+  }
+
+  .site-nav__num {
+    display: none;
+  }
+
+  .motion-toggle {
+    position: relative;
+    flex: none;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .motion-toggle__text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .motion-toggle--system {
+    display: none;
+  }
+}
+
+@media (max-height: 500px), (max-width: 320px) {
+  .site-head {
+    position: static;
   }
 }
 
