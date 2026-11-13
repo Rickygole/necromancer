@@ -16,7 +16,7 @@ const DEMO_LABELS = [
   "Approval card",
 ];
 
-const PATCH_ID = "fix_mutation";
+const DEFAULT_PATCH_MUTATION = "M4";
 const HOLD_SHORT = 1200;
 const HOLD_LONG = 4000;
 
@@ -131,9 +131,9 @@ export function App() {
     [replayOnly, replaySnapshot, runner, controls, injected],
   );
 
-  const applyPatch = useCallback(async () => {
+  const applyPatch = useCallback(async (mutationId: string) => {
     setPatch({ phase: "applying", diff: null, runId: null, error: null });
-    const result = await api.applyPatch(PATCH_ID);
+    const result = await api.applyPatch("fix-" + mutationId);
     const diff = typeof result.diff === "string" ? result.diff : typeof result.patch === "string" ? result.patch : null;
     setPatch({ phase: "applied", diff, runId: result.run_id, error: null });
     setInjected(null);
@@ -143,12 +143,12 @@ export function App() {
 
   const onExorcise = useCallback(async () => {
     try {
-      const runId = await applyPatch();
+      const runId = await applyPatch(injected ?? DEFAULT_PATCH_MUTATION);
       if (runId) await runner.follow(runId);
     } catch (err) {
       setPatch({ phase: "error", diff: null, runId: null, error: describeError(err).message });
     }
-  }, [applyPatch, runner]);
+  }, [applyPatch, runner, injected]);
 
   const onDemo = useCallback(async () => {
     setDemoRunning(true);
@@ -163,9 +163,9 @@ export function App() {
     try {
       if (replayOnly) {
         for (let i = 1; i < steps.length; i += 1) update(i, { note: "Needs the live oracle" });
-        update(0, { state: "active", note: "Replaying recorded evidence instead" });
+        update(0, { state: "active", label: "Replay recorded evidence", note: "The live story needs the oracle" });
         const result = await replaySnapshot();
-        update(0, { state: "done", result, note: "Replayed recorded evidence" });
+        update(0, { state: "done", result, note: "Recorded from an earlier real run" });
         return;
       }
       const seed = controls.seed ? Number(controls.seed) : Math.floor(Math.random() * 900000) + 100000;
@@ -191,7 +191,7 @@ export function App() {
 
       current = 3;
       update(3, { state: "active" });
-      const rerunId = await applyPatch();
+      const rerunId = await applyPatch("M4");
       const healed = await runner.follow(rerunId);
       update(3, { state: "done", result: healed });
 
@@ -283,11 +283,11 @@ export function App() {
           </div>
           <div>
             <dt>Compiler</dt>
-            <dd className="mono">{health?.compiler ?? "unknown"}</dd>
+            <dd className="mono">{health?.compiler_version ?? "unknown"}</dd>
           </div>
           <div>
             <dt>Version</dt>
-            <dd className="mono">{health?.version ?? "unknown"}</dd>
+            <dd className="mono">{health?.app_version ?? "unknown"}</dd>
           </div>
           {health?.hosted ? (
             <div>

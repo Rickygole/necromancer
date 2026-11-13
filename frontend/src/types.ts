@@ -9,8 +9,8 @@ export type Status =
 export type Profile = "dev" | "demo" | "full";
 
 export interface Health {
-  version: string;
-  compiler: string;
+  app_version: string;
+  compiler_version: string;
   oracle_available: boolean;
   hosted: boolean;
 }
