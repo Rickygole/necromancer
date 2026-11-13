@@ -93,7 +93,7 @@ export const QUIRKS: Quirk[] = [
     ],
     rules: "0.00",
     legacy: "0.01",
-    note: "Rule R8 says never below zero. Any offset larger than the benefit triggers it, and the amounts are not always pennies: q1 and q2 of 2,500.00 with a 100.00 pension pays 37.50 a week on the oracle, where the rules say 0.00. Mutation M4 is the polite fix, a clamp to zero, and because this case is so common it hits 1,646 of 4,048 cases.",
+    note: "Rule R8 says never below zero. Any offset larger than the benefit triggers it, and the amounts are not always pennies: q1 and q2 of 2,500.00 with a 100.00 pension pays 37.50 a week on the oracle, where the rules say 0.00. Mutation M4 is the polite fix, a clamp to zero, and because this case is so common it hits 1,646 of 4,090 cases.",
   },
   {
     id: "Q3",
@@ -118,11 +118,11 @@ export interface MutationRow {
   caught: number;
 }
 
-export const MUTATION_CASES = 4048;
+export const MUTATION_CASES = 4090;
 export const DEMO_SEED = 731942;
-export const DEMO_CASES = 3394;
-export const INJECTED_MISMATCHED = 443;
-export const FULL_CASES = 42137;
+export const DEMO_CASES = 3291;
+export const INJECTED_MISMATCHED = 424;
+export const FULL_CASES = 41260;
 export const BASELINE_MISMATCHES = 0;
 
 export const MUTATIONS: MutationRow[] = [
@@ -130,13 +130,15 @@ export const MUTATIONS: MutationRow[] = [
   { id: "M2", label: "cap off by one", description: "Base benefit cap is 651.00 instead of 650.00.", caught: 880 },
   { id: "M3", label: "exemption above 62", description: "Retirement exemption starts above age 62 instead of at 62.", caught: 97 },
   { id: "M4", label: "clamp net", description: "Explicitly clamp a negative net payout to zero.", caught: 1646 },
-  { id: "M5", label: "early truncation", description: "Truncate total wages / 52 to cents before applying 65 percent.", caught: 112 },
+  { id: "M5", label: "early truncation", description: "Truncate total wages / 52 to cents before applying 65 percent.", caught: 119 },
 ];
 
 export const HIDDEN_MUTANTS: { id: string; description: string; caught: number }[] = [
   { id: "H1", description: "Quarter counting ignores the quarter shift.", caught: 371 },
   { id: "H2", description: "Dependents above 12 are treated as 3.", caught: 1240 },
   { id: "H3", description: "Age is read modulo 18.", caught: 315 },
+  { id: "H4", description: "The wage ceiling check trips when the benefit equals the ceiling.", caught: 1 },
+  { id: "H5", description: "A quarter counts only at 1.00 or more instead of above zero.", caught: 1 },
 ];
 
 export const STAGED: string[] = [
