@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { casesOf } from "../status";
 import type { Report, Status } from "../types";
 import { StatusBadge } from "./StatusBadge";
@@ -28,11 +28,23 @@ export function ApprovalCard({ report, verdict, simulated, replay, onSubmit }: P
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [invalid, setInvalid] = useState<"reviewer" | "note" | null>(null);
+  const reviewerRef = useRef<HTMLInputElement>(null);
+  const noteRef = useRef<HTMLTextAreaElement>(null);
   const [outcome, setOutcome] = useState<{ approved: boolean; reviewer: string } | null>(null);
 
   const undecided = report.decision_coverage?.undecided ?? [];
-  const blocked = verdict === "MISMATCH" && undecided.length > 0;
-  const canApprove = verdict === "MATCH" || verdict === "APPROVAL REQUIRED" || (verdict === "MISMATCH" && !blocked);
+  const mutation = report.mutation || null;
+  const blockReason = mutation
+    ? `This run has mutation ${mutation} injected. A mutated twin is a planted bug, never a candidate, so its mismatches never count as decided and it cannot be approved. Reject it, or remove the mutation and rerun.`
+    : verdict === "MISMATCH"
+      ? undecided.length > 0
+        ? `The verdict is MISMATCH and ${undecided.length} mismatch ${undecided.length === 1 ? "class has" : "classes have"} no human decision yet: ${undecided.join(", ")}. A run that disagrees with the oracle cannot be approved.`
+        : "The verdict is MISMATCH. A run that disagrees with the oracle cannot be approved, whatever the decisions say. Reject it, or fix the twin and rerun."
+      : verdict !== "MATCH" && verdict !== "APPROVAL REQUIRED"
+        ? `The verdict is ${verdict}, so there is nothing to approve.`
+        : null;
+  const canApprove = blockReason === null;
   const score =
     report.mutation_score === undefined || report.mutation_score === null
       ? "Not measured in this run"
@@ -43,14 +55,19 @@ export function ApprovalCard({ report, verdict, simulated, replay, onSubmit }: P
   const send = async (approved: boolean) => {
     if (!reviewer.trim()) {
       setError("Add a reviewer name before signing.");
+      setInvalid("reviewer");
+      reviewerRef.current?.focus();
       return;
     }
     if (!approved && !note.trim()) {
       setError("Say why in the note when rejecting.");
+      setInvalid("note");
+      noteRef.current?.focus();
       return;
     }
     setSaving(true);
     setError(null);
+    setInvalid(null);
     try {
       await onSubmit(approved, reviewer.trim(), note.trim());
       setOutcome({ approved, reviewer: reviewer.trim() });
@@ -78,8 +95,12 @@ export function ApprovalCard({ report, verdict, simulated, replay, onSubmit }: P
             <span aria-hidden="true">{outcome.approved ? "✓" : "✕"}</span>{" "}
             {outcome.approved ? "Approved" : "Rejected"} by {outcome.reviewer}
           </p>
-        ) : (
+        ) : canApprove ? (
           <StatusBadge status="APPROVAL REQUIRED" />
+        ) : (
+          <p className="rejected">
+            <span aria-hidden="true">{"✕"}</span> Not approvable
+          </p>
         )}
       </header>
 
@@ -134,10 +155,9 @@ export function ApprovalCard({ report, verdict, simulated, replay, onSubmit }: P
         <p className="empty">No limitations were recorded with this report.</p>
       )}
 
-      {blocked ? (
-        <p className="notice notice--warn" role="note">
-          {undecided.length} mismatch {undecided.length === 1 ? "class has" : "classes have"} no human decision yet:{" "}
-          <span className="mono">{undecided.join(", ")}</span>. Approval waits until each is decided.
+      {blockReason ? (
+        <p className="notice notice--warn" role="note" id={`${id}-why`}>
+          {blockReason}
         </p>
       ) : null}
 
@@ -146,7 +166,10 @@ export function ApprovalCard({ report, verdict, simulated, replay, onSubmit }: P
           <label htmlFor={`${id}-reviewer`}>Reviewer</label>
           <input
             id={`${id}-reviewer`}
+            ref={reviewerRef}
             className="input"
+            aria-invalid={invalid === "reviewer" ? true : undefined}
+            aria-describedby={invalid === "reviewer" ? `${id}-error` : undefined}
             value={reviewer}
             onChange={(e) => setReviewer(e.target.value)}
             autoComplete="name"
@@ -155,15 +178,30 @@ export function ApprovalCard({ report, verdict, simulated, replay, onSubmit }: P
       </div>
       <div className="field">
         <label htmlFor={`${id}-note`}>Note</label>
-        <textarea id={`${id}-note`} className="input" rows={2} value={note} onChange={(e) => setNote(e.target.value)} />
+        <textarea
+          id={`${id}-note`}
+          ref={noteRef}
+          className="input"
+          rows={2}
+          value={note}
+          aria-invalid={invalid === "note" ? true : undefined}
+          aria-describedby={invalid === "note" ? `${id}-error` : undefined}
+          onChange={(e) => setNote(e.target.value)}
+        />
       </div>
       {error ? (
-        <p className="notice notice--error" role="alert">
+        <p className="notice notice--error" role="alert" id={`${id}-error`}>
           {error}
         </p>
       ) : null}
       <div className="button-row">
-        <button type="button" className="button button--match" disabled={saving || !canApprove} onClick={() => send(true)}>
+        <button
+          type="button"
+          className="button button--match"
+          disabled={saving || !canApprove}
+          aria-describedby={blockReason ? `${id}-why` : undefined}
+          onClick={() => send(true)}
+        >
           Approve
         </button>
         <button type="button" className="button button--danger" disabled={saving} onClick={() => send(false)}>
