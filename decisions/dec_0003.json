@@ -1,0 +1,16 @@
+{
+  "id": "dec_0003",
+  "class": "net+offset",
+  "field": "offset",
+  "counterexample_ids": [
+    "cx_0003"
+  ],
+  "options_considered": [
+    "preserve",
+    "correct"
+  ],
+  "choice": "preserve",
+  "reviewer": "Ricky Gole",
+  "date": "2026-11-12",
+  "note": "Offset field wraps past 99999.99. Reviewer delegated the choice during the build; preserving legacy behavior so the twin reproduces production until policy owners decide otherwise."
+}
