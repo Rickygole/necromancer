@@ -11,7 +11,7 @@ from typing import List, Literal, Optional
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, StrictInt
 from sse_starlette.sse import EventSourceResponse
 
 from backend import errors, patches, runs, store
@@ -32,6 +32,62 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+BODY_LIMIT = 64 * 1024
+
+
+class BodyLimit:
+    def __init__(self, inner, limit=BODY_LIMIT):
+        self.inner = inner
+        self.limit = limit
+
+    async def refuse(self, send):
+        payload = json.dumps(
+            errors.body("BAD_REQUEST", "request body is larger than %d bytes" % self.limit, {"max_bytes": self.limit})
+        ).encode()
+        await send({
+            "type": "http.response.start",
+            "status": 413,
+            "headers": [(b"content-type", b"application/json"), (b"content-length", str(len(payload)).encode())],
+        })
+        await send({"type": "http.response.body", "body": payload})
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http" or scope["method"] != "POST":
+            await self.inner(scope, receive, send)
+            return
+        declared = dict(scope["headers"]).get(b"content-length", b"")
+        if declared.isdigit() and int(declared) > self.limit:
+            await self.refuse(send)
+            return
+        chunks = []
+        size = 0
+        more = True
+        while more:
+            message = await receive()
+            if message["type"] != "http.request":
+                await self.inner(scope, receive, send)
+                return
+            chunk = message.get("body", b"")
+            size += len(chunk)
+            if size > self.limit:
+                await self.refuse(send)
+                return
+            chunks.append(chunk)
+            more = message.get("more_body", False)
+        body = b"".join(chunks)
+        sent = False
+
+        async def replay():
+            nonlocal sent
+            if sent:
+                return await receive()
+            sent = True
+            return {"type": "http.request", "body": body, "more_body": False}
+
+        await self.inner(scope, replay, send)
+
+
+app.add_middleware(BodyLimit)
 LIVE_SLOTS = threading.BoundedSemaphore(2)
 SEED_MAX = 2**31 - 1
 STREAM_SECONDS = 180
@@ -40,7 +96,7 @@ errors.install(app)
 
 class RunRequest(BaseModel):
     profile: str
-    seed: Optional[int] = None
+    seed: Optional[StrictInt] = None
     mutation: Optional[str] = None
     use_demo_config: bool = False
 
@@ -169,7 +225,7 @@ def live_run(req: RunRequest):
     if not 0 <= seed <= SEED_MAX:
         raise bad("seed out of range", {"max": SEED_MAX})
     if not LIVE_SLOTS.acquire(blocking=False):
-        raise errors.ApiError("RUNTIME_ERROR", "the oracle is busy, try again in a moment", {"retry": True})
+        raise errors.ApiError("BUSY", "the oracle is busy, try again in a moment", {"retry": True})
     try:
         with tempfile.TemporaryDirectory(prefix="necro-live-") as scratch:
             report = engine.run_verification(
