@@ -9,6 +9,6 @@
   },
   "then": {
     "type": "askAgent",
-    "prompt": "Re-derive the property list from the requirements and flag any rule that has no property."
+    "prompt": "Read the requirements.md next to the changed design.md (or the changed legacy source and the specs), re-derive the property list, and flag any rule that has no property."
   }
 }

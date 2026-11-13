@@ -21,7 +21,7 @@ Input, 80 bytes. Offsets are zero based, ends exclusive.
 | q1, q2, q3, q4 | 9-45, 9 each | 9(7)V99 |
 | dependents | 45-47 | 9(2) |
 | age | 47-49 | 9(2) |
-| retirement code | 49-50 | X, N, V or M |
+| retirement code | 49-50 | X (N, V or M) |
 | pension | 50-57 | 9(5)V99 |
 | severance | 57-64 | 9(5)V99 |
 | quarter flag | 64-65 | X, Y or N |
@@ -90,7 +90,7 @@ With no decision, or `correct`, the twin uses the stated rules. All three curren
 
 ## Mutations
 
-`modern/mutations.py` defines M1 to M5. A mutation id passed to `calc` changes one rule in the twin: M1 rounds the base, M2 caps at 651.00, M3 starts the exemption above 62, M4 clamps net to zero, M5 truncates wages / 52 before applying 65 percent. `harness/mutation_score.py` runs each against the oracle with the legacy behaviors on. `evidence/mutation_score.json` records 5 of 5 caught on 4040 cases, with 0 baseline mismatches. Runs with a mutation save counterexamples with `mx_` ids and never write to the global counterexample directory.
+`modern/mutations.py` defines M1 to M5. A mutation id passed to `calc` changes one rule in the twin: M1 rounds the base, M2 caps at 651.00, M3 starts the exemption above 62, M4 clamps net to zero, M5 truncates wages / 52 before applying 65 percent. `harness/mutation_score.py` runs each against the oracle with the legacy behaviors on. `evidence/mutation_score.json` records 5 of 5 caught on 4048 cases, with 0 baseline mismatches. Runs with a mutation save counterexamples with `mx_` ids and never write to the global counterexample directory.
 
 The demo mutation is applied by patching `evidence/demo/twin.config.json` with `backend/patches/apply-Mx.patch` and reverted with `fix-Mx.patch`.
 

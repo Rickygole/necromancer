@@ -4,7 +4,7 @@ A verification workbench for legacy COBOL migration. A compiled COBOL program is
 
 Live demo: https://necromancer-rickygole32-8911s-projects.vercel.app
 
-Results are evidence over N generated and curated cases. They are never a proof of equivalence.
+Results are evidence over the cases counted in each run, with the count and the seed shown. They are never a proof of equivalence.
 
 ## What is real and what is staged
 
