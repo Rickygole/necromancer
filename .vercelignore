@@ -1,5 +1,4 @@
 frontend/node_modules
-bin
 .venv
 evidence/runs
 evidence/snapshot_runs

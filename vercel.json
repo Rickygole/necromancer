@@ -1,15 +1,18 @@
 {
   "framework": null,
-  "buildCommand": "cd frontend && npm install && npm run build",
+  "buildCommand": "sh scripts/fetch-oracle.sh && cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/dist",
   "functions": {
     "api/index.py": {
-      "includeFiles": "{backend,harness,modern,oracle,decisions,evidence,legacy}/**",
-      "maxDuration": 30
+      "includeFiles": "{backend,harness,modern,oracle,decisions,evidence,legacy,bin}/**",
+      "maxDuration": 60
     }
   },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index" }
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index"
+    }
   ],
   "env": {
     "NECRO_HOSTED": "1",
