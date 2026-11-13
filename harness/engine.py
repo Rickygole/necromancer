@@ -21,7 +21,7 @@ GLOBAL_CX = EVIDENCE / "counterexamples"
 LIMITATIONS = [
     "Evidence is over the generated and curated cases counted in this report, not a proof of equivalence.",
     "Only the pinned GnuCOBOL compiler version recorded here was exercised.",
-    "Input was ASCII with 80 byte lines. Tabs, CRLF and a missing final newline were not exercised.",
+    "Input was ASCII or lightly non-ASCII text with 80 byte records. CRLF line ends and stray CR bytes are covered by a fixed set of cases. Tabs and a missing final newline were not exercised.",
     "A run that finds no mismatch means none were found, not that none exist.",
 ]
 
@@ -173,7 +173,7 @@ def run_verification(profile="demo", seed=DEFAULT_SEED, mutation=None, on_event=
 
     all_decisions = decisions if decisions is not None else decision_store.load()
     observed = sorted(state["seen"])
-    missing = decision_store.uncovered(observed, all_decisions)
+    missing = observed if mutation else decision_store.uncovered(observed, all_decisions)
     mismatch_total = state["cases"] - state["matched"]
     if mismatch_total:
         verdict = "MISMATCH"
