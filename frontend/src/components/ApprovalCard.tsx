@@ -1,6 +1,7 @@
-import { useId, useRef, useState } from "react";
-import { casesOf } from "../status";
-import type { Report, Status } from "../types";
+import { useEffect, useId, useRef, useState } from "react";
+import { api } from "../api";
+import { casesOf, count } from "../status";
+import type { MutationScore, Report, Status } from "../types";
 import { StatusBadge } from "./StatusBadge";
 
 interface Props {
@@ -9,6 +10,12 @@ interface Props {
   simulated: boolean;
   replay: boolean;
   onSubmit: (approved: boolean, reviewer: string, note: string) => Promise<void>;
+}
+
+function recordedSweep(value: MutationScore | null): string | null {
+  if (!value || typeof value.cases !== "number") return null;
+  if (typeof value.named_caught !== "number" || typeof value.hidden_caught !== "number") return null;
+  return `${value.named_caught} of ${value.named_total} named mutants and ${value.hidden_caught} of ${value.hidden_total} hidden mutants caught, over ${count(value.cases)} cases (recorded sweep, not part of this run)`;
 }
 
 function Hash({ label, value }: { label: string; value: string }) {
@@ -32,6 +39,18 @@ export function ApprovalCard({ report, verdict, simulated, replay, onSubmit }: P
   const reviewerRef = useRef<HTMLInputElement>(null);
   const noteRef = useRef<HTMLTextAreaElement>(null);
   const [outcome, setOutcome] = useState<{ approved: boolean; reviewer: string } | null>(null);
+  const [sweep, setSweep] = useState<string | null>(null);
+
+  useEffect(() => {
+    let live = true;
+    api
+      .mutationScore()
+      .then((value) => live && setSweep(recordedSweep(value)))
+      .catch(() => live && setSweep(null));
+    return () => {
+      live = false;
+    };
+  }, []);
 
   const undecided = report.decision_coverage?.undecided ?? [];
   const mutation = report.mutation || null;
@@ -47,7 +66,7 @@ export function ApprovalCard({ report, verdict, simulated, replay, onSubmit }: P
   const canApprove = blockReason === null;
   const score =
     report.mutation_score === undefined || report.mutation_score === null
-      ? "Not measured in this run"
+      ? sweep ?? "Not measured in this run"
       : typeof report.mutation_score === "number"
         ? `${Math.round(report.mutation_score * (report.mutation_score <= 1 ? 100 : 1))}% of mutations caught`
         : report.mutation_score;
