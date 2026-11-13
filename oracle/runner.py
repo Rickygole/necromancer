@@ -3,6 +3,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+import threading
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -12,6 +13,9 @@ RECORD_LEN = 80
 RESULT_LEN = 40
 BATCH_LIMIT = 200
 TIMEOUT_SECONDS = 30
+
+
+BUILD_LOCK = threading.Lock()
 
 
 class OracleError(Exception):
@@ -75,6 +79,11 @@ def compiler_version():
 
 
 def build(source=SOURCE, out_dir=None):
+    with BUILD_LOCK:
+        return _build(source, out_dir)
+
+
+def _build(source, out_dir):
     out_dir = Path(out_dir) if out_dir else ROOT / "bin"
     out_dir.mkdir(parents=True, exist_ok=True)
     binary = out_dir / "uicalc"
