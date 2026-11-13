@@ -1,14 +1,21 @@
 {
   "seed": 731942,
-  "cases": 4040,
+  "cases": 4048,
   "baseline_mismatches": 0,
-  "caught": {
-    "M1": 1251,
-    "M2": 1462,
-    "M3": 15,
-    "M4": 2700,
-    "M5": 60
+  "named": {
+    "M1": 727,
+    "M2": 880,
+    "M3": 97,
+    "M4": 1646,
+    "M5": 112
   },
-  "score": 5,
-  "total": 5
+  "named_caught": 5,
+  "named_total": 5,
+  "hidden": {
+    "H1": 371,
+    "H2": 1240,
+    "H3": 315
+  },
+  "hidden_caught": 3,
+  "hidden_total": 3
 }
