@@ -1,0 +1,32 @@
+{
+  "id": "cx_0001",
+  "seed": 731942,
+  "input_record": "CLM0000000000000000000000010026000000000000000018N00000000000000Y               ",
+  "oracle_output": "0000000000000000000000000000000100100000",
+  "twin_output": "0000650000000000000000000325000100110100",
+  "diff": [
+    {
+      "field": "base",
+      "oracle": "0000000",
+      "twin": "0065000"
+    },
+    {
+      "field": "net",
+      "oracle": "0000000",
+      "twin": "0032500"
+    },
+    {
+      "field": "trace",
+      "oracle": "0100100000",
+      "twin": "0100110100"
+    }
+  ],
+  "trace_diff": {
+    "oracle": "0100100000",
+    "twin": "0100110100"
+  },
+  "class": "base+net|t6.8",
+  "decision": null,
+  "family": "boundary",
+  "mutation": null
+}

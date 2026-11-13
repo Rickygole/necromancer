@@ -1,0 +1,62 @@
+{
+  "run_id": "run_20261113025841_1d9235",
+  "profile": "dev",
+  "seed": 731942,
+  "mutation": null,
+  "corpus_version": "1",
+  "verdict": "MISMATCH",
+  "limitations": [
+    "Evidence is over the generated and curated cases counted in this report, not a proof of equivalence.",
+    "Only the pinned GnuCOBOL compiler version recorded here was exercised.",
+    "Input was ASCII with 80 byte lines. Tabs, CRLF and a missing final newline were not exercised.",
+    "A run that finds no mismatch means none were found, not that none exist."
+  ],
+  "compiler": "cobc (GnuCOBOL) 3.1.2.0",
+  "source_hash": "78f81ae292c778863bd53a40f4c2b1fd71b31a678d290936fb63a93fc6c1871b",
+  "twin_hash": "e304cb6aa3d97f7dc7f6794a650e7730b3b8c9cc3cd6c20e61a55b76f421de5a",
+  "build_log": "",
+  "cases": 45,
+  "matched": 40,
+  "mismatched": 5,
+  "families": {
+    "golden": {
+      "cases": 5,
+      "mismatches": 0
+    },
+    "boundary": {
+      "cases": 29,
+      "mismatches": 3
+    },
+    "invalid": {
+      "cases": 6,
+      "mismatches": 0
+    },
+    "property": {
+      "cases": 5,
+      "mismatches": 2
+    }
+  },
+  "classes": [
+    "base+net|t6.8",
+    "net",
+    "net+offset"
+  ],
+  "counterexample_ids": [
+    "cx_0001",
+    "cx_0002",
+    "cx_0003"
+  ],
+  "decision_coverage": {
+    "observed": [
+      "base+net|t6.8",
+      "net",
+      "net+offset"
+    ],
+    "undecided": [
+      "base+net|t6.8",
+      "net",
+      "net+offset"
+    ]
+  },
+  "seconds": 3.82
+}
