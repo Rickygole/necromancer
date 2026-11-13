@@ -1,0 +1,11 @@
+---
+inclusion: always
+---
+- Python 3.12 with the decimal module for the twin. Never float.
+- GnuCOBOL 3.1.2.0 is the oracle compiler. It is pinned and never vendored.
+- pytest with Hypothesis for the harness. Seeds are recorded for every run.
+- FastAPI with server sent events for the backend. SQLite for run metadata.
+- Vite, React and TypeScript with hand written CSS for the console.
+- Oracle calls pass 80 byte records on stdin and read 40 byte records from stdout, one process per batch of up to 200.
+- Subprocess calls use argument arrays, never shell strings.
+- No model calls in the correctness path or in the demo.
