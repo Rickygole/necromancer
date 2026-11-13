@@ -8,6 +8,10 @@ const root = resolve(here, "..");
 const files = [
   { from: resolve(root, "../legacy/UICALC.cbl"), to: resolve(root, "public/legacy/UICALC.cbl") },
   { from: resolve(root, "../modern/calculator.py"), to: resolve(root, "public/modern/calculator.py") },
+  ...["M1", "M2", "M3", "M4", "M5"].map((id) => ({
+    from: resolve(root, `../backend/patches/fix-${id}.patch`),
+    to: resolve(root, `public/patches/fix-${id}.patch`),
+  })),
 ];
 
 for (const file of files) {

@@ -2,3 +2,4 @@ node_modules/
 dist/
 public/legacy/
 public/modern/
+public/patches/
