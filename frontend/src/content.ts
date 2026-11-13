@@ -1,3 +1,7 @@
+import { useEffect, useState } from "react";
+import { api } from "./api";
+import type { MutationScore } from "./types";
+
 export const REPO_URL = "https://github.com/Rickygole/necromancer";
 
 export interface Rule {
@@ -48,6 +52,8 @@ export interface Quirk {
   steps: string[];
   rules: string;
   legacy: string;
+  rulesLabel?: string;
+  legacyLabel?: string;
   note: string;
 }
 
@@ -57,30 +63,37 @@ export const QUIRKS: Quirk[] = [
     name: "Narrow quotient overflow",
     decision: "dec_0001",
     field: "base",
-    cause: "The quotient field holds three digits. A high quarter of 26,000.00 or more divides out to four, and the top digit falls off without a word.",
+    cause: "The quotient is stored in three digits, so it wraps modulo 1000. A high quarter of 26,000.00 gives quotient 1000, which wraps to 000, and the cap test never fires.",
     code: "01  WS-QUOTIENT   PIC 9(3).\nCOMPUTE WS-QUOTIENT = WS-HIGH / 26",
-    steps: ["High quarter 26,000.00", "26,000.00 / 26 = 1,000", "PIC 9(3) keeps 000", "000 is not above 650, so the cap never fires"],
+    steps: [
+      "High quarter 26,000.00",
+      "26,000.00 / 26 = 1000",
+      "PIC 9(3) stores 1000 modulo 1000 = 000",
+      "000 is not above 650, so the cap never fires",
+    ],
     rules: "650.00",
     legacy: "0.00",
-    note: "The richest claimants get a base of nothing. The cap was supposed to be the ceiling, and it turned out to be a trapdoor.",
+    rulesLabel: "the rules give a base of",
+    legacyLabel: "the program stores a base of",
+    note: "This is cx_0001: base 650.00 by the rules, 0.00 from the program. What that does to the weekly payout depends on the wage ceiling; in cx_0001 the rules pay 325.00 and the program pays 0.00. High quarters from 26,000.00 to 42,899.99 wrap to quotients 000 to 649 and get less than the cap. Wrapped quotients from 651 to 999 hit the cap again, and the pattern repeats every 26,000.00.",
   },
   {
     id: "Q2",
     name: "Unsigned subtraction keeps the absolute value",
     decision: "dec_0002",
     field: "net",
-    cause: "The net field has no sign. Once the base has already wrapped to zero, even a one cent offset pushes the subtraction below zero, and COBOL drops the minus.",
+    cause: "The net field has no sign. Whenever the offset exceeds the combined benefit, the subtraction goes below zero and the program stores the absolute value. No wrap is needed.",
     code: "01  WS-NET   PIC 9(5)V99.\nCOMPUTE WS-NET = WS-COMBINED - WS-OFFSET",
     steps: [
-      "High quarter 26,000.00, so the base wraps to 0.00",
-      "No dependents, combined benefit 0.00",
-      "Offset 0.01",
-      "0.00 less 0.01 = -0.01",
+      "cx_0002: base 96.00, no dependents",
+      "The wage ceiling clamps the combined benefit to 31.25",
+      "Offset 31.26",
+      "31.25 less 31.26 = -0.01",
       "No sign position, so 0.01 is stored",
     ],
     rules: "0.00",
     legacy: "0.01",
-    note: "This one needs quirk 01 first. An eligible claim only reaches a combined benefit of 0.00 after the base wraps. Rule R8 says never below zero, and the program pays a penny. Mutation M4 is exactly the polite fix, which is why the harness flags it.",
+    note: "Rule R8 says never below zero. Any offset larger than the benefit triggers it, and the amounts are not always pennies: q1 and q2 of 2,500.00 with a 100.00 pension pays 37.50 a week on the oracle, where the rules say 0.00. Mutation M4 is the polite fix, a clamp to zero, and because this case is so common it hits 1,646 of 4,048 cases.",
   },
   {
     id: "Q3",
@@ -90,9 +103,11 @@ export const QUIRKS: Quirk[] = [
     cause: "The offset field holds five whole digits. A large pension plus half a large severance needs six, so the leading digit goes missing.",
     code: "01  WS-OFFSET   PIC 9(5)V99.\nCOMPUTE WS-OFFSET = CL-PEN + CL-SEV * 0.50",
     steps: ["Pension 99,999.99", "Severance 99,999.99 at 50 percent = 49,999.995", "Sum 149,999.985", "PIC 9(5)V99 keeps 49,999.98"],
-    rules: "149,999.98",
+    rules: "99,999.99",
     legacy: "49,999.98",
-    note: "The offset shrinks by exactly 100,000.00. Nobody files a claim like this, which is exactly how a bug like this survives.",
+    rulesLabel: "the rules give an offset of",
+    legacyLabel: "stored offset after the wrap",
+    note: "The output field cannot hold 149,999.98, so the rules cap the offset at 99,999.99. The program instead loses exactly 100,000.00, and quirk 02 turns the result into money: q1 and q2 of 10,000.00 with pension 99,999.99 and severance 99,999.99 pays 49,749.98 a week on the oracle, where the rules pay 0.00.",
   },
 ];
 
@@ -118,10 +133,10 @@ export const MUTATIONS: MutationRow[] = [
   { id: "M5", label: "early truncation", description: "Truncate total wages / 52 to cents before applying 65 percent.", caught: 112 },
 ];
 
-export const HIDDEN_MUTANTS: { id: string; description: string }[] = [
-  { id: "H1", description: "Quarter counting ignores the quarter shift." },
-  { id: "H2", description: "Dependents above 12 are treated as 3." },
-  { id: "H3", description: "Age is read modulo 18." },
+export const HIDDEN_MUTANTS: { id: string; description: string; caught: number }[] = [
+  { id: "H1", description: "Quarter counting ignores the quarter shift.", caught: 371 },
+  { id: "H2", description: "Dependents above 12 are treated as 3.", caught: 1240 },
+  { id: "H3", description: "Age is read modulo 18.", caught: 315 },
 ];
 
 export const STAGED: string[] = [
@@ -131,6 +146,34 @@ export const STAGED: string[] = [
   "The three decisions are preserve choices that the reviewer delegated during the build. They are not yet confirmed.",
 ];
 
+const FALLBACK_SCORE: MutationScore = {
+  cases: MUTATION_CASES,
+  baseline_mismatches: BASELINE_MISMATCHES,
+  named: Object.fromEntries(MUTATIONS.map((m) => [m.id, m.caught])),
+  named_caught: MUTATIONS.filter((m) => m.caught > 0).length,
+  named_total: MUTATIONS.length,
+  hidden: Object.fromEntries(HIDDEN_MUTANTS.map((h) => [h.id, h.caught])),
+  hidden_caught: HIDDEN_MUTANTS.filter((h) => h.caught > 0).length,
+  hidden_total: HIDDEN_MUTANTS.length,
+};
+
+export function useMutationScore() {
+  const [score, setScore] = useState<MutationScore>(FALLBACK_SCORE);
+  useEffect(() => {
+    let live = true;
+    api
+      .mutationScore()
+      .then((value) => {
+        if (live && value && typeof value.cases === "number" && value.named && value.hidden) setScore(value);
+      })
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+  }, []);
+  return score;
+}
+
 export interface Property {
   id: string;
   name: string;
@@ -138,7 +181,7 @@ export interface Property {
 }
 
 export const PROPERTIES: Property[] = [
-  { id: "P1", name: "Differential equivalence", text: "For any valid batch, the twin equals the oracle." },
+  { id: "P1", name: "Differential agreement", text: "On every generated batch the twin's output equals the oracle's." },
   { id: "P2", name: "Totality", text: "Each program returns exactly one well formed result per input, in order." },
   { id: "P3", name: "Determinism", text: "The same batch run twice gives identical output." },
   { id: "P4", name: "Batch independence", text: "Permuting a batch permutes the results and changes nothing else." },
@@ -180,8 +223,8 @@ export const REPO_TREE: { path: string; text: string }[] = [
   { path: "backend/", text: "FastAPI app, SQLite store, recorded patches" },
   { path: "frontend/", text: "this site and the console" },
   { path: "oracle_mcp/", text: "MCP server that exposes the oracle" },
-  { path: "decisions/", text: "human authored decision records, nothing else" },
+  { path: "decisions/", text: "decision records (the reviewer delegated the three choices) and the incident log" },
   { path: "evidence/", text: "probe report, counterexamples, mutation score, snapshot" },
   { path: "tests/", text: "unit, property, mutation and API tests" },
-  { path: ".kiro/", text: "specs, steering, agents, settings" },
+  { path: ".kiro/", text: "specs, steering, hooks, agents, and the oracle MCP server registration" },
 ];
