@@ -12,5 +12,5 @@
   "choice": "preserve",
   "reviewer": "Ricky Gole",
   "date": "2026-11-12",
-  "note": "Unsigned subtraction stores the absolute value. Reviewer delegated the choice during the build; preserving legacy behavior so the twin reproduces production until policy owners decide otherwise."
+  "note": "Unsigned subtraction stores the absolute value. The reviewer delegated this choice and it has not yet been confirmed by the reviewer. Preserve means the twin reproduces the legacy behavior."
 }
