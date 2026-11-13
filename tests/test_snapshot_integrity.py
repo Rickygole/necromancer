@@ -56,14 +56,14 @@ def test_mutation_score_totals():
     assert SCORE["baseline_mismatches"] == 0
     assert SCORE["named_total"] == 5
     assert SCORE["named_caught"] == 5
-    assert SCORE["hidden_total"] == 3
-    assert SCORE["hidden_caught"] == 3
+    assert SCORE["hidden_total"] == 5
+    assert SCORE["hidden_caught"] == 5
     assert len(SCORE["named"]) == SCORE["named_total"]
     assert len(SCORE["hidden"]) == SCORE["hidden_total"]
 
 
 def test_readme_quotes_the_evidence_case_counts():
     counts = [RUNS["baseline"]["cases"], RUNS["after_patch"]["cases"], SCORE["cases"]]
-    assert counts == [3394, 42137, 4048]
+    assert counts == [3291, 41260, 4090]
     for count in counts:
         assert format(count, ",") in README
