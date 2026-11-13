@@ -1,5 +1,5 @@
 {
-  "run_id": "run_20261113033122_d2d088",
+  "run_id": "run_20261113033530_f69ce7",
   "profile": "demo",
   "seed": 731942,
   "mutation": "M4",
@@ -45,7 +45,7 @@
     "net"
   ],
   "counterexample_ids": [
-    "cx_0001"
+    "mx_0001"
   ],
   "decision_coverage": {
     "observed": [
@@ -273,7 +273,7 @@
     {
       "type": "counterexample",
       "counterexample": {
-        "id": "cx_0001",
+        "id": "mx_0001",
         "seed": 731942,
         "input_record": "CLM0000000000000000000000010002499990000000000018N00000000006252Y               ",
         "oracle_output": "0000096000000000000312600000010100100110",
@@ -304,7 +304,7 @@
   ],
   "counterexamples": [
     {
-      "id": "cx_0001",
+      "id": "mx_0001",
       "seed": 731942,
       "input_record": "CLM0000000000000000000000010002499990000000000018N00000000006252Y               ",
       "oracle_output": "0000096000000000000312600000010100100110",
@@ -329,7 +329,7 @@
   "mutation_label": "clamp net",
   "runs": {
     "baseline": {
-      "run_id": "run_20261113033119_d9732e",
+      "run_id": "run_20261113033527_3e3a63",
       "profile": "demo",
       "seed": 731942,
       "mutation": null,
@@ -377,7 +377,7 @@
         "observed": [],
         "undecided": []
       },
-      "seconds": 2.76,
+      "seconds": 2.79,
       "events": [
         {
           "type": "build",
@@ -594,7 +594,7 @@
       "counterexamples": []
     },
     "injected": {
-      "run_id": "run_20261113033122_d2d088",
+      "run_id": "run_20261113033530_f69ce7",
       "profile": "demo",
       "seed": 731942,
       "mutation": "M4",
@@ -640,7 +640,7 @@
         "net"
       ],
       "counterexample_ids": [
-        "cx_0001"
+        "mx_0001"
       ],
       "decision_coverage": {
         "observed": [
@@ -868,7 +868,7 @@
         {
           "type": "counterexample",
           "counterexample": {
-            "id": "cx_0001",
+            "id": "mx_0001",
             "seed": 731942,
             "input_record": "CLM0000000000000000000000010002499990000000000018N00000000006252Y               ",
             "oracle_output": "0000096000000000000312600000010100100110",
@@ -899,7 +899,7 @@
       ],
       "counterexamples": [
         {
-          "id": "cx_0001",
+          "id": "mx_0001",
           "seed": 731942,
           "input_record": "CLM0000000000000000000000010002499990000000000018N00000000006252Y               ",
           "oracle_output": "0000096000000000000312600000010100100110",
@@ -923,7 +923,7 @@
       ]
     },
     "after_patch": {
-      "run_id": "run_20261113033127_5fa218",
+      "run_id": "run_20261113033535_56854d",
       "profile": "full",
       "seed": 731942,
       "mutation": null,
@@ -971,7 +971,7 @@
         "observed": [],
         "undecided": []
       },
-      "seconds": 26.96,
+      "seconds": 26.62,
       "events": [
         {
           "type": "build",
@@ -1510,7 +1510,7 @@
   },
   "story": {
     "baseline": {
-      "run_id": "run_20261113033119_d9732e",
+      "run_id": "run_20261113033527_3e3a63",
       "profile": "demo",
       "verdict": "MATCH",
       "cases": 3623,
@@ -1520,7 +1520,7 @@
       "mutation": null
     },
     "injected": {
-      "run_id": "run_20261113033122_d2d088",
+      "run_id": "run_20261113033530_f69ce7",
       "profile": "demo",
       "verdict": "MISMATCH",
       "cases": 3623,
@@ -1530,7 +1530,7 @@
       "mutation": "M4"
     },
     "after_patch": {
-      "run_id": "run_20261113033127_5fa218",
+      "run_id": "run_20261113033535_56854d",
       "profile": "full",
       "verdict": "APPROVAL REQUIRED",
       "cases": 38385,
