@@ -9,3 +9,4 @@ dist/
 .hypothesis/
 .pytest_cache/
 evidence/snapshot_runs/
+evidence/runs/
