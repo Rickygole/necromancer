@@ -1,6 +1,16 @@
 from decimal import Decimal
 
-from modern.calculator import calc, calc_batch
+from modern.calculator import calc as _calc, calc_batch as _calc_batch
+
+SPEC = frozenset()
+
+
+def calc(claim, mutation=None):
+    return _calc(claim, mutation, SPEC)
+
+
+def calc_batch(records, mutation=None):
+    return _calc_batch(records, mutation, SPEC)
 from modern.models import Claim, decode_record, encode_record, encode_result
 
 
