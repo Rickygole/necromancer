@@ -125,11 +125,11 @@ export function Legacy() {
                 </ol>
                 <dl className="quirk__result">
                   <div>
-                    <dt>the rules say</dt>
+                    <dt>{q.rulesLabel ?? "the rules say"}</dt>
                     <dd className="mono">{q.rules}</dd>
                   </div>
                   <div className="quirk__legacy">
-                    <dt>the program pays</dt>
+                    <dt>{q.legacyLabel ?? "the program pays"}</dt>
                     <dd className="mono">
                       {q.legacy}
                       <PencilLine className="quirk__underline" />

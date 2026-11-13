@@ -3,7 +3,7 @@ import { Reveal } from "../components/Reveal";
 import { Scene } from "../components/Scene";
 import { Stamp } from "../components/Stamp";
 import { TiltCard } from "../components/TiltCard";
-import { DEMO_CASES, DEMO_SEED, MUTATION_CASES } from "../content";
+import { DEMO_CASES, DEMO_SEED, useMutationScore } from "../content";
 import { count } from "../status";
 
 const STEPS = [
@@ -28,6 +28,7 @@ const STEPS = [
 ];
 
 export function Home() {
+  const score = useMutationScore();
   return (
     <div className="home">
       <section className="hero" aria-labelledby="hero-title">
@@ -72,8 +73,9 @@ export function Home() {
         <Reveal className="tags__intro">
           <h2 id="tags-title">the numbers, with their denominators</h2>
           <p>
-            A number without a denominator is a rumor. These come from one recorded run and one mutation sweep, seed{" "}
-            {DEMO_SEED}. They are evidence over the cases counted, not a proof of anything.
+            A number without a denominator is a rumor. These come from the recorded demo run and the mutation sweep,
+            seed {DEMO_SEED}. The three classes of legacy behavior were found on the first blind run, 45 cases on the dev
+            profile. All of it is evidence over the cases counted, not a proof of anything.
           </p>
         </Reveal>
         <ol className="tags__row">
@@ -85,7 +87,7 @@ export function Home() {
                 <span className="toe-tag__big">{count(DEMO_CASES)}</span>
                 <span className="toe-tag__of">of {count(DEMO_CASES)}</span>
               </span>
-              <span className="toe-tag__what">cases matched, twin as written</span>
+              <span className="toe-tag__what">cases matched, twin with the three preserved legacy behaviors</span>
               <span className="toe-tag__foot mono">0 mismatched</span>
             </TiltCard>
           </Reveal>
@@ -94,12 +96,14 @@ export function Home() {
               <span className="toe-tag__hole" aria-hidden="true" />
               <span className="toe-tag__label mono">specimen B, mutations</span>
               <span className="toe-tag__num">
-                <span className="toe-tag__big">5</span>
-                <span className="toe-tag__of">of 5</span>
+                <span className="toe-tag__big">{score.named_caught}</span>
+                <span className="toe-tag__of">of {score.named_total}</span>
               </span>
-              <Tally count={5} className="toe-tag__tally" />
-              <span className="toe-tag__what">planted bugs caught</span>
-              <span className="toe-tag__foot mono">each over {count(MUTATION_CASES)} cases</span>
+              <Tally count={score.named_caught} className="toe-tag__tally" />
+              <span className="toe-tag__what">
+                planted bugs caught, plus {score.hidden_caught} of {score.hidden_total} hidden mutants caught
+              </span>
+              <span className="toe-tag__foot mono">each over {count(score.cases)} cases</span>
             </TiltCard>
           </Reveal>
           <Reveal as="li" className="tag-slot tag-slot--three" depth="far">
@@ -145,8 +149,8 @@ export function Home() {
         <Reveal className="chart__side" depth="far">
           <p className="chart__side-kicker mono">exhibit</p>
           <p className="chart__side-quote">
-            A high quarter of 26,000.00 should pay the 650.00 cap. The COBOL pays 0.00, because the field it divides
-            into only holds three digits.
+            A high quarter of 26,000.00 should give a base of 650.00, the cap. The COBOL gives 0.00, because the
+            quotient is stored in three digits, so 1000 wraps modulo 1000 to 000.
           </p>
           <a className="pencil-link" href="#/legacy">
             see the other two quirks

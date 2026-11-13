@@ -23,7 +23,7 @@ export function Build() {
           <h2 id="tree-title" className="section-title">
             where things live
           </h2>
-          <p>Every folder has one job. The one called decisions is the only place a human signature counts.</p>
+          <p>Every folder has one job. The decision records in decisions/ are where a reviewer's choice is written down.</p>
         </Reveal>
         <Reveal className="crt crt--tree" depth="far">
           <p className="crt__prompt" aria-hidden="true">
@@ -116,8 +116,9 @@ export function Build() {
             <h3>every class of difference</h3>
             <p>
               Mismatches are grouped by the fields and trace bits that differ. Each class needs a written decision,
-              preserve the legacy behavior or correct it, with a reviewer name and a note. The tooling is not allowed to
-              write into decisions/.
+              preserve the legacy behavior or correct it, with a reviewer name and a note. The local backend writes a
+              decision file when a reviewer records one in the console; the hosted build cannot write there at all, and
+              the Kiro agents are told not to write there.
             </p>
           </Reveal>
           <Reveal className="gate gate--offset" depth="far">
@@ -159,14 +160,17 @@ export function Build() {
           <h2 id="kiro-title" className="section-title">
             Kiro
           </h2>
-          <p>Specs, steering, hooks, custom agents and an oracle MCP server live in the .kiro directory of the repository.</p>
+          <p>
+            Specs, steering, hooks and custom agents live in the .kiro directory of the repository, along with the
+            registration for the oracle MCP server.
+          </p>
           <p>
             Two hook files sit in .kiro/hooks, <span className="mono">rederive-properties</span> and{" "}
             <span className="mono">test-guard</span>. The files exist. They have not been confirmed through the Kiro hook
             panel, so this page makes no claim that either one ever fired.
           </p>
           <p className="hint">
-            The MCP server code itself sits in oracle_mcp/ and is registered in .kiro/settings/mcp.json.
+            The MCP server code lives in oracle_mcp/. Only its registration, .kiro/settings/mcp.json, is in .kiro.
           </p>
           <a className="pencil-link" href={`${REPO_URL}/tree/main/.kiro`} rel="noreferrer">
             read the .kiro directory

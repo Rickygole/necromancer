@@ -7,7 +7,7 @@ import { Stamp } from "../components/Stamp";
 import { StatusBadge } from "../components/StatusBadge";
 import { TiltCard } from "../components/TiltCard";
 import { TraceTable } from "../components/TraceTable";
-import { BASELINE_MISMATCHES, DEMO_SEED, HIDDEN_MUTANTS, MUTATION_CASES, MUTATIONS } from "../content";
+import { DEMO_SEED, HIDDEN_MUTANTS, MUTATIONS, useMutationScore } from "../content";
 import { INPUT_FIELDS, OUTPUT_FIELDS, formatValue } from "../records";
 import { count, toStatus } from "../status";
 import type { Counterexample, Decision, Snapshot, StoryRun } from "../types";
@@ -19,7 +19,7 @@ const STORY: { key: "baseline" | "injected" | "after_patch"; title: string; kick
     key: "baseline",
     title: "baseline",
     kicker: "sheet 1",
-    blurb: "The twin as written, against the compiled COBOL. Every case agreed.",
+    blurb: "The twin with the three preserved legacy behaviors, against the compiled COBOL. Every case agreed.",
   },
   {
     key: "injected",
@@ -48,6 +48,11 @@ function shrunk(snapshot: Snapshot): Counterexample | null {
 export function Evidence() {
   const [load, setLoad] = useState<Load>({ phase: "loading" });
   const [decisions, setDecisions] = useState<Decision[] | null>(null);
+  const score = useMutationScore();
+  const cases = score.cases;
+  const baseline = score.baseline_mismatches;
+  const named = MUTATIONS.map((m) => ({ ...m, caught: score.named[m.id] ?? m.caught }));
+  const hidden = HIDDEN_MUTANTS.map((h) => ({ ...h, caught: score.hidden[h.id] ?? h.caught }));
 
   useEffect(() => {
     let live = true;
@@ -66,7 +71,7 @@ export function Evidence() {
 
   const snapshot = load.phase === "ready" ? load.snapshot : null;
   const cx = snapshot ? shrunk(snapshot) : null;
-  const maxCaught = Math.max(...MUTATIONS.map((m) => m.caught));
+  const maxCaught = Math.max(1, ...named.map((m) => m.caught), ...hidden.map((h) => h.caught));
 
   return (
     <article className="page evidence">
@@ -217,7 +222,7 @@ export function Evidence() {
                       })}
                     </ul>
                   </div>
-                  <TraceTable oracle={cx.trace_diff.oracle} twin={cx.trace_diff.twin} caption="Rule trace bits" />
+                  <TraceTable oracle={cx.trace_diff.oracle} twin={cx.trace_diff.twin} caption="Rule trace bits" mismatch />
                 </div>
               </div>
             </>
@@ -235,16 +240,16 @@ export function Evidence() {
             mutation score
           </h2>
           <p>
-            Five bugs planted on purpose, one at a time, each run against the same {count(MUTATION_CASES)} cases. A
-            mutation counts as caught when at least one case disagrees. The unmutated twin disagreed on{" "}
-            {count(BASELINE_MISMATCHES)} of them.
+            Five bugs planted on purpose, one at a time, each run against the same {count(cases)} cases. A mutation
+            counts as caught when at least one case disagrees. The unmutated twin disagreed on{" "}
+            {baseline === 0 ? "none" : count(baseline)} of them.
           </p>
-          <WaxSeal text="5 of 5" className="ledger__seal" />
+          <WaxSeal text={`${score.named_caught} of ${score.named_total}`} className="ledger__seal" />
         </Reveal>
         <Reveal className="ledger__wrap">
           <table className="ledger__table">
             <caption className="visually-hidden">
-              Mismatches caught per mutation, out of {count(MUTATION_CASES)} cases each
+              Mismatches caught per mutation, out of {count(cases)} cases each
             </caption>
             <thead>
               <tr>
@@ -259,9 +264,9 @@ export function Evidence() {
                 <th scope="row" className="mono">
                   none
                 </th>
-                <td>The twin as written.</td>
+                <td>The twin with the three preserved legacy behaviors.</td>
                 <td className="num">
-                  {count(BASELINE_MISMATCHES)} of {count(MUTATION_CASES)}
+                  {count(baseline)} of {count(cases)}
                 </td>
                 <td>
                   <span className="ledger__result ledger__result--clean">
@@ -269,7 +274,7 @@ export function Evidence() {
                   </span>
                 </td>
               </tr>
-              {MUTATIONS.map((m) => (
+              {named.map((m) => (
                 <tr key={m.id}>
                   <th scope="row" className="mono">
                     {m.id}
@@ -280,16 +285,22 @@ export function Evidence() {
                   </td>
                   <td className="num">
                     <span className="ledger__count">
-                      {count(m.caught)} of {count(MUTATION_CASES)}
+                      {count(m.caught)} of {count(cases)}
                     </span>
                     <span className="ledger__bar" aria-hidden="true">
                       <span style={{ width: `${Math.max(2, (m.caught / maxCaught) * 100)}%` }} />
                     </span>
                   </td>
                   <td>
-                    <span className="ledger__result">
-                      <span aria-hidden="true">{"◆"}</span> caught
-                    </span>
+                    {m.caught > 0 ? (
+                      <span className="ledger__result">
+                        <span aria-hidden="true">{"◆"}</span> caught
+                      </span>
+                    ) : (
+                      <span className="ledger__result ledger__result--clean">
+                        <span aria-hidden="true">{"○"}</span> missed
+                      </span>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -297,25 +308,58 @@ export function Evidence() {
           </table>
           <p className="ledger__note">
             M3 is the one to stare at. It only changes anything for a claimant who is exactly 62 with retirement code M.{" "}
-            {count(MUTATIONS.find((m) => m.id === "M3")?.caught ?? 0)} of {count(MUTATION_CASES)} cases landed there.
+            {count(named.find((m) => m.id === "M3")?.caught ?? 0)} of {count(cases)} cases landed there.
           </p>
           <Tally count={5} className="ledger__tally" />
           <div className="hidden-mutants">
             <h3>three hidden mutants, added late</h3>
             <p>
               A review found gaps in the first corpus, so three more mutants went in afterwards. They are listed here
-              because leaving them out would make the score above look tidier than the history was.
+              because leaving them out would make the score above look tidier than the history was.{" "}
+              {score.hidden_caught} of {score.hidden_total} hidden mutants caught, over the same {count(cases)} cases.
             </p>
-            <ul>
-              {HIDDEN_MUTANTS.map((h) => (
-                <li key={h.id}>
-                  <span className="mono">{h.id}</span> {h.description}{" "}
-                  <span className="ledger__result">
-                    <span aria-hidden="true">{"◆"}</span> caught, see evidence/mutation_score.json
-                  </span>
-                </li>
-              ))}
-            </ul>
+            <table className="ledger__table">
+              <caption className="visually-hidden">
+                Mismatches caught per hidden mutant, out of {count(cases)} cases each
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">id</th>
+                  <th scope="col">what it breaks</th>
+                  <th scope="col">mismatches caught</th>
+                  <th scope="col">result</th>
+                </tr>
+              </thead>
+              <tbody>
+                {hidden.map((h) => (
+                  <tr key={h.id}>
+                    <th scope="row" className="mono">
+                      {h.id}
+                    </th>
+                    <td>{h.description}</td>
+                    <td className="num">
+                      <span className="ledger__count">
+                        {count(h.caught)} of {count(cases)}
+                      </span>
+                      <span className="ledger__bar" aria-hidden="true">
+                        <span style={{ width: `${Math.max(2, (h.caught / maxCaught) * 100)}%` }} />
+                      </span>
+                    </td>
+                    <td>
+                      {h.caught > 0 ? (
+                        <span className="ledger__result">
+                          <span aria-hidden="true">{"◆"}</span> caught
+                        </span>
+                      ) : (
+                        <span className="ledger__result ledger__result--clean">
+                          <span aria-hidden="true">{"○"}</span> missed
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </Reveal>
       </section>
