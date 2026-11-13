@@ -94,8 +94,9 @@ export const api = {
     request<unknown>("POST", `/api/runs/${encodeURIComponent(id)}/approval`, body),
   inject: (mutation: string) => request<unknown>("POST", "/api/demo/inject", { mutation }),
   applyPatch: (id: string) =>
-    request<{ run_id: string; diff?: string; patch?: string }>("POST", `/api/patches/${encodeURIComponent(id)}/apply`),
+    request<{ run_id?: string; diff?: string; patch?: string }>("POST", `/api/patches/${encodeURIComponent(id)}/apply`),
   snapshot: () => request<Snapshot>("GET", "/api/snapshot"),
+  liveRun: (body: RunRequest) => request<Snapshot>("POST", "/api/live", body),
 };
 
 const EVENT_TYPES = ["build", "built", "progress", "mismatch", "shrinking", "counterexample", "verdict", "error"];

@@ -3,6 +3,12 @@ import { api, describeError, streamRun } from "./api";
 import { toStatus } from "./status";
 import type { Counterexample, Report, RunEvent, RunRequest, Snapshot, Status } from "./types";
 
+let liveMode = false;
+
+export function setLiveMode(value: boolean) {
+  liveMode = value;
+}
+
 export type Phase = "idle" | "starting" | "building" | "comparing" | "shrinking" | "finished";
 
 export interface RunState {
@@ -205,10 +211,10 @@ export function useRunner() {
   );
 
   const replay = useCallback(
-    (snapshot: Snapshot): Promise<Status> =>
+    (snapshot: Snapshot, live = false): Promise<Status> =>
       new Promise<Status>((resolve) => {
         stop();
-        dispatch({ type: "start", runId: snapshot.run_id, replay: true });
+        dispatch({ type: "start", runId: snapshot.run_id, replay: !live });
         const events = Array.isArray(snapshot.events) ? snapshot.events : [];
         const step = reducedMotion() ? 0 : Math.min(120, Math.max(12, 3600 / Math.max(events.length, 1)));
         events.forEach((event, index) => {
@@ -236,6 +242,10 @@ export function useRunner() {
       stop();
       dispatch({ type: "starting" });
       try {
+        if (liveMode) {
+          const snapshot = await api.liveRun(body);
+          return await replay(snapshot, true);
+        }
         const { run_id } = await api.startRun(body);
         return await follow(run_id);
       } catch (error) {
@@ -245,7 +255,7 @@ export function useRunner() {
         return status;
       }
     },
-    [follow, stop],
+    [follow, replay, stop],
   );
 
   const fail = useCallback((code: string, message: string) => {
