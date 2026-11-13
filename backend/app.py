@@ -2,7 +2,7 @@ import asyncio
 import json
 import os
 import re
-import shutil
+import tempfile
 from pathlib import Path
 from typing import List, Literal, Optional
 
@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 
 from backend import errors, patches, runs, store
+from harness import engine
 from harness import decisions as decision_store
 from harness.profiles import DEFAULT_SEED, PROFILES
 from modern.mutations import MUTATIONS
@@ -59,8 +60,7 @@ def hosted():
 
 
 def oracle_available():
-    command = runner.cobc_command()
-    return bool(Path(command).exists() or shutil.which(command))
+    return runner.oracle_ready()
 
 
 def bad(message, detail=None):
@@ -134,6 +134,33 @@ def create_run(req: RunRequest):
     if mutation is None and req.use_demo_config:
         mutation = patches.read_config().get("mutation")
     return {"run_id": start_run(req.profile, req.seed, mutation)}
+
+
+@app.post("/api/live")
+def live_run(req: RunRequest):
+    if req.profile not in PROFILES:
+        raise bad("unknown profile", {"profile": req.profile, "known": sorted(PROFILES)})
+    check_mutation(req.mutation)
+    if not oracle_available():
+        raise errors.ApiError(
+            "RUNTIME_ERROR",
+            "the legacy oracle is not available on this host, see /api/snapshot for the pre-rendered result",
+            {"snapshot": "/api/snapshot"},
+        )
+    events = []
+    seed = DEFAULT_SEED if req.seed is None else req.seed
+    with tempfile.TemporaryDirectory(prefix="necro-live-") as scratch:
+        report = engine.run_verification(
+            req.profile, seed, req.mutation, events.append, run_dir=scratch,
+            decisions=decision_store.load(decision_store.DECISIONS_DIR),
+        )
+        cx_dir = Path(scratch) / "counterexamples"
+        found = [json.loads(p.read_text()) for p in sorted(cx_dir.glob("cx_*.json"))] if cx_dir.exists() else []
+    result = dict(report)
+    result["run_id"] = report.get("run_id") or runs.new_run_id()
+    result["events"] = events
+    result["counterexamples"] = found
+    return result
 
 
 @app.get("/api/runs")
@@ -255,28 +282,25 @@ def list_decisions():
 
 @app.post("/api/patches/{patch_id}/apply")
 def apply_patch(patch_id: str):
-    patches.patch_file(patch_id)
-    if hosted() and not oracle_available():
-        raise errors.ApiError(
-            "RUNTIME_ERROR",
-            "the legacy compiler is not available on this host, see /api/snapshot for the pre-rendered result",
-            {"snapshot": "/api/snapshot"},
-        )
+    path = patches.patch_file(patch_id)
+    diff = path.read_text()
+    if hosted():
+        mutation = None if patch_id.startswith("fix-") else patch_id.split("-", 1)[1]
+        return {"config": {"mutation": mutation}, "diff": diff}
     config = patches.apply_patch(patch_id)
-    return {"run_id": start_run("full", None, config.get("mutation")), "config": config}
+    return {"run_id": start_run("full", None, config.get("mutation")), "config": config, "diff": diff}
 
 
 @app.post("/api/demo/inject")
 def inject(req: InjectRequest):
     check_mutation(req.mutation)
-    if hosted() and not oracle_available():
-        raise errors.ApiError(
-            "RUNTIME_ERROR",
-            "the legacy compiler is not available on this host, see /api/snapshot for the pre-rendered result",
-            {"snapshot": "/api/snapshot"},
-        )
+    diff = ""
+    if req.mutation:
+        diff = patches.patch_file("apply-" + req.mutation).read_text()
+    if hosted():
+        return {"config": {"mutation": req.mutation}, "diff": diff}
     config = patches.inject(req.mutation)
-    return {"config": config}
+    return {"config": config, "diff": diff}
 
 
 @app.get("/api/snapshot")
