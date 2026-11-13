@@ -1,5 +1,5 @@
 {
-  "run_id": "run_20261113031146_4afc84",
+  "run_id": "run_20261113033122_d2d088",
   "profile": "demo",
   "seed": 731942,
   "mutation": "M4",
@@ -16,6 +16,7 @@
   "twin_hash": "b2954707ccdab958f46446c306cbad3e65f816ec9beb6e2451acf88447a35f10",
   "build_log": "",
   "cases": 3623,
+  "planned": 3623,
   "matched": 2792,
   "mismatched": 831,
   "families": {
@@ -52,7 +53,7 @@
     ],
     "undecided": []
   },
-  "seconds": 4.84,
+  "seconds": 4.97,
   "events": [
     {
       "type": "build",
@@ -64,11 +65,15 @@
       "source_hash": "78f81ae292c778863bd53a40f4c2b1fd71b31a678d290936fb63a93fc6c1871b"
     },
     {
+      "type": "planned",
+      "planned": 3623
+    },
+    {
       "type": "progress",
       "family": "golden",
       "cases": 5,
       "matched": 5,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 0
     },
     {
@@ -82,7 +87,7 @@
       "family": "boundary",
       "cases": 34,
       "matched": 33,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 1
     },
     {
@@ -90,7 +95,7 @@
       "family": "invalid",
       "cases": 40,
       "matched": 39,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 1
     },
     {
@@ -98,7 +103,7 @@
       "family": "regression",
       "cases": 43,
       "matched": 40,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 3
     },
     {
@@ -106,7 +111,7 @@
       "family": "property",
       "cases": 187,
       "matched": 174,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 13
     },
     {
@@ -114,7 +119,7 @@
       "family": "property",
       "cases": 341,
       "matched": 315,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 26
     },
     {
@@ -122,7 +127,7 @@
       "family": "property",
       "cases": 506,
       "matched": 445,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 61
     },
     {
@@ -130,7 +135,7 @@
       "family": "property",
       "cases": 659,
       "matched": 572,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 87
     },
     {
@@ -138,7 +143,7 @@
       "family": "property",
       "cases": 800,
       "matched": 686,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 114
     },
     {
@@ -146,7 +151,7 @@
       "family": "property",
       "cases": 925,
       "matched": 776,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 149
     },
     {
@@ -154,7 +159,7 @@
       "family": "property",
       "cases": 1090,
       "matched": 910,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 180
     },
     {
@@ -162,7 +167,7 @@
       "family": "property",
       "cases": 1255,
       "matched": 1032,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 223
     },
     {
@@ -170,7 +175,7 @@
       "family": "property",
       "cases": 1405,
       "matched": 1127,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 278
     },
     {
@@ -178,7 +183,7 @@
       "family": "property",
       "cases": 1530,
       "matched": 1222,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 308
     },
     {
@@ -186,7 +191,7 @@
       "family": "property",
       "cases": 1730,
       "matched": 1374,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 356
     },
     {
@@ -194,7 +199,7 @@
       "family": "property",
       "cases": 1967,
       "matched": 1556,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 411
     },
     {
@@ -202,7 +207,7 @@
       "family": "property",
       "cases": 2152,
       "matched": 1705,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 447
     },
     {
@@ -210,7 +215,7 @@
       "family": "property",
       "cases": 2313,
       "matched": 1834,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 479
     },
     {
@@ -218,7 +223,7 @@
       "family": "property",
       "cases": 2502,
       "matched": 1973,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 529
     },
     {
@@ -226,7 +231,7 @@
       "family": "property",
       "cases": 2742,
       "matched": 2133,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 609
     },
     {
@@ -234,7 +239,7 @@
       "family": "property",
       "cases": 2907,
       "matched": 2268,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 639
     },
     {
@@ -242,7 +247,7 @@
       "family": "property",
       "cases": 3123,
       "matched": 2422,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 701
     },
     {
@@ -250,7 +255,7 @@
       "family": "property",
       "cases": 3373,
       "matched": 2596,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 777
     },
     {
@@ -258,7 +263,7 @@
       "family": "property",
       "cases": 3623,
       "matched": 2792,
-      "planned": 5043,
+      "planned": 3623,
       "mismatched": 831
     },
     {
@@ -322,30 +327,1217 @@
     }
   ],
   "mutation_label": "clamp net",
+  "runs": {
+    "baseline": {
+      "run_id": "run_20261113033119_d9732e",
+      "profile": "demo",
+      "seed": 731942,
+      "mutation": null,
+      "corpus_version": "1",
+      "verdict": "MATCH",
+      "limitations": [
+        "Evidence is over the generated and curated cases counted in this report, not a proof of equivalence.",
+        "Only the pinned GnuCOBOL compiler version recorded here was exercised.",
+        "Input was ASCII with 80 byte lines. Tabs, CRLF and a missing final newline were not exercised.",
+        "A run that finds no mismatch means none were found, not that none exist."
+      ],
+      "compiler": "cobc (GnuCOBOL) 3.1.2.0",
+      "source_hash": "78f81ae292c778863bd53a40f4c2b1fd71b31a678d290936fb63a93fc6c1871b",
+      "twin_hash": "b2954707ccdab958f46446c306cbad3e65f816ec9beb6e2451acf88447a35f10",
+      "build_log": "",
+      "cases": 3623,
+      "planned": 3623,
+      "matched": 3623,
+      "mismatched": 0,
+      "families": {
+        "golden": {
+          "cases": 5,
+          "mismatches": 0
+        },
+        "boundary": {
+          "cases": 29,
+          "mismatches": 0
+        },
+        "invalid": {
+          "cases": 6,
+          "mismatches": 0
+        },
+        "regression": {
+          "cases": 3,
+          "mismatches": 0
+        },
+        "property": {
+          "cases": 3580,
+          "mismatches": 0
+        }
+      },
+      "classes": [],
+      "counterexample_ids": [],
+      "decision_coverage": {
+        "observed": [],
+        "undecided": []
+      },
+      "seconds": 2.76,
+      "events": [
+        {
+          "type": "build",
+          "message": "building legacy program"
+        },
+        {
+          "type": "built",
+          "compiler": "cobc (GnuCOBOL) 3.1.2.0",
+          "source_hash": "78f81ae292c778863bd53a40f4c2b1fd71b31a678d290936fb63a93fc6c1871b"
+        },
+        {
+          "type": "planned",
+          "planned": 3623
+        },
+        {
+          "type": "progress",
+          "family": "golden",
+          "cases": 5,
+          "matched": 5,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "boundary",
+          "cases": 34,
+          "matched": 34,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "invalid",
+          "cases": 40,
+          "matched": 40,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "regression",
+          "cases": 43,
+          "matched": 43,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 187,
+          "matched": 187,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 341,
+          "matched": 341,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 506,
+          "matched": 506,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 659,
+          "matched": 659,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 800,
+          "matched": 800,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 925,
+          "matched": 925,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 1090,
+          "matched": 1090,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 1255,
+          "matched": 1255,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 1405,
+          "matched": 1405,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 1530,
+          "matched": 1530,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 1730,
+          "matched": 1730,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 1967,
+          "matched": 1967,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 2152,
+          "matched": 2152,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 2313,
+          "matched": 2313,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 2502,
+          "matched": 2502,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 2742,
+          "matched": 2742,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 2907,
+          "matched": 2907,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 3123,
+          "matched": 3123,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 3373,
+          "matched": 3373,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 3623,
+          "matched": 3623,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "verdict",
+          "verdict": "MATCH",
+          "cases": 3623,
+          "matched": 3623
+        }
+      ],
+      "counterexamples": []
+    },
+    "injected": {
+      "run_id": "run_20261113033122_d2d088",
+      "profile": "demo",
+      "seed": 731942,
+      "mutation": "M4",
+      "corpus_version": "1",
+      "verdict": "MISMATCH",
+      "limitations": [
+        "Evidence is over the generated and curated cases counted in this report, not a proof of equivalence.",
+        "Only the pinned GnuCOBOL compiler version recorded here was exercised.",
+        "Input was ASCII with 80 byte lines. Tabs, CRLF and a missing final newline were not exercised.",
+        "A run that finds no mismatch means none were found, not that none exist."
+      ],
+      "compiler": "cobc (GnuCOBOL) 3.1.2.0",
+      "source_hash": "78f81ae292c778863bd53a40f4c2b1fd71b31a678d290936fb63a93fc6c1871b",
+      "twin_hash": "b2954707ccdab958f46446c306cbad3e65f816ec9beb6e2451acf88447a35f10",
+      "build_log": "",
+      "cases": 3623,
+      "planned": 3623,
+      "matched": 2792,
+      "mismatched": 831,
+      "families": {
+        "golden": {
+          "cases": 5,
+          "mismatches": 0
+        },
+        "boundary": {
+          "cases": 29,
+          "mismatches": 1
+        },
+        "invalid": {
+          "cases": 6,
+          "mismatches": 0
+        },
+        "regression": {
+          "cases": 3,
+          "mismatches": 2
+        },
+        "property": {
+          "cases": 3580,
+          "mismatches": 828
+        }
+      },
+      "classes": [
+        "net"
+      ],
+      "counterexample_ids": [
+        "cx_0001"
+      ],
+      "decision_coverage": {
+        "observed": [
+          "net"
+        ],
+        "undecided": []
+      },
+      "seconds": 4.97,
+      "events": [
+        {
+          "type": "build",
+          "message": "building legacy program"
+        },
+        {
+          "type": "built",
+          "compiler": "cobc (GnuCOBOL) 3.1.2.0",
+          "source_hash": "78f81ae292c778863bd53a40f4c2b1fd71b31a678d290936fb63a93fc6c1871b"
+        },
+        {
+          "type": "planned",
+          "planned": 3623
+        },
+        {
+          "type": "progress",
+          "family": "golden",
+          "cases": 5,
+          "matched": 5,
+          "planned": 3623,
+          "mismatched": 0
+        },
+        {
+          "type": "mismatch",
+          "class": "net",
+          "family": "boundary",
+          "record": "BNDWRAP  0009000000009000000009000000009000000040N99999999999999N               "
+        },
+        {
+          "type": "progress",
+          "family": "boundary",
+          "cases": 34,
+          "matched": 33,
+          "planned": 3623,
+          "mismatched": 1
+        },
+        {
+          "type": "progress",
+          "family": "invalid",
+          "cases": 40,
+          "matched": 39,
+          "planned": 3623,
+          "mismatched": 1
+        },
+        {
+          "type": "progress",
+          "family": "regression",
+          "cases": 43,
+          "matched": 40,
+          "planned": 3623,
+          "mismatched": 3
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 187,
+          "matched": 174,
+          "planned": 3623,
+          "mismatched": 13
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 341,
+          "matched": 315,
+          "planned": 3623,
+          "mismatched": 26
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 506,
+          "matched": 445,
+          "planned": 3623,
+          "mismatched": 61
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 659,
+          "matched": 572,
+          "planned": 3623,
+          "mismatched": 87
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 800,
+          "matched": 686,
+          "planned": 3623,
+          "mismatched": 114
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 925,
+          "matched": 776,
+          "planned": 3623,
+          "mismatched": 149
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 1090,
+          "matched": 910,
+          "planned": 3623,
+          "mismatched": 180
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 1255,
+          "matched": 1032,
+          "planned": 3623,
+          "mismatched": 223
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 1405,
+          "matched": 1127,
+          "planned": 3623,
+          "mismatched": 278
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 1530,
+          "matched": 1222,
+          "planned": 3623,
+          "mismatched": 308
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 1730,
+          "matched": 1374,
+          "planned": 3623,
+          "mismatched": 356
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 1967,
+          "matched": 1556,
+          "planned": 3623,
+          "mismatched": 411
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 2152,
+          "matched": 1705,
+          "planned": 3623,
+          "mismatched": 447
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 2313,
+          "matched": 1834,
+          "planned": 3623,
+          "mismatched": 479
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 2502,
+          "matched": 1973,
+          "planned": 3623,
+          "mismatched": 529
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 2742,
+          "matched": 2133,
+          "planned": 3623,
+          "mismatched": 609
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 2907,
+          "matched": 2268,
+          "planned": 3623,
+          "mismatched": 639
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 3123,
+          "matched": 2422,
+          "planned": 3623,
+          "mismatched": 701
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 3373,
+          "matched": 2596,
+          "planned": 3623,
+          "mismatched": 777
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 3623,
+          "matched": 2792,
+          "planned": 3623,
+          "mismatched": 831
+        },
+        {
+          "type": "shrinking",
+          "class": "net"
+        },
+        {
+          "type": "counterexample",
+          "counterexample": {
+            "id": "cx_0001",
+            "seed": 731942,
+            "input_record": "CLM0000000000000000000000010002499990000000000018N00000000006252Y               ",
+            "oracle_output": "0000096000000000000312600000010100100110",
+            "twin_output": "0000096000000000000312600000000100100110",
+            "diff": [
+              {
+                "field": "net",
+                "oracle": "0000001",
+                "twin": "0000000"
+              }
+            ],
+            "trace_diff": {
+              "oracle": "0100100110",
+              "twin": "0100100110"
+            },
+            "class": "net",
+            "decision": null,
+            "family": "boundary",
+            "mutation": "M4"
+          }
+        },
+        {
+          "type": "verdict",
+          "verdict": "MISMATCH",
+          "cases": 3623,
+          "matched": 2792
+        }
+      ],
+      "counterexamples": [
+        {
+          "id": "cx_0001",
+          "seed": 731942,
+          "input_record": "CLM0000000000000000000000010002499990000000000018N00000000006252Y               ",
+          "oracle_output": "0000096000000000000312600000010100100110",
+          "twin_output": "0000096000000000000312600000000100100110",
+          "diff": [
+            {
+              "field": "net",
+              "oracle": "0000001",
+              "twin": "0000000"
+            }
+          ],
+          "trace_diff": {
+            "oracle": "0100100110",
+            "twin": "0100100110"
+          },
+          "class": "net",
+          "decision": null,
+          "family": "boundary",
+          "mutation": "M4"
+        }
+      ]
+    },
+    "after_patch": {
+      "run_id": "run_20261113033127_5fa218",
+      "profile": "full",
+      "seed": 731942,
+      "mutation": null,
+      "corpus_version": "1",
+      "verdict": "APPROVAL REQUIRED",
+      "limitations": [
+        "Evidence is over the generated and curated cases counted in this report, not a proof of equivalence.",
+        "Only the pinned GnuCOBOL compiler version recorded here was exercised.",
+        "Input was ASCII with 80 byte lines. Tabs, CRLF and a missing final newline were not exercised.",
+        "A run that finds no mismatch means none were found, not that none exist."
+      ],
+      "compiler": "cobc (GnuCOBOL) 3.1.2.0",
+      "source_hash": "78f81ae292c778863bd53a40f4c2b1fd71b31a678d290936fb63a93fc6c1871b",
+      "twin_hash": "b2954707ccdab958f46446c306cbad3e65f816ec9beb6e2451acf88447a35f10",
+      "build_log": "",
+      "cases": 38385,
+      "planned": 38385,
+      "matched": 38385,
+      "mismatched": 0,
+      "families": {
+        "golden": {
+          "cases": 5,
+          "mismatches": 0
+        },
+        "boundary": {
+          "cases": 29,
+          "mismatches": 0
+        },
+        "invalid": {
+          "cases": 6,
+          "mismatches": 0
+        },
+        "regression": {
+          "cases": 3,
+          "mismatches": 0
+        },
+        "property": {
+          "cases": 38342,
+          "mismatches": 0
+        }
+      },
+      "classes": [],
+      "counterexample_ids": [],
+      "decision_coverage": {
+        "observed": [],
+        "undecided": []
+      },
+      "seconds": 26.96,
+      "events": [
+        {
+          "type": "build",
+          "message": "building legacy program"
+        },
+        {
+          "type": "built",
+          "compiler": "cobc (GnuCOBOL) 3.1.2.0",
+          "source_hash": "78f81ae292c778863bd53a40f4c2b1fd71b31a678d290936fb63a93fc6c1871b"
+        },
+        {
+          "type": "planned",
+          "planned": 38385
+        },
+        {
+          "type": "progress",
+          "family": "golden",
+          "cases": 5,
+          "matched": 5,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "boundary",
+          "cases": 34,
+          "matched": 34,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "invalid",
+          "cases": 40,
+          "matched": 40,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "regression",
+          "cases": 43,
+          "matched": 43,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 557,
+          "matched": 557,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 1214,
+          "matched": 1214,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 1858,
+          "matched": 1858,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 2492,
+          "matched": 2492,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 3122,
+          "matched": 3122,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 3855,
+          "matched": 3855,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 4668,
+          "matched": 4668,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 5357,
+          "matched": 5357,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 5939,
+          "matched": 5939,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 6474,
+          "matched": 6474,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 6979,
+          "matched": 6979,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 7534,
+          "matched": 7534,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 8061,
+          "matched": 8061,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 8621,
+          "matched": 8621,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 9243,
+          "matched": 9243,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 9890,
+          "matched": 9890,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 10464,
+          "matched": 10464,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 11149,
+          "matched": 11149,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 11669,
+          "matched": 11669,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 12264,
+          "matched": 12264,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 12928,
+          "matched": 12928,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 13668,
+          "matched": 13668,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 14232,
+          "matched": 14232,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 14834,
+          "matched": 14834,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 15559,
+          "matched": 15559,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 16194,
+          "matched": 16194,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 16823,
+          "matched": 16823,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 17456,
+          "matched": 17456,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 18121,
+          "matched": 18121,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 18874,
+          "matched": 18874,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 19591,
+          "matched": 19591,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 20336,
+          "matched": 20336,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 20966,
+          "matched": 20966,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 21606,
+          "matched": 21606,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 22291,
+          "matched": 22291,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 22996,
+          "matched": 22996,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 23809,
+          "matched": 23809,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 24504,
+          "matched": 24504,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 25004,
+          "matched": 25004,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 25584,
+          "matched": 25584,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 26173,
+          "matched": 26173,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 26787,
+          "matched": 26787,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 27477,
+          "matched": 27477,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 28123,
+          "matched": 28123,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 28736,
+          "matched": 28736,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 29316,
+          "matched": 29316,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 29916,
+          "matched": 29916,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 30513,
+          "matched": 30513,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 31086,
+          "matched": 31086,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 31901,
+          "matched": 31901,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 32476,
+          "matched": 32476,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 33033,
+          "matched": 33033,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 33653,
+          "matched": 33653,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 34463,
+          "matched": 34463,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 35174,
+          "matched": 35174,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 35820,
+          "matched": 35820,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 36470,
+          "matched": 36470,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 37008,
+          "matched": 37008,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 37620,
+          "matched": 37620,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "progress",
+          "family": "property",
+          "cases": 38385,
+          "matched": 38385,
+          "planned": 38385,
+          "mismatched": 0
+        },
+        {
+          "type": "verdict",
+          "verdict": "APPROVAL REQUIRED",
+          "cases": 38385,
+          "matched": 38385
+        }
+      ],
+      "counterexamples": []
+    }
+  },
   "story": {
     "baseline": {
-      "run_id": "run_20261113031144_f1c789",
+      "run_id": "run_20261113033119_d9732e",
+      "profile": "demo",
       "verdict": "MATCH",
       "cases": 3623,
       "matched": 3623,
       "mismatched": 0,
-      "seed": 731942
+      "seed": 731942,
+      "mutation": null
     },
     "injected": {
-      "run_id": "run_20261113031146_4afc84",
+      "run_id": "run_20261113033122_d2d088",
+      "profile": "demo",
       "verdict": "MISMATCH",
       "cases": 3623,
       "matched": 2792,
       "mismatched": 831,
+      "seed": 731942,
       "mutation": "M4"
     },
     "after_patch": {
-      "run_id": "run_20261113031151_f0582d",
-      "verdict": "MATCH",
-      "cases": 3623,
-      "matched": 3623,
+      "run_id": "run_20261113033127_5fa218",
+      "profile": "full",
+      "verdict": "APPROVAL REQUIRED",
+      "cases": 38385,
+      "matched": 38385,
       "mismatched": 0,
-      "seed": 731942
+      "seed": 731942,
+      "mutation": null
     }
   }
 }
