@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { RunState } from "../runner";
 import { casesOf, count, toneOf } from "../status";
 import type { Counterexample, Decision, Mutation, Profile, Snapshot, Status } from "../types";
@@ -9,9 +9,10 @@ import { StatusBadge } from "./StatusBadge";
 
 export interface DemoStep {
   label: string;
-  state: "pending" | "active" | "done" | "failed";
+  state: "pending" | "active" | "done" | "failed" | "skipped";
   result?: Status;
   note?: string;
+  startedAt?: number;
 }
 
 export interface Controls {
@@ -36,6 +37,9 @@ interface Props {
   decisions: Decision[];
   onRun: () => void;
   onDemo: () => void;
+  retry: { label: string; run: () => void } | null;
+  onStop: () => void;
+  liveHosted: boolean;
   onFocusCx: (cx: Counterexample) => void;
   onRerun: (cx: Counterexample) => void;
   onDecide: (decision: Decision) => Promise<void>;
@@ -60,6 +64,31 @@ const VERDICT_TEXT: Record<Status, string> = {
   "APPROVAL REQUIRED": "Evidence is complete and waits for a reviewer.",
 };
 
+const STEP_MARK: Record<DemoStep["state"], string | null> = {
+  pending: null,
+  active: "◆",
+  done: "✓",
+  failed: "✕",
+  skipped: "○",
+};
+
+function useNow(active: boolean): number {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!active) return;
+    setNow(Date.now());
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [active]);
+  return now;
+}
+
+function seconds(since: number | null | undefined, now: number): string | null {
+  if (!since) return null;
+  const s = Math.max(0, Math.floor((now - since) / 1000));
+  return `${s} s elapsed`;
+}
+
 const CX_LIMIT = 5;
 const RECORDED_MUTATIONS = new Set(["", "M4"]);
 
@@ -76,6 +105,12 @@ export function Circle(props: Props) {
   const percent = run.planned > 0 ? Math.round((run.cases / run.planned) * 100) : 0;
 
   const set = (patch: Partial<Controls>) => onControls({ ...controls, ...patch });
+  const activeStep = demo?.find((step) => step.state === "active") ?? null;
+  const now = useNow(running || activeStep !== null);
+  const elapsed = running ? seconds(run.startedAt, now) : null;
+  const waitingLive = run.live && run.phase === "starting";
+  const failed = run.phase === "finished" && run.error !== null && run.status !== "BUILD FAILED";
+  const mutationRun = run.report?.mutation ?? run.counterexamples.find((cx) => cx.mutation)?.mutation ?? null;
 
   return (
     <section className="pane pane--circle" aria-labelledby="circle-title" id="circle">
@@ -97,14 +132,16 @@ export function Circle(props: Props) {
           <div className="run-head">
             <p className="run-head__title">
               <span className="tag tag--warn">Recorded</span>{" "}
-              {props.recorded.mutation ? (
+              {run.label ? (
+                run.label
+              ) : props.recorded.mutation ? (
                 <>
                   Recorded run, <strong className="mono">{props.recorded.mutation} INJECTED</strong>
                 </>
               ) : props.recorded.verdict === "APPROVAL REQUIRED" ? (
                 "Recorded run, after the patch"
               ) : (
-                "Recorded run, twin as written"
+                "Recorded run, twin with the three preserved legacy behaviors"
               )}
             </p>
             <dl className="run-head__meta">
@@ -129,16 +166,49 @@ export function Circle(props: Props) {
             <StatusBadge status={run.status} size="lg" />
             {run.replay ? <span className="tag tag--warn">Recorded</span> : null}
           </p>
-          <p className="verdict__text">
-            {run.error ? `${run.error.message} (${run.error.code})` : VERDICT_TEXT[run.status]}
-          </p>
+          {failed && run.error ? (
+            <div className="run-failed" role="alert">
+              <p className="run-failed__title">
+                {run.error.busy ? "The oracle is busy" : "The run did not finish"}
+              </p>
+              <p className="verdict__text">{run.error.message}</p>
+              <p className="hint mono">
+                {run.error.code}
+                {run.cases === 0 ? ", no cases were compared" : `, stopped after ${casesOf(run.cases, run.planned)}`}
+              </p>
+              {props.retry && run.error.retry ? (
+                <button type="button" className="button button--primary" disabled={busy} onClick={props.retry.run}>
+                  {props.retry.label}
+                </button>
+              ) : null}
+            </div>
+          ) : (
+            <p className="verdict__text">
+              {run.error
+                ? `${run.error.message} (${run.error.code})`
+                : running
+                  ? run.planned > 0 || run.cases > 0
+                    ? `Comparing, ${count(run.cases)} of ${count(Math.max(run.planned, run.cases))} cases so far.`
+                    : "Comparing, the first cases are on their way."
+                  : VERDICT_TEXT[run.status]}
+            </p>
+          )}
           <p className="verdict__phase">
-            {running ? PHASE_TEXT[run.phase] : run.phase === "finished" ? PHASE_TEXT.finished : PHASE_TEXT.idle}
+            {waitingLive
+              ? "Comparing on the hosted oracle. Results arrive together when it finishes"
+              : running
+                ? PHASE_TEXT[run.phase]
+                : run.phase === "finished"
+                  ? PHASE_TEXT.finished
+                  : PHASE_TEXT.idle}
             {run.replay ? ", replaying recorded evidence" : ""}
+            {elapsed ? <span className="num">, {elapsed}</span> : null}
           </p>
         </div>
         <div className="progress">
-          <p className="progress__count num">{casesOf(run.cases, run.planned)}</p>
+          <p className="progress__count num">
+            {failed && run.cases === 0 ? "No cases compared" : waitingLive ? "Waiting for the hosted oracle" : casesOf(run.cases, run.planned)}
+          </p>
           {run.cases > 0 ? (
             <p className="progress__sum num">
               {count(run.matched)} matched + {count(run.mismatched)} mismatched = {count(run.matched + run.mismatched)}{" "}
@@ -151,10 +221,13 @@ export function Circle(props: Props) {
             aria-label="Cases compared"
             aria-valuemin={0}
             aria-valuemax={Math.max(run.planned, run.cases)}
-            aria-valuenow={run.cases}
-            aria-valuetext={casesOf(run.cases, run.planned)}
+            aria-valuenow={waitingLive ? undefined : run.cases}
+            aria-valuetext={waitingLive ? "Waiting for the hosted oracle" : casesOf(run.cases, run.planned)}
           >
-            <span className="progress__fill" style={{ width: `${percent}%` }} />
+            <span
+              className={`progress__fill${waitingLive ? " progress__fill--wait" : ""}`}
+              style={{ width: waitingLive ? undefined : `${percent}%` }}
+            />
           </div>
           <dl className="progress__stats">
             <div>
@@ -208,7 +281,7 @@ export function Circle(props: Props) {
             >
               <option value="dev">dev, quick</option>
               <option value="demo">demo, stage sized</option>
-              <option value="full">full, thorough</option>
+              <option value="full">{props.liveHosted ? "full (recorded replay on the hosted build)" : "full, thorough"}</option>
             </select>
           </div>
           <div className="field">
@@ -220,7 +293,7 @@ export function Circle(props: Props) {
               aria-describedby={replayOnly ? "replay-note" : undefined}
               inputMode="numeric"
               pattern="[0-9]*"
-              placeholder="random"
+              placeholder="731942, the recorded seed"
               value={controls.seed}
               onChange={(e) => set({ seed: e.target.value.replace(/[^0-9]/g, "") })}
             />
@@ -238,7 +311,7 @@ export function Circle(props: Props) {
                 onChange={() => set({ mutation: "" })}
               />
               <span className="mutation__id">None</span>
-              <span className="mutation__label">Twin as written</span>
+              <span className="mutation__label">Twin with the three preserved legacy behaviors</span>
             </label>
             {mutations.map((m) => {
               const active = controls.mutation === m.id || injected === m.id;
@@ -285,6 +358,11 @@ export function Circle(props: Props) {
           <button type="button" className="button" onClick={props.onDemo} disabled={busy}>
             Guided demo
           </button>
+          {busy ? (
+            <button type="button" className="button button--danger" onClick={props.onStop}>
+              Stop
+            </button>
+          ) : null}
         </div>
       </form>
 
@@ -298,17 +376,27 @@ export function Circle(props: Props) {
             {demo.map((step, i) => (
               <li key={i} className={`step step--${step.state}`} aria-current={step.state === "active" ? "step" : undefined}>
                 <span className="step__mark" aria-hidden="true">
-                  {step.state === "done" ? "✓" : step.state === "failed" ? "✕" : step.state === "active" ? "◆" : i + 1}
+                  {STEP_MARK[step.state] ?? i + 1}
                 </span>
                 <span className="step__label">
                   {step.label}
                   <span className="visually-hidden">, {step.state}</span>
                 </span>
+                {step.state === "active" && step.startedAt ? (
+                  <span className="step__time num">{seconds(step.startedAt, now)}</span>
+                ) : null}
                 {step.result ? <StatusBadge status={step.result} /> : null}
                 {step.note ? <span className="step__note">{step.note}</span> : null}
               </li>
             ))}
           </ol>
+          {props.retry && !busy && !(failed && run.error?.retry) && demo.some((step) => step.state === "failed") ? (
+            <div className="button-row">
+              <button type="button" className="button" onClick={props.retry.run}>
+                {props.retry.label}
+              </button>
+            </div>
+          ) : null}
         </div>
       ) : null}
 
@@ -356,7 +444,13 @@ export function Circle(props: Props) {
           <h3 id="decisions-title">Human decisions</h3>
           <p className="hint">One per mismatch class</p>
         </div>
-        {classes.length === 0 ? (
+        {mutationRun && classes.length > 0 ? (
+          <p className="notice notice--warn" role="note">
+            These mismatches come from injected mutation <span className="mono">{mutationRun}</span>, a planted bug and
+            not legacy behavior. No decision record covers a mutation run, so it never counts as decided. Remove the
+            mutation instead.
+          </p>
+        ) : classes.length === 0 ? (
           <p className="empty">No mismatch classes, so nobody has to make a call. Enjoy it while it lasts.</p>
         ) : (
           <div className="stack">
