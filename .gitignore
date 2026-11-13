@@ -10,3 +10,4 @@ dist/
 .pytest_cache/
 evidence/snapshot_runs/
 evidence/runs/
+docs/pitch-notes.md
