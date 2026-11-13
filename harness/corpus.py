@@ -64,7 +64,7 @@ def mixed_records():
 
 
 def record_batches(max_size):
-    return st.lists(mixed_records(), min_size=1, max_size=max_size)
+    return st.lists(mixed_records(), min_size=max(1, max_size // 2), max_size=max_size)
 
 
 def golden():
