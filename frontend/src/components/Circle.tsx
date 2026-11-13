@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { RunState } from "../runner";
 import { casesOf, count, toneOf } from "../status";
-import type { Counterexample, Decision, Mutation, Profile, Status } from "../types";
+import type { Counterexample, Decision, Mutation, Profile, Snapshot, Status } from "../types";
 import { ApprovalCard } from "./ApprovalCard";
 import { CounterexampleCard } from "./CounterexampleCard";
 import { DecisionCard } from "./DecisionCard";
@@ -30,6 +30,7 @@ interface Props {
   injected: string | null;
   replayOnly: boolean;
   simulated: boolean;
+  recorded?: Snapshot | null;
   demo: DemoStep[] | null;
   focusedId: string | null;
   decisions: Decision[];
@@ -51,7 +52,7 @@ const PHASE_TEXT: Record<RunState["phase"], string> = {
 };
 
 const VERDICT_TEXT: Record<Status, string> = {
-  "NOT RUN": "Nothing has been compared yet.",
+  "NOT RUN": "Nothing has been compared yet. The candle is waiting.",
   "BUILD FAILED": "The legacy program did not compile. No cases were compared.",
   MATCH: "Oracle and twin agreed on every case in this run.",
   MISMATCH: "Oracle and twin disagree. Each counterexample below needs a human decision.",
@@ -60,6 +61,7 @@ const VERDICT_TEXT: Record<Status, string> = {
 };
 
 const CX_LIMIT = 5;
+const RECORDED_MUTATIONS = new Set(["", "M4"]);
 
 export function Circle(props: Props) {
   const { run, busy, controls, onControls, mutations, injected, replayOnly, demo } = props;
@@ -87,13 +89,46 @@ export function Circle(props: Props) {
         style={{ "--glow": glow.toFixed(3) } as React.CSSProperties}
       >
         <div className="verdict__glow" aria-hidden="true" />
-        <div className="verdict__candle" aria-hidden="true">
+        <div className="verdict__candle" aria-hidden="true" data-candle>
           <span className="verdict__flame" />
           <span className="verdict__wick" />
         </div>
+        {run.replay && props.recorded ? (
+          <div className="run-head">
+            <p className="run-head__title">
+              <span className="tag tag--warn">Recorded</span>{" "}
+              {props.recorded.mutation ? (
+                <>
+                  Recorded run, <strong className="mono">{props.recorded.mutation} INJECTED</strong>
+                </>
+              ) : props.recorded.verdict === "APPROVAL REQUIRED" ? (
+                "Recorded run, after the patch"
+              ) : (
+                "Recorded run, twin as written"
+              )}
+            </p>
+            <dl className="run-head__meta">
+              <div>
+                <dt>Profile</dt>
+                <dd className="mono">{props.recorded.profile}</dd>
+              </div>
+              <div>
+                <dt>Mutation</dt>
+                <dd className="mono">{props.recorded.mutation ?? "none"}</dd>
+              </div>
+              <div>
+                <dt>Seed</dt>
+                <dd className="mono">{props.recorded.seed}</dd>
+              </div>
+            </dl>
+          </div>
+        ) : null}
         <div className="verdict__body" aria-live="polite" aria-atomic="true">
           <p className="verdict__label">Verdict</p>
-          <StatusBadge status={run.status} size="lg" />
+          <p className="verdict__badges">
+            <StatusBadge status={run.status} size="lg" />
+            {run.replay ? <span className="tag tag--warn">Recorded</span> : null}
+          </p>
           <p className="verdict__text">
             {run.error ? `${run.error.message} (${run.error.code})` : VERDICT_TEXT[run.status]}
           </p>
@@ -104,6 +139,12 @@ export function Circle(props: Props) {
         </div>
         <div className="progress">
           <p className="progress__count num">{casesOf(run.cases, run.planned)}</p>
+          {run.cases > 0 ? (
+            <p className="progress__sum num">
+              {count(run.matched)} matched + {count(run.mismatched)} mismatched = {count(run.matched + run.mismatched)}{" "}
+              compared
+            </p>
+          ) : null}
           <div
             className="progress__bar"
             role="progressbar"
@@ -146,14 +187,22 @@ export function Circle(props: Props) {
       >
         <div className="block__head">
           <h3 id="controls-title">Run controls</h3>
-          {replayOnly ? <p className="tag tag--warn">Replay only</p> : null}
+          {replayOnly ? <p className="tag tag--warn">Recorded only</p> : null}
         </div>
+        {replayOnly ? (
+          <p className="notice notice--warn" id="replay-note">
+            Mutations run on the live oracle. This build replays the recorded M4 story. None replays the recorded
+            baseline and M4 replays the recorded injected run. Profile, seed and the demo config apply to live runs only.
+          </p>
+        ) : null}
         <div className="row">
           <div className="field">
             <label htmlFor="profile">Profile</label>
             <select
               id="profile"
               className="input"
+              disabled={replayOnly}
+              aria-describedby={replayOnly ? "replay-note" : undefined}
               value={controls.profile}
               onChange={(e) => set({ profile: e.target.value as Profile })}
             >
@@ -167,6 +216,8 @@ export function Circle(props: Props) {
             <input
               id="seed"
               className="input mono"
+              disabled={replayOnly}
+              aria-describedby={replayOnly ? "replay-note" : undefined}
               inputMode="numeric"
               pattern="[0-9]*"
               placeholder="random"
@@ -175,7 +226,7 @@ export function Circle(props: Props) {
             />
           </div>
         </div>
-        <fieldset className="mutations">
+        <fieldset className="mutations" aria-describedby={replayOnly ? "replay-note" : undefined}>
           <legend>Mutation</legend>
           <div className="mutations__grid">
             <label className="mutation">
@@ -191,17 +242,26 @@ export function Circle(props: Props) {
             </label>
             {mutations.map((m) => {
               const active = controls.mutation === m.id || injected === m.id;
+              const unavailable = replayOnly && !RECORDED_MUTATIONS.has(m.id);
               return (
-                <label key={m.id} className={active ? "mutation is-active" : "mutation"} title={m.description}>
+                <label
+                  key={m.id}
+                  className={`mutation${active ? " is-active" : ""}${unavailable ? " is-unavailable" : ""}`}
+                  title={unavailable ? `${m.description} Needs the live oracle.` : m.description}
+                >
                   <input
                     type="radio"
                     name="mutation"
+                    disabled={unavailable}
                     value={m.id}
                     checked={controls.mutation === m.id}
                     onChange={() => set({ mutation: m.id })}
                   />
                   <span className="mutation__id mono">{m.id}</span>
-                  <span className="mutation__label">{m.label}</span>
+                  <span className="mutation__label">
+                    {m.label}
+                    {unavailable ? <span className="visually-hidden">, needs the live oracle</span> : null}
+                  </span>
                   {active ? <span className="tag tag--danger">INJECTED</span> : null}
                 </label>
               );
@@ -212,6 +272,7 @@ export function Circle(props: Props) {
         <label className="check">
           <input
             type="checkbox"
+            disabled={replayOnly}
             checked={controls.useDemoConfig}
             onChange={(e) => set({ useDemoConfig: e.target.checked })}
           />
@@ -219,7 +280,7 @@ export function Circle(props: Props) {
         </label>
         <div className="button-row">
           <button type="submit" className="button button--primary" disabled={busy}>
-            {replayOnly ? "Replay recorded run" : "Run comparison"}
+            {replayOnly ? (controls.mutation === "M4" ? "Replay recorded M4 run" : "Replay recorded baseline") : "Run comparison"}
           </button>
           <button type="button" className="button" onClick={props.onDemo} disabled={busy}>
             Guided demo
@@ -231,7 +292,7 @@ export function Circle(props: Props) {
         <div className="block" aria-labelledby="demo-title">
           <div className="block__head">
             <h3 id="demo-title">Guided demo</h3>
-            <p className="hint">Real API calls, in order</p>
+            <p className="hint">{replayOnly ? "Recorded runs, in order" : "Real API calls, in order"}</p>
           </div>
           <ol className="steps">
             {demo.map((step, i) => (
@@ -254,7 +315,10 @@ export function Circle(props: Props) {
       <div className="block" aria-labelledby="cx-title">
         <div className="block__head">
           <h3 id="cx-title">Counterexamples</h3>
-          <p className="hint num">{count(run.counterexamples.length)} shrunk</p>
+          <p className="hint num">
+            {run.replay && run.counterexamples.length ? "Recorded, " : ""}
+            {count(run.counterexamples.length)} shrunk
+          </p>
         </div>
         {run.counterexamples.length === 0 ? (
           <p className="empty">
@@ -264,7 +328,7 @@ export function Circle(props: Props) {
                 ? "Shrinking the failing input to its smallest form."
                 : running
                   ? "None yet. Disagreements appear here as they are found."
-                  : "None yet. Run a comparison to look for disagreements."}
+                  : "Nothing dug up yet. Run a comparison and any disagreement lands here, shrunk to the smallest claimant that still breaks."}
           </p>
         ) : (
           <div className="stack">
@@ -293,7 +357,7 @@ export function Circle(props: Props) {
           <p className="hint">One per mismatch class</p>
         </div>
         {classes.length === 0 ? (
-          <p className="empty">No mismatch classes to decide.</p>
+          <p className="empty">No mismatch classes, so nobody has to make a call. Enjoy it while it lasts.</p>
         ) : (
           <div className="stack">
             {classes.map((klass) => {
@@ -309,6 +373,50 @@ export function Circle(props: Props) {
               );
             })}
           </div>
+        )}
+      </div>
+
+      <div className="block" aria-labelledby="recorded-decisions-title">
+        <div className="block__head">
+          <h3 id="recorded-decisions-title">Recorded decisions</h3>
+          <p className="hint num">{count(props.decisions.length)} on file</p>
+        </div>
+        {props.decisions.length === 0 ? (
+          <p className="empty">No decision records on file, or the server did not hand them over.</p>
+        ) : (
+          <ul className="records">
+            {props.decisions.map((d, i) => (
+              <li key={`${d.id ?? d.class}-${i}`} className="record-entry">
+                <p className="record-entry__head">
+                  <span className="mono">{d.id ?? "unsaved"}</span> covers class <span className="mono chip">{d.class}</span>{" "}
+                  exactly
+                </p>
+                <dl className="record-entry__meta">
+                  <div>
+                    <dt>Field</dt>
+                    <dd className="mono">{d.field}</dd>
+                  </div>
+                  <div>
+                    <dt>Choice</dt>
+                    <dd>{d.choice}</dd>
+                  </div>
+                  <div>
+                    <dt>Reviewer</dt>
+                    <dd>{d.reviewer}</dd>
+                  </div>
+                  <div>
+                    <dt>Date</dt>
+                    <dd className="mono">{d.date ?? "this session"}</dd>
+                  </div>
+                  <div>
+                    <dt>Lists</dt>
+                    <dd className="mono">{d.counterexample_ids.join(", ") || "none"}</dd>
+                  </div>
+                </dl>
+                {d.note ? <p className="record-entry__note">{d.note}</p> : null}
+              </li>
+            ))}
+          </ul>
         )}
       </div>
 

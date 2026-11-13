@@ -10,6 +10,7 @@ export interface PatchState {
   diff: string | null;
   runId: string | null;
   error: string | null;
+  recorded?: boolean;
 }
 
 interface Props {
@@ -77,7 +78,7 @@ export function Twin({ focus, patch, busy, onExorcise }: Props) {
         {focus ? (
           <TraceTable oracle={focus.oracle} twin={focus.twin} caption="Oracle and twin rule trace" />
         ) : (
-          <p className="empty">Run a comparison or pick a claim to see both traces side by side.</p>
+          <p className="empty">No trace picked. Run a comparison or choose a sample claim and both traces line up here.</p>
         )}
       </div>
 
@@ -113,7 +114,12 @@ export function Twin({ focus, patch, busy, onExorcise }: Props) {
               Patch not applied. {patch.error}
             </p>
           ) : null}
-          {patch.phase === "applied" ? (
+          {patch.phase === "applied" && patch.recorded ? (
+            <p className="hint">
+              <span className="tag tag--warn">Recorded</span> Patch text shown as recorded. Replaying rerun{" "}
+              <span className="mono">{patch.runId}</span>.
+            </p>
+          ) : patch.phase === "applied" ? (
             <p className="hint">
               Applied. Rerun <span className="mono">{patch.runId}</span> started.
             </p>
@@ -124,7 +130,7 @@ export function Twin({ focus, patch, busy, onExorcise }: Props) {
         ) : patch.phase === "applied" ? (
           <p className="empty">The server did not return diff text for this patch.</p>
         ) : (
-          <p className="empty">No patch applied yet.</p>
+          <p className="empty">No patch applied yet. The twin is as written, warts and all.</p>
         )}
       </div>
     </section>

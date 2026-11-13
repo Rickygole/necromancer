@@ -40,6 +40,10 @@ export function CounterexampleCard({ cx, focused, busy, onFocus, onRerun }: Prop
         </div>
       </header>
 
+      {cx.mutation ? (
+        <p className="tag tag--danger cx__origin">injected mutation {cx.mutation}, not a legacy finding</p>
+      ) : null}
+
       <p className="cx__summary">
         Disagrees on {fields.length ? fields.join(", ") : "trace only"}.
       </p>

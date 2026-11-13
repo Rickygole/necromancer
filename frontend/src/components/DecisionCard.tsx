@@ -10,12 +10,12 @@ interface Props {
 
 export function DecisionCard({ klass, examples, existing, onSubmit }: Props) {
   const id = useId();
-  const [choice, setChoice] = useState<"preserve" | "correct" | "">(existing?.choice ?? "");
-  const [reviewer, setReviewer] = useState(existing?.reviewer ?? "");
-  const [note, setNote] = useState(existing?.note ?? "");
+  const [choice, setChoice] = useState<"preserve" | "correct" | "">("");
+  const [reviewer, setReviewer] = useState("");
+  const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [saved, setSaved] = useState<Decision | null>(existing);
+  const [saved, setSaved] = useState<Decision | null>(null);
 
   const fields = Array.from(
     new Set(examples.flatMap((cx) => cx.diff.map((d) => d.field)).filter((f) => f !== "trace")),
@@ -51,6 +51,62 @@ export function DecisionCard({ klass, examples, existing, onSubmit }: Props) {
       setSaving(false);
     }
   };
+
+  if (existing) {
+    return (
+      <article className="card decision decision--recorded" aria-labelledby={`${id}-title`}>
+        <header className="card__head">
+          <div>
+            <h4 id={`${id}-title`}>
+              Class <span className="mono">{klass}</span>
+            </h4>
+            <p className="hint">
+              {examples.length} {examples.length === 1 ? "counterexample" : "counterexamples"} in this run
+              {fields.length ? `, fields ${fields.join(", ")}` : ""}
+            </p>
+          </div>
+          <p className="decided">
+            <span aria-hidden="true">{"✓"}</span> Recorded decision
+          </p>
+        </header>
+        <dl className="kvs">
+          <div className="kv">
+            <dt>Choice</dt>
+            <dd>{existing.choice === "preserve" ? "Preserve legacy behavior" : "Correct it"}</dd>
+          </div>
+          <div className="kv">
+            <dt>Reviewer</dt>
+            <dd>{existing.reviewer || "Not recorded"}</dd>
+          </div>
+          <div className="kv">
+            <dt>Date</dt>
+            <dd className="mono">{existing.date ?? "this session"}</dd>
+          </div>
+          {existing.id ? (
+            <div className="kv">
+              <dt>Record</dt>
+              <dd className="mono">{existing.id}</dd>
+            </div>
+          ) : null}
+        </dl>
+        <p className="body-copy">
+          {existing.id ?? "This decision"} covers class <span className="mono chip">{existing.class}</span> by exact
+          match and lists{" "}
+          <span className="mono">{existing.counterexample_ids.join(", ") || "no counterexample ids"}</span>. This run
+          shows <span className="mono">{examples.map((cx) => cx.id).join(", ") || "none"}</span> in the same class.
+        </p>
+        {examples.some((cx) => cx.mutation) ? (
+          <p className="notice notice--warn">
+            The counterexamples in this run come from injected mutation{" "}
+            {Array.from(new Set(examples.map((cx) => cx.mutation).filter(Boolean))).join(", ")}. They demonstrate that the
+            harness has teeth. They are not legacy findings.
+          </p>
+        ) : null}
+        {existing.note ? <p className="body-copy">{existing.note}</p> : null}
+        <p className="hint">Read only. Decisions live in decisions/ and are changed by a person, not from this screen.</p>
+      </article>
+    );
+  }
 
   return (
     <article className="card decision" aria-labelledby={`${id}-title`}>
