@@ -81,7 +81,7 @@ def test_p6_offset_direction_twin(claim, extra):
     assume(claim.pension <= 3000000 and claim.severance <= 3000000)
     low = claim
     high = claim.__class__(**{**claim.__dict__, "severance": min(claim.severance + extra, 4000000)})
-    lines = calculator.calc_batch([encode_claim(low), encode_claim(high)])
+    lines = calculator.calc_batch([encode_claim(low), encode_claim(high)], None, frozenset())
     assert amounts(lines[1])["net"] <= amounts(lines[0])["net"]
 
 
