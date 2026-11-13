@@ -1,0 +1,18 @@
+name: smoke
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 6 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Smoke test production
+        run: sh scripts/smoke.sh https://necromancer-rickygole32-8911s-projects.vercel.app
