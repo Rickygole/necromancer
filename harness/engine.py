@@ -141,12 +141,19 @@ def run_verification(profile="demo", seed=DEFAULT_SEED, mutation=None, on_event=
         return report
 
     cx_dir_local = run_dir / "counterexamples"
-    base_number = next_cx_number(GLOBAL_CX) if not mutation else 1
+    known = {}
+    if not mutation:
+        known = {cx["class"]: cx["id"] for cx in counterexamples.load_all(GLOBAL_CX) if not cx.get("mutation")}
+    next_number = next_cx_number(GLOBAL_CX) if not mutation else 1
     saved = []
-    for index, (sig, (family, comp)) in enumerate(sorted(state["seen"].items())):
+    for sig, (family, comp) in sorted(state["seen"].items()):
         on_event({"type": "shrinking", "class": sig})
         minimal = shrink(sig, comp, cfg["shrink_examples"], seed, mutation, binary)
-        cx_id = "cx_%04d" % (base_number + index)
+        if sig in known:
+            cx_id = known[sig]
+        else:
+            cx_id = "cx_%04d" % next_number
+            next_number += 1
         payload = counterexamples.to_payload(cx_id, seed, minimal, sig)
         payload["family"] = family
         payload["mutation"] = mutation
