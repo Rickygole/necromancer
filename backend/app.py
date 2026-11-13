@@ -276,7 +276,7 @@ def inject(req: InjectRequest):
             {"snapshot": "/api/snapshot"},
         )
     config = patches.inject(req.mutation)
-    return {"run_id": start_run("full", None, config.get("mutation")), "config": config}
+    return {"config": config}
 
 
 @app.get("/api/snapshot")

@@ -156,7 +156,7 @@ def test_inject_and_patch_use_real_diffs(client, monkeypatch):
     monkeypatch.setattr(app_module, "start_run", lambda profile, seed, mutation: "run_stub_" + str(mutation))
     injected = client.post("/api/demo/inject", json={"mutation": "M2"}).json()
     assert injected["config"] == {"mutation": "M2"}
-    assert injected["run_id"] == "run_stub_M2"
+    assert "run_id" not in injected
     assert json.loads((patches.DEMO_DIR / "twin.config.json").read_text()) == {"mutation": "M2"}
     assert_error(client.post("/api/patches/apply-M1/apply"), "BAD_REQUEST", 400)
     fixed = client.post("/api/patches/fix-M2/apply").json()
