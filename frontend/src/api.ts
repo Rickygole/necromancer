@@ -3,6 +3,7 @@ import type {
   Decision,
   Health,
   Mutation,
+  MutationScore,
   Report,
   RunEvent,
   RunRequest,
@@ -96,6 +97,7 @@ export const api = {
   applyPatch: (id: string) =>
     request<{ run_id?: string; diff?: string; patch?: string }>("POST", `/api/patches/${encodeURIComponent(id)}/apply`),
   snapshot: () => request<Snapshot>("GET", "/api/snapshot"),
+  mutationScore: () => request<MutationScore>("GET", "/api/mutation-score"),
   liveRun: (body: RunRequest) => request<Snapshot>("POST", "/api/live", body),
 };
 
@@ -139,8 +141,12 @@ export function streamRun(
   };
 }
 
-export function describeError(error: unknown): { code: string; message: string } {
-  if (error instanceof ApiError) return { code: error.code, message: error.message };
-  if (error instanceof Error) return { code: "CLIENT", message: error.message };
-  return { code: "CLIENT", message: String(error) };
+export function describeError(error: unknown): { code: string; message: string; busy: boolean } {
+  if (error instanceof ApiError) {
+    const detail = error.detail as { retry?: unknown } | null;
+    const busy = Boolean(detail && typeof detail === "object" && detail.retry === true);
+    return { code: error.code, message: error.message, busy };
+  }
+  if (error instanceof Error) return { code: "CLIENT", message: error.message, busy: false };
+  return { code: "CLIENT", message: String(error), busy: false };
 }

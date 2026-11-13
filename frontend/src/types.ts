@@ -117,6 +117,17 @@ export interface Decision {
   date?: string;
 }
 
+export interface MutationScore {
+  cases: number;
+  baseline_mismatches: number;
+  named: Record<string, number>;
+  named_caught: number;
+  named_total: number;
+  hidden: Record<string, number>;
+  hidden_caught: number;
+  hidden_total: number;
+}
+
 export interface FocusTrace {
   oracle: string;
   twin: string;
