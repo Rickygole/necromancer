@@ -27,6 +27,9 @@ def compare_one(record, oracle_line, twin_line):
     if len(twin_line) != RESULT_LEN:
         diffs.append(Difference("width", oracle_line, twin_line))
         return Comparison(record, oracle_line, twin_line, diffs)
+    if len(oracle_line) != RESULT_LEN:
+        diffs.append(Difference("oracle_width", oracle_line, twin_line))
+        return Comparison(record, oracle_line, twin_line, diffs)
     left = split_result(oracle_line)
     right = split_result(twin_line)
     for name, _, _ in OUTPUT_FIELDS:
@@ -36,6 +39,8 @@ def compare_one(record, oracle_line, twin_line):
 
 
 def compare_batch(records, oracle_lines, twin_lines):
+    if len(oracle_lines) != len(records):
+        raise ValueError("oracle returned a different number of results")
     if len(twin_lines) != len(records):
         raise ValueError("twin returned a different number of results")
     return [compare_one(r, o, t) for r, o, t in zip(records, oracle_lines, twin_lines)]

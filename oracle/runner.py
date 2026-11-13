@@ -128,6 +128,9 @@ def _build(source, out_dir):
 def run_batch(records, binary=None):
     if len(records) > BATCH_LIMIT:
         raise ValueError("batch too large")
+    for index, record in enumerate(records):
+        if "\n" in record:
+            raise ValueError(f"record {index} contains a newline character")
     binary = Path(binary) if binary else ROOT / "bin" / "uicalc"
     payload = "".join(r + "\n" for r in records)
     with tempfile.TemporaryDirectory(prefix="necro-") as tmp:
