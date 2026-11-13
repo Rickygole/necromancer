@@ -21,6 +21,21 @@ MUTATIONS = {
     },
 }
 
+HIDDEN_MUTANTS = {
+    "H1": {
+        "label": "count ignores shift",
+        "description": "Quarter counting uses the original Q4 even when the flag is Y.",
+    },
+    "H2": {
+        "label": "dependents above 12",
+        "description": "Dependents above 12 are treated as 3.",
+    },
+    "H3": {
+        "label": "age modulo 18",
+        "description": "Age is read modulo 18 for the retirement exemption test.",
+    },
+}
+
 
 def is_active(selected, mutation_id):
     return selected == mutation_id

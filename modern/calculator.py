@@ -39,7 +39,9 @@ def total_wages(quarters):
     return total, ()
 
 
-def count_quarters(quarters):
+def count_quarters(quarters, claim=None, mutation=None):
+    if is_active(mutation, "H1"):
+        quarters = [claim.q1, claim.q2, claim.q3, claim.q4]
     count = sum(1 for wage in quarters if wage > 0)
     if count < 2:
         return count, (4,)
@@ -62,7 +64,9 @@ def base_benefit(quarters, mutation=None, behaviors=frozenset()):
     return store(whole, 7, 2), tuple(bits)
 
 
-def dependency_allowance(dependents):
+def dependency_allowance(dependents, mutation=None):
+    if is_active(mutation, "H2") and dependents > 12:
+        dependents = 3
     allowance = PER_DEPENDENT * min(dependents, MAX_DEPENDENTS)
     if allowance > 0:
         return store(allowance, 7, 2), (7,)
@@ -82,7 +86,8 @@ def wage_ceiling(base, allowance, total, mutation=None):
 
 def offset(claim, mutation=None, behaviors=frozenset()):
     threshold = RETIREMENT_AGE + 1 if is_active(mutation, "M3") else RETIREMENT_AGE
-    if claim.age >= threshold and claim.retirement_code == "M":
+    age = claim.age % 18 if is_active(mutation, "H3") else claim.age
+    if age >= threshold and claim.retirement_code == "M":
         return ZERO, (10,)
     amount = claim.pension + truncate(claim.severance / 2, 2)
     if "offset_wrap" in behaviors:
@@ -130,14 +135,14 @@ def calc(claim_or_record, mutation=None, behaviors=None):
     if found:
         return _result(1, bits)
 
-    _, found = count_quarters(quarters)
+    _, found = count_quarters(quarters, claim, mutation)
     bits.update(found)
     if found:
         return _result(2, bits)
 
     base, found = base_benefit(quarters, mutation, behaviors)
     bits.update(found)
-    allowance, found = dependency_allowance(claim.dependents)
+    allowance, found = dependency_allowance(claim.dependents, mutation)
     bits.update(found)
     combined, found = wage_ceiling(base, allowance, total, mutation)
     bits.update(found)
