@@ -338,6 +338,14 @@ def snapshot():
     return json.loads(path.read_text())
 
 
+@app.get("/api/mutation-score")
+def mutation_score():
+    path = ROOT / "evidence" / "mutation_score.json"
+    if not path.exists():
+        raise errors.ApiError("NOT_FOUND", "no mutation score has been recorded")
+    return json.loads(path.read_text())
+
+
 @app.get("/api/patches")
 def list_patches():
     return patches.list_ids()
