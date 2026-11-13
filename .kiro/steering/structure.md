@@ -1,0 +1,11 @@
+---
+inclusion: always
+---
+- legacy/ holds UICALC.cbl and the semantics probes.
+- oracle/ builds and runs the legacy program.
+- modern/ holds the Python twin, one function per COBOL paragraph.
+- harness/ holds corpus generation, comparison, shrinking and the engine.
+- backend/ and frontend/ hold the API and the console.
+- oracle_mcp/ exposes the oracle to Kiro during development.
+- decisions/ holds human authored decision records only.
+- evidence/ holds run reports, probe reports and counterexamples.
