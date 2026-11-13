@@ -88,9 +88,9 @@ a:hover {
   gap: var(--s-2) var(--s-6);
   min-height: var(--masthead-h);
   padding: var(--s-2) clamp(var(--s-3), 3vw, var(--s-6));
-  background: rgba(11, 10, 14, 0.94);
+  background: var(--ink-0);
   border-bottom: 1px solid var(--line-soft);
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+  box-shadow: 0 1px 0 #000;
 }
 
 .logo {
@@ -962,27 +962,43 @@ a:hover {
 .bleed {
   position: relative;
   z-index: 2;
-  overflow: hidden;
-  margin-top: -2.5rem;
+  container-type: inline-size;
+  overflow-x: visible;
+  overflow-y: clip;
+  margin-top: -1.5rem;
+  padding: 0 clamp(var(--s-4), 4vw, var(--s-7));
   pointer-events: none;
 }
 
-.bleed span {
-  display: block;
-  white-space: nowrap;
+.bleed__text {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  column-gap: 0.22em;
+  margin: 0 0 -0.14em;
   font-family: var(--font-condensed);
   font-stretch: condensed;
   font-weight: 800;
-  font-size: clamp(6rem, 21vw, 19rem);
-  line-height: 0.8;
-  letter-spacing: -0.02em;
+  font-size: clamp(3.5rem, 12.5cqi, 17rem);
+  line-height: 0.86;
+  letter-spacing: -0.01em;
+  rotate: -2deg;
+}
+
+@container (max-width: 640px) {
+  .bleed__text {
+    font-size: 24cqi;
+    justify-content: flex-start;
+  }
+}
+
+.bleed__text span {
+  white-space: nowrap;
   color: transparent;
-  background: radial-gradient(circle, rgba(232, 121, 29, 0.55) 1.3px, transparent 1.8px) 0 0 / 7px 7px;
+  background: radial-gradient(circle, rgba(232, 121, 29, 0.6) 1.3px, transparent 1.8px) 0 0 / 7px 7px;
   -webkit-background-clip: text;
   background-clip: text;
-  -webkit-text-stroke: 1px rgba(236, 230, 214, 0.16);
-  transform: translateX(16%);
-  rotate: -3deg;
+  -webkit-text-stroke: 1px rgba(236, 230, 214, 0.18);
 }
 
 .tags {
@@ -1047,6 +1063,7 @@ a:hover {
 
 .toe-tag {
   --rot: -3.5deg;
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
@@ -1091,21 +1108,28 @@ a:hover {
 }
 
 .toe-tag__num {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.5rem;
+  row-gap: 0.15rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.toe-tag__big {
   font-family: var(--font-condensed);
   font-stretch: condensed;
   font-weight: 800;
-  font-size: clamp(2.2rem, 3.4vw, 3.4rem);
+  font-size: clamp(2rem, 26cqi, 4.25rem);
   line-height: 0.95;
-  white-space: nowrap;
   letter-spacing: -0.01em;
-  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .toe-tag__of {
   font-family: var(--font-mono);
-  font-size: 0.9rem;
-  font-weight: 400;
-  vertical-align: middle;
+  font-size: clamp(0.8rem, 7cqi, 1.05rem);
+  white-space: nowrap;
 }
 
 .toe-tag__tally {
@@ -1400,6 +1424,7 @@ a:hover {
 }
 
 .sheet {
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
   gap: var(--s-2);
@@ -1440,19 +1465,27 @@ a:hover {
 }
 
 .sheet__count {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.5rem;
+  row-gap: 0.15rem;
   margin-top: var(--s-2);
+}
+
+.sheet__big {
   font-family: var(--font-condensed);
   font-stretch: condensed;
   font-weight: 800;
-  font-size: clamp(1.9rem, 2.7vw, 2.75rem);
+  font-size: clamp(1.9rem, 20cqi, 3.25rem);
   line-height: 0.95;
   white-space: nowrap;
 }
 
-.sheet__count span {
+.sheet__of {
   font-family: var(--font-mono);
-  font-size: 0.9rem;
-  font-weight: 400;
+  font-size: clamp(0.8rem, 5.5cqi, 1rem);
+  white-space: nowrap;
 }
 
 .sheet__unit {
