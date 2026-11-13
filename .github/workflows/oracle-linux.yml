@@ -24,7 +24,7 @@ jobs:
           curl -fsSL -o gmp.tar.xz https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz
           tar xf gmp.tar.xz
           cd gmp-6.3.0
-          ./configure --prefix=/opt/cobol --disable-shared --enable-static
+          CFLAGS="-O2 -fPIC" ./configure --prefix=/opt/cobol --disable-shared --enable-static --with-pic
           make -j4
           make install
       - name: Build GnuCOBOL 3.1.2
@@ -32,7 +32,7 @@ jobs:
           curl -fsSL -o gnucobol.tar.gz https://ftp.gnu.org/gnu/gnucobol/gnucobol-3.1.2.tar.gz
           tar xzf gnucobol.tar.gz
           cd gnucobol-3.1.2
-          CPPFLAGS="-I/opt/cobol/include" LDFLAGS="-L/opt/cobol/lib" ./configure --prefix=/opt/cobol --disable-shared --enable-static --without-db --without-curses --without-xml2 --without-json
+          CFLAGS="-O2 -fPIC" CPPFLAGS="-I/opt/cobol/include" LDFLAGS="-L/opt/cobol/lib" ./configure --prefix=/opt/cobol --disable-shared --enable-static --without-db --without-curses --without-xml2 --without-json
           make -j4
           make install
       - name: Compile the oracle statically
