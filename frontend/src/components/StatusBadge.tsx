@@ -1,7 +1,7 @@
 import { toneOf } from "../status";
 import type { Status } from "../types";
 
-function Icon({ status }: { status: Status }) {
+export function StatusIcon({ status }: { status: Status }) {
   const common = {
     width: "1em",
     height: "1em",
@@ -62,7 +62,7 @@ function Icon({ status }: { status: Status }) {
 export function StatusBadge({ status, size = "sm" }: { status: Status; size?: "sm" | "lg" }) {
   return (
     <span className={`status status--${toneOf(status)} status--${size}`}>
-      <Icon status={status} />
+      <StatusIcon status={status} />
       <span>{status}</span>
     </span>
   );

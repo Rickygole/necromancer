@@ -1,5 +1,6 @@
 import { useId, useState } from "react";
 import type { Counterexample, Decision } from "../types";
+import { UNCONFIRMED_REVIEWER } from "../content";
 
 interface Props {
   klass: string;
@@ -76,7 +77,7 @@ export function DecisionCard({ klass, examples, existing, onSubmit }: Props) {
           </div>
           <div className="kv">
             <dt>Reviewer</dt>
-            <dd>{existing.reviewer || "Not recorded"}</dd>
+            <dd>{existing.reviewer || UNCONFIRMED_REVIEWER}</dd>
           </div>
           <div className="kv">
             <dt>Date</dt>

@@ -230,3 +230,5 @@ export const REPO_TREE: { path: string; text: string }[] = [
   { path: "tests/", text: "unit, property, mutation and API tests" },
   { path: ".kiro/", text: "specs, steering, hooks, agents, and the oracle MCP server registration" },
 ];
+
+export const UNCONFIRMED_REVIEWER = "Unconfirmed, pending owner";

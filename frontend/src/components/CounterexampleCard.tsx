@@ -9,9 +9,10 @@ interface Props {
   busy: boolean;
   onFocus: () => void;
   onRerun: () => void;
+  compact?: boolean;
 }
 
-export function CounterexampleCard({ cx, focused, busy, onFocus, onRerun }: Props) {
+export function CounterexampleCard({ cx, focused, busy, onFocus, onRerun, compact = false }: Props) {
   const fields = cx.diff.filter((d) => d.field !== "trace").map((d) => d.field);
   return (
     <article className={focused ? "card cx is-focused" : "card cx"} aria-labelledby={`cx-${cx.id}`}>
@@ -32,7 +33,7 @@ export function CounterexampleCard({ cx, focused, busy, onFocus, onRerun }: Prop
         </div>
         <div className="card__actions">
           <button type="button" className="button button--small button--ghost" onClick={onFocus} aria-pressed={focused}>
-            {focused ? "Trace shown" : "Show trace"}
+            {focused ? "Shown in source" : "Show in source"}
           </button>
           <button type="button" className="button button--small" onClick={onRerun} disabled={busy}>
             Rerun seed {cx.seed}
@@ -50,10 +51,11 @@ export function CounterexampleCard({ cx, focused, busy, onFocus, onRerun }: Prop
 
       <OutputDiff oracle={cx.oracle_output} twin={cx.twin_output} fields={OUTPUT_FIELDS} />
 
-      <TraceTable oracle={cx.trace_diff.oracle} twin={cx.trace_diff.twin} caption="Trace bits" mismatch />
+      {compact ? null : <TraceTable oracle={cx.trace_diff.oracle} twin={cx.trace_diff.twin} caption="Trace bits" mismatch />}
 
       <details className="disclosure">
-        <summary>Input record, split into fields</summary>
+        <summary>{compact ? "Trace bits and input record" : "Input record, split into fields"}</summary>
+        {compact ? <TraceTable oracle={cx.trace_diff.oracle} twin={cx.trace_diff.twin} caption="Trace bits" mismatch /> : null}
         <p className="record mono">{cx.input_record.replace(/ /g, "·")}</p>
         <RecordFields record={cx.input_record} fields={INPUT_FIELDS} caption="Shrunk input" hideFiller />
       </details>

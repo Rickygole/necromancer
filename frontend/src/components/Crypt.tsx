@@ -10,9 +10,10 @@ interface Props {
   focus: FocusTrace | null;
   claimId: string;
   onPickClaim: (id: string) => void;
+  open: boolean;
 }
 
-export function Crypt({ focus, claimId, onPickClaim }: Props) {
+export function Crypt({ focus, claimId, onPickClaim, open }: Props) {
   const { text, error } = useText("/legacy/UICALC.cbl");
   const fired = useMemo(() => firedBits(focus?.oracle), [focus]);
   const claim = SAMPLE_CLAIMS.find((c) => c.id === claimId) ?? SAMPLE_CLAIMS[0];
@@ -77,7 +78,7 @@ export function Crypt({ focus, claimId, onPickClaim }: Props) {
           <h3>Source</h3>
           <p className="hint">{lit.size ? `${lit.size} lines lit` : "Nothing lit"}</p>
         </div>
-        <SourceViewer label="UICALC.cbl source" text={text} error={error} lit={lit} />
+        <SourceViewer label="UICALC.cbl source" text={text} error={error} lit={lit} active={open} />
       </div>
 
       <div className="block">

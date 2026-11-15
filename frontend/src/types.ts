@@ -111,7 +111,7 @@ export interface Decision {
   counterexample_ids: string[];
   options_considered: string[];
   choice: "preserve" | "correct";
-  reviewer: string;
+  reviewer: string | null;
   note: string;
   id?: string;
   date?: string;

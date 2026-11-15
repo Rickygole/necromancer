@@ -6,9 +6,10 @@ interface Props {
   error: string | null;
   lit: Map<number, string>;
   window?: [number, number] | null;
+  active?: boolean;
 }
 
-export function SourceViewer({ label, text, error, lit, window: range }: Props) {
+export function SourceViewer({ label, text, error, lit, window: range, active = true }: Props) {
   const scroller = useRef<HTMLPreElement>(null);
   const lines = useMemo(() => (text ? text.replace(/\r\n/g, "\n").replace(/\n$/, "").split("\n") : []), [text]);
   const firstLit = useMemo(() => {
@@ -19,13 +20,13 @@ export function SourceViewer({ label, text, error, lit, window: range }: Props) 
 
   useEffect(() => {
     const el = scroller.current;
-    if (!el || firstLit === null) return;
+    if (!el || firstLit === null || !active) return;
     const row = el.querySelector<HTMLElement>(`[data-line="${firstLit}"]`);
     if (!row) return;
     const target = row.offsetTop - el.clientHeight / 3;
     const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     el.scrollTo({ top: Math.max(0, target), behavior: smooth ? "smooth" : "auto" });
-  }, [firstLit, lines]);
+  }, [firstLit, lines, active]);
 
   if (error) {
     return (
