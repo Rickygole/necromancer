@@ -10,7 +10,9 @@
     "correct"
   ],
   "choice": "preserve",
-  "reviewer": "Ricky Gole",
+  "reviewer": null,
+  "decided_by": "coding agents acting for the owner, delegated",
+  "status": "unconfirmed",
   "date": "2026-11-12",
-  "note": "Narrow quotient wrap above 26000.00 high quarter. The reviewer delegated this choice and it has not yet been confirmed by the reviewer. Preserve means the twin reproduces the legacy behavior."
+  "note": "Narrow quotient wrap above 26000.00 high quarter. The owner delegated this choice to the coding agents and has not yet confirmed it. Preserve means the twin reproduces the legacy behavior."
 }
