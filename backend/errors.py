@@ -6,6 +6,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 STATUS = {
     "BUILD_FAILED": 500,
     "ORACLE_TIMEOUT": 504,
+    "ORACLE_UNAVAILABLE": 503,
     "RUNTIME_ERROR": 500,
     "BAD_REQUEST": 400,
     "NOT_FOUND": 404,

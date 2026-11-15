@@ -34,6 +34,10 @@ class OracleTimeout(OracleError):
     code = "ORACLE_TIMEOUT"
 
 
+class OracleUnavailable(OracleError):
+    code = "ORACLE_UNAVAILABLE"
+
+
 class MalformedOutput(OracleError):
     code = "RUNTIME_ERROR"
 
@@ -145,6 +149,8 @@ def run_batch(records, binary=None):
             )
         except subprocess.TimeoutExpired:
             raise OracleTimeout("oracle timed out", {"records": len(records)})
+        except OSError as exc:
+            raise OracleUnavailable("oracle unavailable", {"reason": type(exc).__name__, "errno": exc.errno})
     if proc.returncode != 0:
         raise OracleError(
             "oracle exited nonzero",

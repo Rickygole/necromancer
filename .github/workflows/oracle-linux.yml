@@ -13,15 +13,16 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container: amazonlinux:2023
     steps:
       - name: Install build tools
         run: dnf install -y gcc make tar xz gzip glibc-static git findutils which m4 diffutils file
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - name: Build GMP
         run: |
           curl -fsSL -o gmp.tar.xz https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz
+          echo "a3c2b80201b89e68616f4ad30bc66aee4927c3ce50e33929ca819d5c43538898  gmp.tar.xz" | sha256sum -c -
           tar xf gmp.tar.xz
           cd gmp-6.3.0
           CFLAGS="-O2 -fPIC" ./configure --prefix=/opt/cobol --disable-shared --enable-static --with-pic
@@ -30,6 +31,7 @@ jobs:
       - name: Build GnuCOBOL 3.1.2
         run: |
           curl -fsSL -o gnucobol.tar.gz https://ftp.gnu.org/gnu/gnucobol/gnucobol-3.1.2.tar.gz
+          echo "f38c60b38a9e404bcba709b61b46f2bafa146b5f3dd90a94b2a70f5cea2f6297  gnucobol.tar.gz" | sha256sum -c -
           tar xzf gnucobol.tar.gz
           cd gnucobol-3.1.2
           CFLAGS="-O2 -fPIC" CPPFLAGS="-I/opt/cobol/include" LDFLAGS="-L/opt/cobol/lib" ./configure --prefix=/opt/cobol --disable-shared --enable-static --without-db --without-curses --without-xml2 --without-json
@@ -47,26 +49,28 @@ jobs:
         run: |
           cp bin/uicalc uicalc-linux-x64
           sha256sum legacy/UICALC.cbl | cut -d' ' -f1 > uicalc-source.sha256
-      - uses: actions/upload-artifact@v4
+          sha256sum uicalc-linux-x64 | cut -d' ' -f1 > uicalc-linux-x64.sha256
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: oracle
           path: |
             uicalc-linux-x64
             uicalc-source.sha256
+            uicalc-linux-x64.sha256
 
   publish:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           name: oracle
       - name: Publish release asset
         run: |
           gh release delete oracle-latest --yes --cleanup-tag --repo "$GITHUB_REPOSITORY" || true
-          gh release create oracle-latest uicalc-linux-x64 uicalc-source.sha256 THIRD_PARTY_NOTICES.md licenses/GPL-3.0.txt licenses/LGPL-3.0.txt licenses/LGPL-2.1.txt --repo "$GITHUB_REPOSITORY" --title "Oracle binary" --notes "Static Linux build of UICALC compiled with GnuCOBOL 3.1.2.0"
+          gh release create oracle-latest uicalc-linux-x64 uicalc-linux-x64.sha256 uicalc-source.sha256 THIRD_PARTY_NOTICES.md licenses/GPL-3.0.txt licenses/LGPL-3.0.txt licenses/LGPL-2.1.txt --repo "$GITHUB_REPOSITORY" --title "Oracle binary" --notes "Static Linux build of UICALC compiled with GnuCOBOL 3.1.2.0"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

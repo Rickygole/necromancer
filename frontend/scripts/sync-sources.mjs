@@ -12,6 +12,12 @@ const files = [
     from: resolve(root, `../backend/patches/fix-${id}.patch`),
     to: resolve(root, `public/patches/fix-${id}.patch`),
   })),
+  { from: resolve(root, "../LICENSE"), to: resolve(root, "public/LICENSE") },
+  { from: resolve(root, "../THIRD_PARTY_NOTICES.md"), to: resolve(root, "public/THIRD_PARTY_NOTICES.md") },
+  ...["GPL-3.0", "LGPL-3.0", "LGPL-2.1"].map((id) => ({
+    from: resolve(root, `../licenses/${id}.txt`),
+    to: resolve(root, `public/licenses/${id}.txt`),
+  })),
 ];
 
 for (const file of files) {

@@ -70,6 +70,8 @@ if [ "$oracle" = "true" ]; then
   expect_status 200
   grep -Eq '"verdict" *: *"MATCH"' "$tmp" || fail "POST /api/live dev verdict was not MATCH"
   pass "POST /api/live dev verdict MATCH"
+elif [ -n "${HOSTED_EXPECT_ORACLE:-}" ] && [ "$HOSTED_EXPECT_ORACLE" != "0" ]; then
+  fail "oracle_available is false but HOSTED_EXPECT_ORACLE is set"
 else
   pass "POST /api/live dev skipped, oracle_available is false"
 fi
