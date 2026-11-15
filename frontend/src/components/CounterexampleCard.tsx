@@ -1,3 +1,4 @@
+import { epitaph } from "../epitaph";
 import { INPUT_FIELDS, OUTPUT_FIELDS } from "../records";
 import type { Counterexample } from "../types";
 import { OutputDiff, RecordFields } from "./RecordFields";
@@ -15,9 +16,12 @@ interface Props {
 export function CounterexampleCard({ cx, focused, busy, onFocus, onRerun, compact = false }: Props) {
   const fields = cx.diff.filter((d) => d.field !== "trace").map((d) => d.field);
   return (
-    <article className={focused ? "card cx is-focused" : "card cx"} aria-labelledby={`cx-${cx.id}`}>
+    <article className={focused ? "card cx cx--stone is-focused" : "card cx cx--stone"} aria-labelledby={`cx-${cx.id}`}>
       <header className="card__head">
-        <div>
+        <div className="cx__name">
+          <p className="cx__lies mono">
+            r.i.p.
+          </p>
           <h4 id={`cx-${cx.id}`} className="mono">
             {cx.id}
           </h4>
@@ -40,6 +44,8 @@ export function CounterexampleCard({ cx, focused, busy, onFocus, onRerun, compac
           </button>
         </div>
       </header>
+
+      <p className="cx__epitaph">{epitaph(cx)}</p>
 
       {cx.mutation ? (
         <p className="tag tag--danger cx__origin">injected mutation {cx.mutation}, not a legacy finding</p>
