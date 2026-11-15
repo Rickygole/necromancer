@@ -12,7 +12,7 @@ Results are evidence over the cases counted in each run, with the count and the 
 - The three legacy quirks (narrow quotient wrap, unsigned subtraction, offset field wrap) were written into the COBOL on purpose so the oracle has something real to find. Their behavior was measured on the compiler, not assumed.
 - The mismatch shown in the guided demo is an injected mutation (M4), labelled as such. It is a demonstration of the harness catching a regression, not a legacy finding.
 - The three decision records in `decisions/` choose to preserve legacy behavior. The coding agents made those choices on the owner's behalf. The owner has not yet confirmed them.
-- The case counts differ on purpose: the demo profile runs 3,291 cases, the full profile runs 41,260, and the mutation score uses a separate fixed set of 4,090 cases. All use seed 731942.
+- The case counts differ on purpose: the demo profile runs 3,901 cases, the full profile runs 40,838, and the mutation score uses a separate fixed set of 4,090 cases. All use seed 731942.
 
 ## Build disclosure
 
@@ -43,7 +43,7 @@ The hosted build runs the same harness against a prebuilt Linux copy of the orac
     legacy/      UICALC.cbl and semantics probes
     oracle/      build script, batch runner, probe runner
     modern/      Python twin
-    harness/     corpus, comparator, engine, mutation score, snapshot
+    harness/     corpus, fixed constants provider, comparator, engine, mutation score, snapshot
     backend/     FastAPI app, SQLite store, patches
     frontend/    Vite and React site and console
     oracle_mcp/  MCP server exposing the oracle

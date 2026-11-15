@@ -8,11 +8,11 @@ from pathlib import Path
 import hypothesis
 from hypothesis import HealthCheck, Phase, given, seed as hyp_seed, settings
 
-from harness import corpus
+from harness import corpus, provider
 from harness.profiles import CORPUS_VERSION, DEFAULT_SEED, PROFILES
 
 CACHE_DIR = Path(__file__).resolve().parent / "corpus_cache"
-SOURCES = ("corpus.py", "records.py", "profiles.py")
+SOURCES = ("corpus.py", "records.py", "profiles.py", "provider.py")
 PRECOMPUTED_PROFILES = ("dev", "demo")
 MEMORY_LIMIT = 8
 
@@ -28,27 +28,7 @@ def generator_hash():
     return digest.hexdigest()
 
 
-def constants_fingerprint():
-    try:
-        from hypothesis.internal.conjecture.providers import _get_local_constants
-
-        found = _get_local_constants()
-        digest = hashlib.sha256()
-        for kind in ("integers", "floats", "bytes", "strings"):
-            values = getattr(found, kind)
-            if kind == "floats":
-                rendered = sorted(float(v).hex() for v in values)
-            else:
-                rendered = sorted(repr(v) for v in values)
-            digest.update(kind.encode())
-            digest.update("\x00".join(rendered).encode("utf-8", "backslashreplace"))
-            digest.update(b"\x01")
-        return digest.hexdigest()
-    except Exception:
-        return None
-
-
-def cache_key(batches, size, seed, fingerprint):
+def cache_key(batches, size, seed):
     return {
         "corpus_version": CORPUS_VERSION,
         "generator": generator_hash(),
@@ -57,7 +37,6 @@ def cache_key(batches, size, seed, fingerprint):
         "random_batches": batches,
         "batch_size": size,
         "seed": seed,
-        "constants": fingerprint,
     }
 
 
@@ -73,6 +52,7 @@ def generate(batches, size, seed):
         max_examples=batches,
         database=None,
         deadline=None,
+        backend=provider.BACKEND,
         phases=[Phase.generate],
         suppress_health_check=list(HealthCheck),
     )(collector)
@@ -89,23 +69,20 @@ def cache_path(directory, batches, size, seed):
 
 
 def write_cache(directory, batches, size, seed):
-    fingerprint = constants_fingerprint()
-    if fingerprint is None:
-        raise RuntimeError("hypothesis constants are not readable")
     generated = generate(batches, size, seed)
-    payload = {"key": cache_key(batches, size, seed, fingerprint), "hash": corpus_hash(generated), "batches": generated}
+    payload = {"key": cache_key(batches, size, seed), "hash": corpus_hash(generated), "batches": generated}
     path = cache_path(directory, batches, size, seed)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload))
     return path
 
 
-def read_cache(directory, batches, size, seed, fingerprint):
+def read_cache(directory, batches, size, seed):
     path = cache_path(directory, batches, size, seed)
     try:
         payload = json.loads(path.read_text())
         stored = payload["batches"]
-        if payload["key"] != cache_key(batches, size, seed, fingerprint) or payload["hash"] != corpus_hash(stored):
+        if payload["key"] != cache_key(batches, size, seed) or payload["hash"] != corpus_hash(stored):
             return None
     except (OSError, ValueError, KeyError, TypeError):
         return None
@@ -117,15 +94,12 @@ def freeze(batches):
 
 
 def load(batches, size, seed, directory=None):
-    fingerprint = constants_fingerprint()
-    if fingerprint is None:
-        return freeze(generate(batches, size, seed))
-    ident = (batches, size, seed, fingerprint)
+    ident = (batches, size, seed)
     with LOCK:
         hit = MEMORY.get(ident)
     if hit is not None:
         return hit
-    stored = read_cache(directory or CACHE_DIR, batches, size, seed, fingerprint)
+    stored = read_cache(directory or CACHE_DIR, batches, size, seed)
     frozen = freeze(stored if stored is not None else generate(batches, size, seed))
     with LOCK:
         if len(MEMORY) >= MEMORY_LIMIT:

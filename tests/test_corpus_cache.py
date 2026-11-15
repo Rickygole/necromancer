@@ -1,4 +1,7 @@
 import json
+import subprocess
+import sys
+from pathlib import Path
 
 import pytest
 
@@ -24,8 +27,7 @@ def test_disk_cache_has_the_same_case_hash_as_direct_generation(tmp_path):
     direct = corpus_cache.generate(*SHAPE)
     path = corpus_cache.write_cache(tmp_path, *SHAPE)
     assert path.exists()
-    fingerprint = corpus_cache.constants_fingerprint()
-    stored = corpus_cache.read_cache(tmp_path, *SHAPE, fingerprint)
+    stored = corpus_cache.read_cache(tmp_path, *SHAPE)
     assert stored is not None
     assert corpus_cache.corpus_hash(stored) == corpus_cache.corpus_hash(direct)
 
@@ -62,7 +64,7 @@ def tamper(path, mutate):
     [
         lambda p: p["key"].update(hypothesis="0.0.0"),
         lambda p: p["key"].update(generator="0" * 64),
-        lambda p: p["key"].update(constants="0" * 64),
+        lambda p: p["key"].update(batch_size=1),
         lambda p: p["key"].update(seed=1),
         lambda p: p["batches"][0].append("X" * 80),
         lambda p: p.update(hash="0" * 64),
@@ -71,22 +73,82 @@ def tamper(path, mutate):
 def test_stale_or_edited_cache_is_ignored(tmp_path, mutate):
     path = corpus_cache.write_cache(tmp_path, *SHAPE)
     tamper(path, mutate)
-    assert corpus_cache.read_cache(tmp_path, *SHAPE, corpus_cache.constants_fingerprint()) is None
+    assert corpus_cache.read_cache(tmp_path, *SHAPE) is None
     expected = corpus_cache.corpus_hash(corpus_cache.generate(*SHAPE))
     loaded = corpus_cache.load(*SHAPE, directory=tmp_path)
     assert corpus_cache.corpus_hash([list(b) for b in loaded]) == expected
 
 
 def test_missing_and_corrupt_cache_files_fall_back(tmp_path):
-    fingerprint = corpus_cache.constants_fingerprint()
-    assert corpus_cache.read_cache(tmp_path, *SHAPE, fingerprint) is None
+    assert corpus_cache.read_cache(tmp_path, *SHAPE) is None
     corpus_cache.cache_path(tmp_path, *SHAPE).write_text("not json")
-    assert corpus_cache.read_cache(tmp_path, *SHAPE, fingerprint) is None
+    assert corpus_cache.read_cache(tmp_path, *SHAPE) is None
 
 
 def test_a_different_seed_gives_different_cases():
     other = (SHAPE[0], SHAPE[1], SHAPE[2] + 1)
     assert corpus_cache.corpus_hash(corpus_cache.generate(*SHAPE)) != corpus_cache.corpus_hash(corpus_cache.generate(*other))
+
+
+ROOT = Path(__file__).resolve().parent.parent
+SHAPES = [(2, 50, 731942), (8, 50, 1), (5, 30, 99)]
+PROBE = "import json;from harness import corpus_cache as c;print(json.dumps([c.corpus_hash(c.generate(*s)) for s in %r]))" % (SHAPES,)
+PRELOADS = {
+    "bare": "",
+    "backend_app": "import backend.app;",
+    "pytest_and_tests": "import pytest,importlib,pkgutil;[importlib.import_module('tests.'+m.name) for m in pkgutil.iter_modules(['tests']) if m.name!='conftest'];",
+    "constant_heavy_module": "import sys;sys.path.insert(0,LOUD);import loud;",
+}
+
+
+def corpus_hashes(preload, cwd):
+    code = preload + PROBE
+    env = {"PYTHONPATH": str(ROOT), "PATH": "/usr/bin:/bin"}
+    done = subprocess.run([sys.executable, "-c", code], cwd=cwd, env=env, capture_output=True, text=True, timeout=240)
+    assert done.returncode == 0, done.stderr
+    return json.loads(done.stdout)
+
+
+@pytest.fixture
+def loud_dir(tmp_path):
+    directory = tmp_path / "loud_pkg"
+    directory.mkdir()
+    numbers = ", ".join(str(123456 + 7919 * i) for i in range(400))
+    words = ", ".join(repr("LOUD%dWORD" % i) for i in range(200))
+    (directory / "loud.py").write_text("NUMBERS = [%s]\nWORDS = [%s]\n" % (numbers, words))
+    return directory
+
+
+def test_corpus_does_not_depend_on_entry_point_or_loaded_modules(tmp_path, loud_dir):
+    results = {}
+    for name, preload in PRELOADS.items():
+        preload = preload.replace("LOUD", repr(str(loud_dir)))
+        results[name] = corpus_hashes(preload, ROOT)
+    results["other_cwd"] = corpus_hashes("", tmp_path)
+    assert len({json.dumps(v) for v in results.values()}) == 1
+    in_process = [corpus_cache.corpus_hash(corpus_cache.generate(*s)) for s in SHAPES]
+    assert results["bare"] == in_process
+
+
+def test_local_constants_are_not_used_by_the_generator(loud_dir):
+    before = corpus_cache.corpus_hash(corpus_cache.generate(*SHAPE))
+    sys.path.insert(0, str(loud_dir))
+    try:
+        import loud
+
+        assert loud.NUMBERS
+        after = corpus_cache.corpus_hash(corpus_cache.generate(*SHAPE))
+    finally:
+        sys.path.remove(str(loud_dir))
+        sys.modules.pop("loud", None)
+    assert before == after
+
+
+def test_cache_key_has_no_module_dependent_field(tmp_path):
+    path = corpus_cache.write_cache(tmp_path, *SHAPE)
+    assert set(json.loads(path.read_text())["key"]) == {
+        "corpus_version", "generator", "hypothesis", "python", "random_batches", "batch_size", "seed",
+    }
 
 
 def stable(report):

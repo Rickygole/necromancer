@@ -1,11 +1,17 @@
 import json
 from pathlib import Path
 
+import pytest
+
+from harness import engine
+from oracle import runner
+
 ROOT = Path(__file__).resolve().parent.parent
 SNAPSHOT = json.loads((ROOT / "evidence" / "snapshot.json").read_text())
 SCORE = json.loads((ROOT / "evidence" / "mutation_score.json").read_text())
 README = (ROOT / "README.md").read_text()
 RUNS = SNAPSHOT["runs"]
+needs_oracle = pytest.mark.skipif(not runner.oracle_ready(), reason="legacy oracle is not available")
 
 
 def test_story_counts_equal_run_counts():
@@ -64,6 +70,14 @@ def test_mutation_score_totals():
 
 def test_readme_quotes_the_evidence_case_counts():
     counts = [RUNS["baseline"]["cases"], RUNS["after_patch"]["cases"], SCORE["cases"]]
-    assert counts == [3291, 41260, 4090]
+    assert counts == [3901, 40838, 4090]
     for count in counts:
         assert format(count, ",") in README
+
+
+@needs_oracle
+def test_live_demo_run_equals_the_recorded_baseline(tmp_path):
+    base = RUNS["baseline"]
+    live = engine.run_verification(base["profile"], base["seed"], None, run_dir=tmp_path / "live", decisions={})
+    for key in ("cases", "planned", "matched", "mismatched", "families"):
+        assert live[key] == base[key], key

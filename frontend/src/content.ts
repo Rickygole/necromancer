@@ -120,9 +120,9 @@ export interface MutationRow {
 
 export const MUTATION_CASES = 4090;
 export const DEMO_SEED = 731942;
-export const DEMO_CASES = 3291;
-export const INJECTED_MISMATCHED = 424;
-export const FULL_CASES = 41260;
+export const DEMO_CASES = 3901;
+export const INJECTED_MISMATCHED = 612;
+export const FULL_CASES = 40838;
 export const BASELINE_MISMATCHES = 0;
 
 export const MUTATIONS: MutationRow[] = [

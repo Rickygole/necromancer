@@ -2,7 +2,7 @@
 
 ## Data flow
 
-1. `harness/corpus.py` builds records: golden, boundary, fixed invalid, regression (every saved non-mutation counterexample) and Hypothesis generated batches.
+1. `harness/corpus.py` builds records: golden, boundary, fixed invalid, regression (every saved non-mutation counterexample) and Hypothesis generated batches. Generation runs on `harness/provider.py`, a Hypothesis backend that never reads constants from loaded project modules, so the corpus depends only on the profile, the seed and the generator source, not on the entry point or on which modules are loaded.
 2. `harness/engine.py` generates all batches first, so the planned case count is exact, then runs each family.
 3. `oracle/runner.py` builds `legacy/UICALC.cbl` with `cobc` and feeds the same 80 byte lines to the binary, in batches of at most 200, with a 30 second timeout.
 4. `modern/calculator.py` computes the same records in Python with `Decimal`. No floats.

@@ -8,7 +8,7 @@ from pathlib import Path
 from hypothesis import HealthCheck, find, settings
 from hypothesis.errors import NoSuchExample
 
-from harness import corpus, corpus_cache, counterexamples, decisions as decision_store
+from harness import corpus, corpus_cache, counterexamples, decisions as decision_store, provider
 from harness.compare import compare_batch, compare_one, mismatches
 from harness.profiles import CORPUS_VERSION, DEFAULT_SEED, PROFILES
 from modern import calculator
@@ -235,6 +235,7 @@ def shrink(sig, comp, examples, seed, mutation, binary, seen=None):
                 max_examples=examples,
                 database=None,
                 deadline=None,
+                backend=provider.BACKEND,
                 suppress_health_check=list(HealthCheck),
             ),
             random=random.Random(seed),
