@@ -271,9 +271,9 @@
   inset: 0 auto 0 0;
   width: 200%;
   background:
-    radial-gradient(38% 60% at 15% 75%, rgba(176, 166, 196, 0.028), transparent 70%),
-    radial-gradient(30% 50% at 52% 85%, rgba(160, 150, 182, 0.026), transparent 70%),
-    radial-gradient(42% 62% at 84% 78%, rgba(176, 166, 196, 0.028), transparent 70%);
+    radial-gradient(38% 60% at 15% 75%, rgba(176, 166, 196, 0.042), transparent 70%),
+    radial-gradient(30% 50% at 52% 85%, rgba(160, 150, 182, 0.04), transparent 70%),
+    radial-gradient(42% 62% at 84% 78%, rgba(176, 166, 196, 0.042), transparent 70%);
   background-size: 50% 100%;
   background-repeat: repeat-x;
   animation: drift 120s linear infinite;
@@ -635,4 +635,14 @@ html[data-motion="off"] .verdict__big.is-glitching::after {
 
 .console-page {
   overflow-x: clip;
+}
+
+.verdict .verdict__candle {
+  width: 3rem;
+  margin-right: var(--s-4);
+  margin-top: 7rem;
+}
+
+.verdict__main {
+  column-gap: var(--s-6);
 }
