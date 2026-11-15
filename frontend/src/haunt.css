@@ -1,0 +1,191 @@
+.verdict.is-rising {
+  animation: verdict-shake 420ms var(--ease-out) 1 both;
+}
+
+.verdict__haunt {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(70% 90% at 22% 35%, rgba(240, 112, 95, 0.32), transparent 70%),
+    linear-gradient(180deg, rgba(122, 31, 26, 0.28), transparent 60%);
+  opacity: 0;
+  animation: haunt-flicker 1200ms linear 1 both;
+}
+
+.verdict__main,
+.verdict__side,
+.run-head {
+  position: relative;
+  z-index: 1;
+}
+
+.verdict__count {
+  position: relative;
+}
+
+.verdict__ring {
+  position: absolute;
+  left: 0.6em;
+  top: 50%;
+  width: 1.2em;
+  height: 1.2em;
+  margin: -0.6em 0 0 -0.6em;
+  border: 2px solid var(--mismatch);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  animation: haunt-ring 1100ms var(--ease-out) 1 both;
+}
+
+.verdict__big {
+  position: relative;
+  display: inline-block;
+}
+
+.verdict__big.is-glitching::before,
+.verdict__big.is-glitching::after {
+  content: attr(data-text);
+  content: attr(data-text) / "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.verdict__big.is-glitching::before {
+  color: #7fd6d0;
+  opacity: 0.55;
+  clip-path: inset(10% 0 55% 0);
+  animation: haunt-glitch-a 1050ms steps(3, end) 1 both;
+}
+
+.verdict__big.is-glitching::after {
+  color: var(--mismatch);
+  opacity: 0.7;
+  clip-path: inset(58% 0 8% 0);
+  animation: haunt-glitch-b 1050ms steps(3, end) 1 both;
+}
+
+@keyframes verdict-shake {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  20% {
+    transform: translate3d(-4px, 1px, 0);
+  }
+  40% {
+    transform: translate3d(3px, -1px, 0);
+  }
+  60% {
+    transform: translate3d(-2px, 0, 0);
+  }
+  80% {
+    transform: translate3d(1px, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes haunt-flicker {
+  0% {
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.9;
+  }
+  28% {
+    opacity: 0.25;
+  }
+  46% {
+    opacity: 0.8;
+  }
+  62% {
+    opacity: 0.2;
+  }
+  80% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes haunt-ring {
+  0% {
+    opacity: 0.85;
+    transform: scale(0.4);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(4.5);
+  }
+}
+
+@keyframes haunt-glitch-a {
+  0% {
+    transform: translate3d(-6px, 0, 0);
+    clip-path: inset(10% 0 55% 0);
+  }
+  50% {
+    transform: translate3d(4px, 0, 0);
+    clip-path: inset(40% 0 30% 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+    clip-path: inset(100% 0 0 0);
+  }
+}
+
+@keyframes haunt-glitch-b {
+  0% {
+    transform: translate3d(5px, 0, 0);
+    clip-path: inset(58% 0 8% 0);
+  }
+  50% {
+    transform: translate3d(-3px, 0, 0);
+    clip-path: inset(20% 0 62% 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+    clip-path: inset(100% 0 0 0);
+  }
+}
+
+html[data-motion="off"] .verdict.is-rising {
+  animation: none;
+}
+
+html[data-motion="off"] .verdict__haunt,
+html[data-motion="off"] .verdict__ring,
+html[data-motion="off"] .verdict__big.is-glitching::before,
+html[data-motion="off"] .verdict__big.is-glitching::after {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .verdict.is-rising {
+    animation: none;
+  }
+
+  .verdict__haunt,
+  .verdict__ring,
+  .verdict__big.is-glitching::before,
+  .verdict__big.is-glitching::after {
+    display: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .verdict__haunt,
+  .verdict__ring,
+  .verdict__big.is-glitching::before,
+  .verdict__big.is-glitching::after {
+    display: none;
+  }
+}
+
+.console-page {
+  overflow-x: clip;
+}

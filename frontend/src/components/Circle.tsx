@@ -5,6 +5,7 @@ import type { RunState } from "../runner";
 import { casesOf, count, toneOf } from "../status";
 import type { Counterexample, Profile, Snapshot, Status } from "../types";
 import { CounterexampleCard } from "./CounterexampleCard";
+import { RisingCount, useResurrection } from "./Resurrection";
 import { StatusIcon } from "./StatusBadge";
 
 export interface DemoStep {
@@ -158,18 +159,22 @@ export function Circle(props: Props) {
   const idle = run.phase === "idle" && run.status === "NOT RUN";
   const first = run.counterexamples[0] ?? null;
   const more = run.counterexamples.length - 1;
+  const rising = useResurrection(
+    !failed && run.phase === "finished" && run.status === "MISMATCH" && run.mismatched > 0 ? run.runId : null,
+  );
   const context = [props.seed !== null ? `seed ${props.seed}` : null, props.profile ? `${props.profile} profile` : null]
     .filter(Boolean)
     .join(", ");
 
   return (
     <section
-      className={`verdict verdict--${tone}${running ? " is-running" : ""}`}
+      className={`verdict verdict--${tone}${running ? " is-running" : ""}${rising ? " is-rising" : ""}`}
       aria-labelledby="circle-title"
       id="circle"
       style={{ "--glow": glow.toFixed(3) } as React.CSSProperties}
     >
       <div className="verdict__glow" aria-hidden="true" />
+      {rising ? <div className="verdict__haunt" aria-hidden="true" /> : null}
       {run.replay && props.recorded ? (
         <div className="run-head">
           <p className="run-head__title">
@@ -248,7 +253,8 @@ export function Circle(props: Props) {
               {showCount ? (
                 <>
                   <p className="verdict__count num">
-                    <span className="verdict__big">{count(run.mismatched)}</span>{" "}
+                    {rising ? <span className="verdict__ring" aria-hidden="true" /> : null}
+                    <RisingCount value={run.mismatched} play={rising} />{" "}
                     <span className="verdict__unit">{run.mismatched === 1 ? "disagrees" : "disagree"}</span>
                   </p>
                   <p className="verdict__of num">
