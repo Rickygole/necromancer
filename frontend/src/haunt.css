@@ -613,6 +613,11 @@ html[data-motion="off"] .verdict__big.is-glitching::after {
   .card.cx--stone {
     border: 1px solid CanvasText;
     border-top-width: 3px;
+    background: Canvas;
+  }
+
+  .verdict__count {
+    line-height: 1.2;
   }
 
   .card.cx--stone::before,
