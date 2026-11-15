@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { api } from "../api";
+import { sting } from "../sound";
 import { casesOf, count } from "../status";
 import type { MutationScore, Report, Status } from "../types";
 import { StatusBadge } from "./StatusBadge";
@@ -90,6 +91,7 @@ export function ApprovalCard({ report, verdict, simulated, replay, onSubmit }: P
     try {
       await onSubmit(approved, reviewer.trim(), note.trim());
       setOutcome({ approved, reviewer: reviewer.trim() });
+      sting(approved ? "revive" : "bury");
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -98,11 +100,12 @@ export function ApprovalCard({ report, verdict, simulated, replay, onSubmit }: P
   };
 
   return (
-    <section className="card approval" aria-labelledby={`${id}-title`} id="approval">
+    <section className="card approval approval--ritual" aria-labelledby={`${id}-title`} id="approval">
       <header className="card__head">
         <div>
+          <p className="approval__kicker mono">final approval</p>
           <h3 id={`${id}-title`} tabIndex={-1}>
-            Final approval
+            Bury or revive?
           </h3>
           {simulated ? (
             <p className="tag tag--warn">Simulated: hosted demo, nothing is signed for real</p>
@@ -112,7 +115,7 @@ export function ApprovalCard({ report, verdict, simulated, replay, onSubmit }: P
         {outcome ? (
           <p className={outcome.approved ? "decided" : "rejected"}>
             <span aria-hidden="true">{outcome.approved ? "✓" : "✕"}</span>{" "}
-            {outcome.approved ? "Approved" : "Rejected"} by {outcome.reviewer}
+            {outcome.approved ? "Revived, approved" : "Buried, rejected"} by {outcome.reviewer}
           </p>
         ) : canApprove ? (
           <StatusBadge status="APPROVAL REQUIRED" />
@@ -122,6 +125,11 @@ export function ApprovalCard({ report, verdict, simulated, replay, onSubmit }: P
           </p>
         )}
       </header>
+
+      <p className="approval__rite">
+        Revive approves this twin on the evidence below. Bury rejects it and says why. A person decides, nothing ships
+        by itself.
+      </p>
 
       <p className="claim">
         Evidence over {casesOf(report.cases, report.cases)}, seed {report.seed}. This is a record of what was tested,
@@ -221,10 +229,10 @@ export function ApprovalCard({ report, verdict, simulated, replay, onSubmit }: P
           aria-describedby={blockReason ? `${id}-why` : undefined}
           onClick={() => send(true)}
         >
-          Approve
+          Revive and approve
         </button>
         <button type="button" className="button button--danger" disabled={saving} onClick={() => send(false)}>
-          Reject
+          Bury and reject
         </button>
       </div>
     </section>

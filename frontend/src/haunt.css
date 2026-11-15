@@ -469,12 +469,87 @@
   border-color: var(--candle);
 }
 
+.approval--ritual {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.approval--ritual::before {
+  content: "";
+  position: absolute;
+  top: -7rem;
+  right: -5rem;
+  width: 18rem;
+  height: 18rem;
+  z-index: -1;
+  border-radius: 50%;
+  border: 1px dashed color-mix(in srgb, var(--approval) 30%, transparent);
+  box-shadow: inset 0 0 0 1.25rem transparent, inset 0 0 0 calc(1.25rem + 1px) color-mix(in srgb, var(--approval) 18%, transparent);
+  pointer-events: none;
+  animation: sigil-turn 90s linear infinite;
+}
+
+.approval__kicker {
+  font-size: var(--t-xs);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+}
+
+.approval--ritual h3 {
+  font-family: var(--font-display);
+  font-size: var(--t-3xl);
+  font-style: italic;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  text-shadow: 0 0 24px rgba(232, 176, 76, 0.22);
+}
+
+.approval__rite {
+  max-width: 60ch;
+  font-family: var(--font-text, var(--font-display));
+  font-size: var(--t-md);
+  line-height: 1.55;
+  color: var(--bone-dim);
+}
+
+.approval--ritual .button-row .button {
+  min-width: 11rem;
+}
+
+.approval--ritual .button--match:not(:disabled) {
+  box-shadow: 0 0 18px -4px color-mix(in srgb, var(--match) 60%, transparent);
+}
+
+.approval--ritual .button--danger:not(:disabled) {
+  box-shadow: 0 0 18px -4px color-mix(in srgb, var(--mismatch) 55%, transparent);
+}
+
+@keyframes sigil-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 480px) {
+  .approval--ritual h3 {
+    font-size: var(--t-2xl);
+  }
+
+  .approval--ritual .button-row .button {
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+}
+
 html[data-motion="off"] .atmos__glow,
 html[data-motion="off"] .spirit {
   display: none;
 }
 
 html[data-motion="off"] .wordmark::before,
+html[data-motion="off"] .approval--ritual::before,
 html[data-motion="off"] .site-main h1:not(.wordmark) {
   animation: none;
 }
@@ -497,6 +572,7 @@ html[data-motion="off"] .verdict__big.is-glitching::after {
 
 @media (prefers-reduced-motion: reduce) {
   .verdict.is-rising,
+  .approval--ritual::before,
   .wordmark::before,
   .site-main h1:not(.wordmark),
   .atmos__fog span {
@@ -524,6 +600,7 @@ html[data-motion="off"] .verdict__big.is-glitching::after {
 @media (forced-colors: active) {
   .atmos,
   .spirit,
+  .approval--ritual::before,
   .wordmark::before,
   .step--active .step__mark::after {
     display: none;
