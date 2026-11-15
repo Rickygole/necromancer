@@ -1,9 +1,13 @@
+import { useEffect, useRef } from "react";
 import { NAV, type Route } from "../router";
+import { trackHeaderHeight } from "../scroll";
 import { MotionToggle } from "./MotionToggle";
 
 export function Header({ route }: { route: Route }) {
+  const ref = useRef<HTMLElement>(null);
+  useEffect(() => (ref.current ? trackHeaderHeight(ref.current) : undefined), []);
   return (
-    <header className="site-head">
+    <header className="site-head" ref={ref}>
       <a className="logo" href="#/" aria-label="Necromancer, home">
         <span className="logo__candle" data-candle aria-hidden="true">
           <span className="logo__flame" />

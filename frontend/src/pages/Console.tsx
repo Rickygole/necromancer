@@ -14,6 +14,7 @@ import { Twin } from "../components/Twin";
 import { DEMO_SEED } from "../content";
 import { SAMPLE_CLAIMS } from "../data";
 import { RECORDED_FULL_LABEL, useRunner } from "../runner";
+import { bringIntoView, heroInView, revealHero, watchUserScroll } from "../scroll";
 import type { Counterexample, Decision, FocusTrace, Health, Mutation, RunRequest, Snapshot, Status } from "../types";
 
 const DEMO_LABELS = [
@@ -50,6 +51,7 @@ const DEFAULT_PATCH_MUTATION = "M4";
 const RECORDED_MUTATION = "M4";
 const HOLD_SHORT = 400;
 const HOLD_LONG = 3000;
+const HOLD_FINAL = 2200;
 const CANCELLED = "CANCELLED";
 
 function isCancelled(err: unknown): boolean {
@@ -84,8 +86,7 @@ const APPROVABLE: Status[] = ["APPROVAL REQUIRED", "MATCH"];
 function scrollToHeading(id: string) {
   window.setTimeout(() => {
     const heading = document.getElementById(id);
-    const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    heading?.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
+    bringIntoView(heading);
     heading?.focus({ preventScroll: true });
   }, 50);
 }
@@ -149,6 +150,9 @@ export function Console({ health, healthError }: Props) {
   const [retry, setRetry] = useState<{ label: string; run: () => void } | null>(null);
   const [requested, setRequested] = useState<{ seed: number | null; profile: string | null }>({ seed: null, profile: null });
   const [sourcesOpen, setSourcesOpen] = useState(false);
+  const userScrolledRef = useRef(false);
+  const runIdRef = useRef<string | null>(null);
+  runIdRef.current = run.runId;
 
   const replayOnly = health !== null ? !health.oracle_available : healthError !== null;
   const hosted = Boolean(health?.hosted);
@@ -387,13 +391,36 @@ export function Console({ health, healthError }: Props) {
     }
   }, [replayOnly, liveHosted, exorciseRecorded, applyPatch, runner, launch, injected, controls.seed, begin]);
 
-  const focusApproval = () => {
+  useEffect(() => {
+    if (!demoRunning) return;
+    return watchUserScroll(() => {
+      userScrolledRef.current = true;
+    });
+  }, [demoRunning]);
+
+  useEffect(() => {
+    if (!demoRunning || userScrolledRef.current) return;
+    const timer = window.setTimeout(() => {
+      if (!userScrolledRef.current && !heroInView()) revealHero();
+    }, 60);
+    return () => window.clearTimeout(timer);
+  }, [demoRunning, demo, run.phase, run.status, held]);
+
+  const focusApproval = (gen: number) => {
+    let runId: string | null = null;
+    const unwatch = watchUserScroll(() => {
+      userScrolledRef.current = true;
+    });
     window.setTimeout(() => {
-      const heading = document.querySelector<HTMLElement>("#approval h3");
-      const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      heading?.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
-      heading?.focus({ preventScroll: true });
-    }, 50);
+      runId = runIdRef.current;
+      if (gen === demoGenRef.current && !userScrolledRef.current && !heroInView()) revealHero();
+    }, 60);
+    window.setTimeout(() => {
+      unwatch();
+      if (gen !== demoGenRef.current || runIdRef.current !== runId || userScrolledRef.current) return;
+      bringIntoView(document.getElementById("approval"));
+      document.querySelector<HTMLElement>("#approval h3")?.focus({ preventScroll: true });
+    }, HOLD_FINAL);
   };
 
   const onDemo = useCallback(async () => {
@@ -421,7 +448,7 @@ export function Console({ health, healthError }: Props) {
           result: "APPROVAL REQUIRED",
           note: recordedNote ? "Recorded evidence, waiting for a reviewer" : "Waiting for a reviewer",
         });
-        focusApproval();
+        focusApproval(gen);
       } else {
         update(4, {
           state: "skipped",
@@ -430,6 +457,10 @@ export function Console({ health, healthError }: Props) {
       }
     };
     setDemo([...steps]);
+    userScrolledRef.current = false;
+    window.setTimeout(() => {
+      if (!cancelled()) revealHero();
+    }, 50);
     resetFocus();
     setPatch(IDLE_PATCH);
     setHeld(null);

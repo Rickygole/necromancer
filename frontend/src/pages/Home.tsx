@@ -3,8 +3,11 @@ import { Reveal } from "../components/Reveal";
 import { Scene } from "../components/Scene";
 import { Stamp } from "../components/Stamp";
 import { TiltCard } from "../components/TiltCard";
-import { DEMO_CASES, DEMO_SEED, useMutationScore } from "../content";
+import { DEMO_CASES, DEMO_SEED, FULL_CASES, MUTATION_CASES, QUIRKS, useMutationScore } from "../content";
+import { DEMO_HREF } from "../router";
 import { count } from "../status";
+
+const EXHIBIT = QUIRKS[0];
 
 const STEPS = [
   {
@@ -68,6 +71,100 @@ export function Home() {
           <span>NOBODY</span> <span>KNEW.</span>
         </p>
       </div>
+
+      <section className="beats" aria-labelledby="beats-title">
+        <Reveal className="beats__sheet paper">
+          <header className="beats__head">
+            <p className="beats__kicker mono">the idea, in three beats</p>
+            <h2 id="beats-title">one claimant, two answers</h2>
+            <p className="beats__claim mono">
+              the claimant: {EXHIBIT.steps[0].toLowerCase()}, everything else ordinary
+            </p>
+          </header>
+          <ol className="beats__row">
+            <li className="beat">
+              <span className="beat__n" aria-hidden="true">
+                1
+              </span>
+              <h3 className="beat__who">the program says</h3>
+              <p className="beat__value num">
+                <span className="beat__field mono">{EXHIBIT.field}</span>
+                {EXHIBIT.legacy}
+              </p>
+              <p className="beat__what">UICALC.cbl, compiled with GnuCOBOL and run exactly as it is.</p>
+            </li>
+            <li className="beat">
+              <span className="beat__n" aria-hidden="true">
+                2
+              </span>
+              <h3 className="beat__who">the rewrite says</h3>
+              <p className="beat__value num">
+                <span className="beat__field mono">{EXHIBIT.field}</span>
+                {EXHIBIT.rules}
+              </p>
+              <p className="beat__what">Python, written from the rules alone, which cap the base at 650.00.</p>
+            </li>
+            <li className="beat beat--verdict">
+              <span className="beat__n" aria-hidden="true">
+                3
+              </span>
+              <h3 className="beat__who">the harness shows</h3>
+              <p className="beat__value">
+                <Stamp tone="red" tilt={-4} className="beat__stamp">
+                  mismatch
+                </Stamp>
+              </p>
+              <p className="beat__what">
+                On the <span className="mono">{EXHIBIT.field}</span> field, shrunk to cx_0001. A person decides which
+                answer is right.
+              </p>
+            </li>
+          </ol>
+        </Reveal>
+
+        <div className="beats__cta">
+          <a className="slab-button" href={DEMO_HREF}>
+            see the demo in 15 seconds
+          </a>
+          <p className="beats__cta-note">
+            Opens the console with the guided demo ready. A clean baseline, one injected bug caught and shrunk, the
+            patch, the approval card.
+          </p>
+        </div>
+
+        <dl className="proof" aria-label="The record behind it">
+          <div className="proof__item">
+            <dt className="mono">mutants caught</dt>
+            <dd>
+              <span className="proof__big num">
+                {score.named_caught + score.hidden_caught} of {score.named_total + score.hidden_total}
+              </span>
+              <span className="proof__sub">each over {count(score.cases || MUTATION_CASES)} cases</span>
+            </dd>
+          </div>
+          <div className="proof__item">
+            <dt className="mono">recorded cases</dt>
+            <dd>
+              <span className="proof__big num">{count(FULL_CASES)}</span>
+              <span className="proof__sub">full profile rerun after the patch</span>
+            </dd>
+          </div>
+          <div className="proof__item">
+            <dt className="mono">seed</dt>
+            <dd>
+              <span className="proof__big num">{DEMO_SEED}</span>
+              <span className="proof__sub">baseline, injected and full runs all used it</span>
+            </dd>
+          </div>
+          <div className="proof__item proof__item--caveat">
+            <dt className="mono">what it is</dt>
+            <dd>
+              <span className="proof__big">a record, not a proof</span>
+              <span className="proof__sub">evidence over the cases counted</span>
+            </dd>
+          </div>
+        </dl>
+      </section>
 
       <section className="tags" aria-labelledby="tags-title">
         <Reveal className="tags__intro">

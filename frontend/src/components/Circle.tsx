@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { SAMPLE_CLAIMS } from "../data";
+import { TRACE_POSITIONS } from "../records";
 import type { RunState } from "../runner";
 import { casesOf, count, toneOf } from "../status";
 import type { Counterexample, Profile, Snapshot, Status } from "../types";
@@ -57,6 +59,60 @@ const VERDICT_TEXT: Record<Status, string> = {
   "APPROVAL REQUIRED": "Evidence is complete and waits for a reviewer.",
 };
 
+const SAMPLE = SAMPLE_CLAIMS[0];
+const SAMPLE_TRACE = SAMPLE.output.slice(30, 40);
+const SAMPLE_FIRED = TRACE_POSITIONS.filter((p) => SAMPLE_TRACE[p.pos - 1] === "1").map((p) => p.label);
+
+const WATCH = [
+  { who: "oracle", text: "runs the real UICALC.cbl, compiled COBOL. Whatever it prints is the truth." },
+  { who: "twin", text: "runs the Python rewrite on the same 80 byte records, field for field." },
+  { who: "shrink", text: "every disagreement is cut down to the smallest claimant that still breaks, and lands here." },
+];
+
+function IdleSide() {
+  return (
+    <>
+      <div className="block__head">
+        <h3 id="cx-title">What you are about to watch</h3>
+        <p className="hint">Nothing compared yet</p>
+      </div>
+      <ol className="watch">
+        {WATCH.map((line, i) => (
+          <li key={line.who} className="watch__line">
+            <span className="watch__n mono" aria-hidden="true">
+              {i + 1}
+            </span>
+            <p>
+              <strong className="watch__who mono">{line.who}</strong> {line.text}
+            </p>
+          </li>
+        ))}
+      </ol>
+      <figure className="sample-trace">
+        <figcaption>
+          <span className="sample-trace__kicker mono">rule trace, sample claim {SAMPLE.id}</span>
+          <span className="sample-trace__title">{SAMPLE.title}</span>
+        </figcaption>
+        <ol className="sample-trace__bits" aria-hidden="true">
+          {TRACE_POSITIONS.map((p) => {
+            const on = SAMPLE_TRACE[p.pos - 1] === "1";
+            return (
+              <li key={p.pos} className={on ? "bit is-on" : "bit"} title={`${p.label}, ${on ? "fired" : "not fired"}`}>
+                <span className="bit__n">{p.pos}</span>
+                <span className="bit__v">{on ? "1" : "0"}</span>
+              </li>
+            );
+          })}
+        </ol>
+        <p className="sample-trace__fired">
+          <span className="mono">fired</span> {SAMPLE_FIRED.join(", ")}. Ten bits, one per rule, printed by both programs
+          and compared bit for bit.
+        </p>
+      </figure>
+    </>
+  );
+}
+
 export function useNow(active: boolean): number {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
@@ -99,6 +155,7 @@ export function Circle(props: Props) {
           : "";
 
   const showCount = !failed && run.cases > 0;
+  const idle = run.phase === "idle" && run.status === "NOT RUN";
   const first = run.counterexamples[0] ?? null;
   const more = run.counterexamples.length - 1;
   const context = [props.seed !== null ? `seed ${props.seed}` : null, props.profile ? `${props.profile} profile` : null]
@@ -210,6 +267,12 @@ export function Circle(props: Props) {
                       : VERDICT_TEXT[run.status]}
                 </p>
               )}
+              {idle && !run.error ? (
+                <p className="verdict__text">
+                  Guided demo runs five steps: a clean baseline, an injected bug, the run that catches it, the
+                  recorded patch, and the approval card.
+                </p>
+              ) : null}
               {showCount || run.error ? (
                 <p className="verdict__text">
                   {run.error
@@ -285,41 +348,47 @@ export function Circle(props: Props) {
         </div>
       </div>
 
-      <div className="verdict__side" role="group" aria-labelledby="cx-title">
-        <div className="block__head">
-          <h3 id="cx-title">Smallest failing claimant</h3>
-          <p className="hint num">
-            {run.replay && run.counterexamples.length ? "Recorded, " : ""}
-            {count(run.counterexamples.length)} shrunk
-          </p>
-        </div>
-        {first ? (
-          <>
-            <CounterexampleCard
-              key={first.id}
-              cx={first}
-              busy={busy}
-              compact
-              focused={props.focusedId === first.id}
-              onFocus={() => props.onFocusCx(first)}
-              onRerun={() => props.onRerun(first)}
-            />
-            {more > 0 ? (
-              <button type="button" className="button button--ghost button--small" onClick={props.onShowMore}>
-                See {count(more)} more {more === 1 ? "counterexample" : "counterexamples"}
-              </button>
-            ) : null}
-          </>
+      <div className={`verdict__side${idle && !first ? " verdict__side--idle" : ""}`} role="group" aria-labelledby="cx-title">
+        {idle && !first ? (
+          <IdleSide />
         ) : (
-          <p className="empty">
-            {run.status === "MATCH" || (run.status === "APPROVAL REQUIRED" && run.phase === "finished")
-              ? `No disagreements in ${casesOf(compared, compared)}. That is evidence over this run, not proof.`
-              : run.phase === "shrinking"
-                ? "Shrinking the failing input to its smallest form."
-                : running
-                  ? "None yet. Disagreements appear here as they are found."
-                  : "Nothing dug up yet. Run a comparison and any disagreement lands here, shrunk to the smallest claimant that still breaks."}
-          </p>
+          <>
+            <div className="block__head">
+              <h3 id="cx-title">Smallest failing claimant</h3>
+              <p className="hint num">
+                {run.replay && run.counterexamples.length ? "Recorded, " : ""}
+                {count(run.counterexamples.length)} shrunk
+              </p>
+            </div>
+            {first ? (
+              <>
+                <CounterexampleCard
+                  key={first.id}
+                  cx={first}
+                  busy={busy}
+                  compact
+                  focused={props.focusedId === first.id}
+                  onFocus={() => props.onFocusCx(first)}
+                  onRerun={() => props.onRerun(first)}
+                />
+                {more > 0 ? (
+                  <button type="button" className="button button--ghost button--small" onClick={props.onShowMore}>
+                    See {count(more)} more {more === 1 ? "counterexample" : "counterexamples"}
+                  </button>
+                ) : null}
+              </>
+            ) : (
+              <p className="empty">
+                {run.status === "MATCH" || (run.status === "APPROVAL REQUIRED" && run.phase === "finished")
+                  ? `No disagreements in ${casesOf(compared, compared)}. That is evidence over this run, not proof.`
+                  : run.phase === "shrinking"
+                    ? "Shrinking the failing input to its smallest form."
+                    : running
+                      ? "None yet. Disagreements appear here as they are found."
+                      : "Nothing dug up yet. Run a comparison and any disagreement lands here, shrunk to the smallest claimant that still breaks."}
+              </p>
+            )}
+          </>
         )}
       </div>
     </section>

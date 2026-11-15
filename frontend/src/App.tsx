@@ -9,8 +9,9 @@ import { Evidence } from "./pages/Evidence";
 import { Home } from "./pages/Home";
 import { Legacy } from "./pages/Legacy";
 import { NotFound } from "./pages/NotFound";
-import { titleOf, useRoute } from "./router";
+import { titleOf, useRoute, wantsDemo } from "./router";
 import { setLiveMode } from "./runner";
+import { revealHero } from "./scroll";
 import type { Health } from "./types";
 
 export function App() {
@@ -34,14 +35,29 @@ export function App() {
   useEffect(() => {
     if (route === "console") setConsoleMounted(true);
     document.title = titleOf(route);
+    const demoReady = route === "console" && wantsDemo();
     if (first.current) {
       first.current = false;
-      return;
+      if (!demoReady) return;
+    } else {
+      window.scrollTo(0, 0);
     }
-    window.scrollTo(0, 0);
-    const frame = window.requestAnimationFrame(() => {
+    let frame = 0;
+    let tries = 0;
+    const settle = () => {
+      if (demoReady) {
+        const button = document.getElementById("guided-demo-button");
+        if (!button && tries++ < 20) {
+          frame = window.requestAnimationFrame(settle);
+          return;
+        }
+        revealHero();
+        button?.focus({ preventScroll: true });
+        return;
+      }
       document.querySelector<HTMLElement>(`[data-page="${route}"] h1`)?.focus({ preventScroll: true });
-    });
+    };
+    frame = window.requestAnimationFrame(settle);
     return () => window.cancelAnimationFrame(frame);
   }, [route]);
 

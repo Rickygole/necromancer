@@ -29,7 +29,7 @@ const PATHS: Record<string, Route> = {
 export function parseHash(hash: string): Route | null {
   if (hash === "" || hash === "#") return "home";
   if (!hash.startsWith("#/")) return null;
-  const path = hash.slice(1).replace(/\/+$/, "") || "/";
+  const path = hash.slice(1).split("?")[0].replace(/\/+$/, "") || "/";
   return PATHS[path] ?? "missing";
 }
 
@@ -53,6 +53,12 @@ export function useRoute(): Route {
     () => current,
     () => "home",
   );
+}
+
+export const DEMO_HREF = "#/console?demo";
+
+export function wantsDemo(): boolean {
+  return typeof window !== "undefined" && /\?(.*&)?demo(&|=|$)/.test(window.location.hash);
 }
 
 export function titleOf(route: Route): string {
