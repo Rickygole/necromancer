@@ -111,6 +111,15 @@ export function Circle(props: Props) {
   const waitingLive = run.live && run.phase === "starting";
   const failed = run.phase === "finished" && run.error !== null && run.status !== "BUILD FAILED";
   const mutationRun = run.report?.mutation ?? run.counterexamples.find((cx) => cx.mutation)?.mutation ?? null;
+  const activeIndex = demo && activeStep ? demo.indexOf(activeStep) : -1;
+  const announce =
+    demo && activeStep
+      ? `Guided demo step ${activeIndex + 1} of ${demo.length}, ${activeStep.label}`
+      : running
+        ? `${PHASE_TEXT[run.phase]}${run.replay ? ", replaying recorded evidence" : ""}`
+        : run.phase === "finished" && !failed
+          ? `Run finished. Verdict ${run.status}. ${run.error ? run.error.message : VERDICT_TEXT[run.status]}`
+          : "";
 
   return (
     <section className="pane pane--circle" aria-labelledby="circle-title" id="circle">
@@ -160,7 +169,10 @@ export function Circle(props: Props) {
             </dl>
           </div>
         ) : null}
-        <div className="verdict__body" aria-live="polite" aria-atomic="true">
+        <p className="visually-hidden" role="status">
+          {announce}
+        </p>
+        <div className="verdict__body">
           <p className="verdict__label">Verdict</p>
           <p className="verdict__badges">
             <StatusBadge status={run.status} size="lg" />

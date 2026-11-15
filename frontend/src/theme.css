@@ -590,10 +590,12 @@ a:hover {
   letter-spacing: -0.06em;
   margin-left: -0.05em;
   color: var(--bone);
+  overflow-wrap: normal;
 }
 
 .wordmark::after {
   content: attr(data-text);
+  content: attr(data-text) / "";
   position: absolute;
   inset: 0;
   color: transparent;
@@ -2450,7 +2452,9 @@ html[data-motion="off"] .evidence__spinner {
 
 .console-head__title {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--s-2);
+  min-width: 0;
 }
 
 .console-head__title .eyebrow {
@@ -2801,7 +2805,7 @@ html[data-motion="off"] .evidence__spinner {
 
 @media (max-width: 700px) {
   .site-head {
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     gap: var(--s-3);
     min-height: 3rem;
     padding-block: var(--s-1);
@@ -2809,14 +2813,17 @@ html[data-motion="off"] .evidence__spinner {
 
   .logo {
     flex: none;
+    min-width: 0;
+    max-width: 100%;
   }
 
   .logo__word {
     font-size: 1.2rem;
+    overflow-wrap: anywhere;
   }
 
   .site-nav {
-    flex: 1 1 auto;
+    flex: 1 1 6rem;
     min-width: 0;
     overflow-x: auto;
     scrollbar-width: none;
@@ -3042,8 +3049,26 @@ html[data-motion="off"] .reveal {
 @media (forced-colors: active) {
   .stamp,
   .toe-tag,
-  .paper {
+  .paper,
+  .exit a,
+  .quirk {
     border: 1px solid CanvasText;
+  }
+
+  .exit--console a {
+    border-left-width: 3px;
+  }
+
+  .slab-button {
+    border: 2px solid LinkText;
+  }
+
+  .wordmark {
+    line-height: 1.3;
+  }
+
+  .wordmark::after {
+    display: none;
   }
 
   body::before,

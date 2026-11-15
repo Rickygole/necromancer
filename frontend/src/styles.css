@@ -66,6 +66,7 @@ body {
   font-family: var(--font-body);
   font-size: var(--t-md);
   line-height: 1.5;
+  overflow-wrap: break-word;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -130,6 +131,7 @@ textarea {
   border-radius: var(--radius);
   text-decoration: none;
   font-weight: 600;
+  max-width: calc(100% - 2 * var(--s-4));
 }
 
 .skip:focus {
@@ -312,6 +314,7 @@ textarea {
 
 .block__head h3 {
   font-size: var(--t-lg);
+  min-width: 0;
 }
 
 .hint {
@@ -604,7 +607,7 @@ textarea {
 
 .row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(10rem, 100%), 1fr));
   gap: var(--s-3);
 }
 
@@ -685,7 +688,7 @@ input[type="checkbox"] {
 
 .mutations__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(9.5rem, 100%), 1fr));
   gap: var(--s-2);
 }
 
@@ -1121,6 +1124,7 @@ input[type="checkbox"] {
 }
 
 .trace-wrap {
+  position: relative;
   overflow-x: auto;
 }
 
@@ -1632,6 +1636,29 @@ input[type="checkbox"] {
   }
 }
 
+@media (max-width: 30rem) {
+  .paragraph {
+    grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+  }
+
+  .paragraph__label {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .fields th,
+  .fields td,
+  .fields tbody th {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .tag,
+  .status {
+    white-space: normal;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .progress__fill--wait {
     animation: none;
@@ -1654,5 +1681,18 @@ input[type="checkbox"] {
   .trace__cell.is-diff,
   .mutation.is-active {
     border: 2px solid CanvasText;
+  }
+
+  :focus-visible,
+  .mutation:has(input:focus-visible) {
+    outline-color: Highlight;
+  }
+
+  .progress__bar {
+    border: 1px solid CanvasText;
+  }
+
+  .progress__fill {
+    background: Highlight;
   }
 }

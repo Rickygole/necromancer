@@ -412,7 +412,7 @@ export function Evidence() {
         </Reveal>
       </section>
 
-      <section className="notes" aria-labelledby="notes-title">
+      <section className="notes">
         <Reveal className="notes__sheet paper paper--torn">
           <CoffeeRing className="notes__coffee" />
           <h2 id="notes-title" className="section-title">

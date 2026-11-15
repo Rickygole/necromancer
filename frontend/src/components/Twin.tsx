@@ -121,7 +121,13 @@ export function Twin({ focus, patch, busy, onExorcise }: Props) {
             </p>
           ) : patch.phase === "applied" ? (
             <p className="hint">
-              Applied. Rerun <span className="mono">{patch.runId}</span> started.
+              {patch.runId ? (
+                <>
+                  Applied. Rerun <span className="mono">{patch.runId}</span> started.
+                </>
+              ) : (
+                "Applied. Rerun started."
+              )}
             </p>
           ) : null}
         </div>

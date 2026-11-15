@@ -135,7 +135,10 @@ export function ApiTester({ runId }: { runId: string | null }) {
             </button>
           </div>
         </form>
-        <div aria-live="polite">
+        <p className="visually-hidden" role="status">
+          {sending ? "Sending" : response ? `HTTP ${response.status} in ${response.ms} ms` : ""}
+        </p>
+        <div>
           {error ? (
             <p className="notice notice--error" role="alert">
               {error}
