@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { api, describeError } from "./api";
+import { Atmosphere } from "./components/Atmosphere";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
 import { useLightsOut } from "./lights";
@@ -68,6 +69,7 @@ export function App() {
 
   return (
     <>
+      <Atmosphere />
       <a className="skip" href="#main" onClick={skip}>
         Skip to content
       </a>

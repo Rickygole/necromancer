@@ -103,6 +103,10 @@ export function Scene() {
         </div>
         <Bat className="scene__bat scene__bat--one" />
         <Bat className="scene__bat scene__bat--two" />
+        <span className="spirit spirit--one" />
+        <span className="spirit spirit--two" />
+        <span className="spirit spirit--three" />
+        <span className="spirit spirit--four" />
       </div>
       <div className="fog fog--back">
         <span />

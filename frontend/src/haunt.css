@@ -247,6 +247,234 @@
   align-self: center;
 }
 
+.atmos {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 85% at 50% 38%, transparent 52%, rgba(0, 0, 0, 0.7) 100%),
+    radial-gradient(60% 45% at 50% 30%, rgba(48, 38, 58, 0.22), transparent 70%);
+}
+
+.atmos__fog {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6vh;
+  height: 46vh;
+}
+
+.atmos__fog span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 200%;
+  background:
+    radial-gradient(38% 60% at 15% 75%, rgba(176, 166, 196, 0.028), transparent 70%),
+    radial-gradient(30% 50% at 52% 85%, rgba(160, 150, 182, 0.026), transparent 70%),
+    radial-gradient(42% 62% at 84% 78%, rgba(176, 166, 196, 0.028), transparent 70%);
+  background-size: 50% 100%;
+  background-repeat: repeat-x;
+  animation: drift 120s linear infinite;
+}
+
+.atmos__fog--front {
+  bottom: -14vh;
+  height: 34vh;
+}
+
+.atmos__fog--front span {
+  opacity: 0.6;
+  animation-duration: 80s;
+  animation-direction: reverse;
+}
+
+.atmos__glow {
+  position: absolute;
+  top: -15rem;
+  left: -15rem;
+  width: 30rem;
+  height: 30rem;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(243, 162, 75, 0.025), rgba(243, 162, 75, 0.01) 55%, transparent 100%);
+  opacity: 0;
+  transition: opacity 250ms var(--ease-out);
+  will-change: transform;
+}
+
+.atmos__glow.is-on {
+  opacity: 1;
+}
+
+.spirit {
+  position: absolute;
+  bottom: -14%;
+  width: 2.6rem;
+  height: 4rem;
+  border-radius: 50% 50% 46% 46% / 62% 62% 38% 38%;
+  background: radial-gradient(60% 55% at 50% 38%, rgba(226, 232, 240, 0.22), rgba(200, 210, 225, 0.06) 60%, transparent 75%);
+  filter: blur(3px);
+  opacity: 0;
+  animation: spirit-rise 28s linear infinite;
+}
+
+.spirit--one {
+  left: 58%;
+}
+
+.spirit--two {
+  left: 74%;
+  width: 1.9rem;
+  height: 3rem;
+  animation-duration: 34s;
+  animation-delay: -11s;
+}
+
+.spirit--three {
+  left: 88%;
+  animation-duration: 31s;
+  animation-delay: -21s;
+}
+
+.spirit--four {
+  left: 66%;
+  width: 1.6rem;
+  height: 2.6rem;
+  animation-duration: 40s;
+  animation-delay: -4s;
+}
+
+@keyframes spirit-rise {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.8);
+  }
+  15% {
+    opacity: 0.8;
+  }
+  35% {
+    transform: translate3d(-1.4rem, -38vh, 0) scale(1);
+  }
+  60% {
+    opacity: 0.55;
+    transform: translate3d(1.2rem, -62vh, 0) scale(1.1);
+  }
+  85% {
+    opacity: 0.2;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(-0.6rem, -95vh, 0) scale(1.3);
+  }
+}
+
+.wordmark::before {
+  content: attr(data-text);
+  content: attr(data-text) / "";
+  position: absolute;
+  inset: 0;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(240, 112, 95, 0.45);
+  pointer-events: none;
+  transform: translate3d(4px, 3px, 0);
+  opacity: 0.5;
+  animation: ghost-drift 9s ease-in-out infinite alternate;
+}
+
+@keyframes ghost-drift {
+  0% {
+    transform: translate3d(4px, 3px, 0) skewX(0deg);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate3d(-3px, -2px, 0) skewX(-3deg);
+    opacity: 0.2;
+  }
+  100% {
+    transform: translate3d(6px, -1px, 0) skewX(2deg);
+    opacity: 0.45;
+  }
+}
+
+.site-main h1:not(.wordmark) {
+  text-shadow: 0 0 22px rgba(243, 162, 75, 0.18);
+  animation: title-flicker 11s linear infinite;
+}
+
+@keyframes title-flicker {
+  0%,
+  61%,
+  63.5%,
+  100% {
+    opacity: 1;
+  }
+  62% {
+    opacity: 0.62;
+  }
+  63% {
+    opacity: 0.85;
+  }
+}
+
+.step--active {
+  position: relative;
+  animation: candle-breathe 2.8s ease-in-out infinite;
+}
+
+.step--active .step__mark {
+  position: relative;
+  box-shadow: 0 0 10px rgba(243, 198, 107, 0.45);
+}
+
+.step--active .step__mark::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  width: 0.5rem;
+  height: 0.8rem;
+  margin-left: -0.25rem;
+  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+  background: radial-gradient(circle at 50% 70%, #fff3d0 0%, var(--candle) 55%, transparent 78%);
+  transform-origin: 50% 100%;
+  animation: sway 2.2s ease-in-out infinite;
+}
+
+@keyframes candle-breathe {
+  0%,
+  100% {
+    box-shadow: var(--carved), 0 0 0 1px rgba(243, 198, 107, 0.35), 0 -4px 22px -8px rgba(243, 162, 75, 0.45);
+  }
+  45% {
+    box-shadow: var(--carved), 0 0 0 1px rgba(243, 198, 107, 0.5), 0 -6px 30px -8px rgba(243, 162, 75, 0.65);
+  }
+  70% {
+    box-shadow: var(--carved), 0 0 0 1px rgba(243, 198, 107, 0.4), 0 -4px 24px -8px rgba(243, 162, 75, 0.5);
+  }
+}
+
+@media (max-width: 700px) {
+  .spirit {
+    display: none;
+  }
+}
+
+html[data-motion="off"] .atmos__glow,
+html[data-motion="off"] .spirit {
+  display: none;
+}
+
+html[data-motion="off"] .wordmark::before,
+html[data-motion="off"] .site-main h1:not(.wordmark) {
+  animation: none;
+}
+
+html[data-motion="off"] .step--active {
+  animation: none;
+  box-shadow: var(--carved), 0 0 0 1px rgba(243, 198, 107, 0.45), 0 -4px 22px -8px rgba(243, 162, 75, 0.5);
+}
+
 html[data-motion="off"] .verdict.is-rising {
   animation: none;
 }
@@ -259,8 +487,21 @@ html[data-motion="off"] .verdict__big.is-glitching::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .verdict.is-rising {
+  .verdict.is-rising,
+  .wordmark::before,
+  .site-main h1:not(.wordmark),
+  .atmos__fog span {
     animation: none;
+  }
+
+  .atmos__glow,
+  .spirit {
+    display: none;
+  }
+
+  .step--active {
+    animation: none;
+    box-shadow: var(--carved), 0 0 0 1px rgba(243, 198, 107, 0.45), 0 -4px 22px -8px rgba(243, 162, 75, 0.5);
   }
 
   .verdict__haunt,
@@ -272,6 +513,17 @@ html[data-motion="off"] .verdict__big.is-glitching::after {
 }
 
 @media (forced-colors: active) {
+  .atmos,
+  .spirit,
+  .wordmark::before,
+  .step--active .step__mark::after {
+    display: none;
+  }
+
+  .site-main h1:not(.wordmark) {
+    animation: none;
+  }
+
   .card.cx--stone {
     border: 1px solid CanvasText;
     border-top-width: 3px;
