@@ -1,6 +1,6 @@
 {
   "framework": null,
-  "buildCommand": "sh scripts/fetch-oracle.sh && cd frontend && npm install && npm run build",
+  "buildCommand": "sh scripts/fetch-oracle.sh && sh scripts/precompute-corpus.sh && cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/dist",
   "functions": {
     "api/index.py": {

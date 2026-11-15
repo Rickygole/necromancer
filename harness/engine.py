@@ -5,10 +5,10 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-from hypothesis import HealthCheck, Phase, find, given, seed as hyp_seed, settings
+from hypothesis import HealthCheck, find, settings
 from hypothesis.errors import NoSuchExample
 
-from harness import corpus, counterexamples, decisions as decision_store
+from harness import corpus, corpus_cache, counterexamples, decisions as decision_store
 from harness.compare import compare_batch, compare_one, mismatches
 from harness.profiles import CORPUS_VERSION, DEFAULT_SEED, PROFILES
 from modern import calculator
@@ -94,26 +94,11 @@ def run_verification(profile="demo", seed=DEFAULT_SEED, mutation=None, on_event=
     batches_total = cfg["random_batches"]
     state = {"cases": 0, "matched": 0, "seen": {}, "families": {}, "batches_done": 0}
 
-    generated = []
-
-    def collect(batch):
-        generated.append(batch)
-
-    collector = given(corpus.record_batches(cfg["batch_size"]))(collect)
-    collector = hyp_seed(seed)(collector)
-    collector = settings(
-        max_examples=batches_total,
-        database=None,
-        deadline=None,
-        phases=[Phase.generate],
-        suppress_health_check=list(HealthCheck),
-    )(collector)
-    collector()
+    generated = corpus_cache.load(batches_total, cfg["batch_size"], seed)
     planned_cases = planned_fixed + sum(len(b) for b in generated)
     on_event({"type": "planned", "planned": planned_cases})
 
-    def process(family, records):
-        oracle_lines = runner.run_batch(records, binary)
+    def process(family, records, oracle_lines):
         twin_lines = calculator.calc_batch(records, mutation)
         comps = compare_batch(records, oracle_lines, twin_lines)
         bad = mismatches(comps)
@@ -129,14 +114,25 @@ def run_verification(profile="demo", seed=DEFAULT_SEED, mutation=None, on_event=
                 on_event({"type": "mismatch", "class": sig, "family": family, "record": comp.record})
         return len(bad)
 
+    groups = [(family, records) for family, records in fixed_families]
+    groups.extend(("property", batch) for batch in generated)
+    oracle_seen = {}
     try:
+        flat = [record for _, records in groups for record in records]
+        flat_lines = []
+        for part in chunks(flat, runner.BATCH_LIMIT):
+            flat_lines.extend(runner.run_batch(part, binary))
+        oracle_seen.update(zip(flat, flat_lines))
+        cursor = 0
         for family, records in fixed_families:
-            for part in chunks(records, runner.BATCH_LIMIT):
-                process(family, part)
+            if records:
+                process(family, records, flat_lines[cursor:cursor + len(records)])
+            cursor += len(records)
             on_event(progress(state, planned_cases, family))
         for index, batch in enumerate(generated, 1):
             state["batches_done"] = index
-            process("property", batch)
+            process("property", batch, flat_lines[cursor:cursor + len(batch)])
+            cursor += len(batch)
             if index % 5 == 0 or index == len(generated):
                 on_event(progress(state, planned_cases, "property"))
     except runner.OracleError as exc:
@@ -153,7 +149,7 @@ def run_verification(profile="demo", seed=DEFAULT_SEED, mutation=None, on_event=
     saved = []
     for sig, (family, comp) in sorted(state["seen"].items()):
         on_event({"type": "shrinking", "class": sig})
-        minimal = shrink(sig, comp, cfg["shrink_examples"], seed, mutation, binary)
+        minimal = shrink(sig, comp, cfg["shrink_examples"], seed, mutation, binary, oracle_seen)
         if sig in known:
             cx_id = known[sig]
         else:
@@ -209,16 +205,26 @@ def progress(state, planned, family):
     }
 
 
-def shrink(sig, comp, examples, seed, mutation, binary):
+def oracle_line(record, binary, seen):
+    line = seen.get(record)
+    if line is None:
+        line = runner.run_batch([record], binary)[0]
+        seen[record] = line
+    return line
+
+
+def shrink(sig, comp, examples, seed, mutation, binary, seen=None):
     import random
+
+    seen = {} if seen is None else seen
 
     def predicate(record):
         try:
-            lines = runner.run_batch([record], binary)
+            line = oracle_line(record, binary, seen)
         except runner.OracleError:
             return False
         twin = calculator.calc_batch([record], mutation)
-        one = compare_one(record, lines[0], twin[0])
+        one = compare_one(record, line, twin[0])
         return (not one.matches) and counterexamples.signature(one) == sig
 
     try:
@@ -235,9 +241,9 @@ def shrink(sig, comp, examples, seed, mutation, binary):
         )
     except NoSuchExample:
         return comp
-    lines = runner.run_batch([record], binary)
+    line = oracle_line(record, binary, seen)
     twin = calculator.calc_batch([record], mutation)
-    return compare_one(record, lines[0], twin[0])
+    return compare_one(record, line, twin[0])
 
 
 def write_report(run_dir, report):

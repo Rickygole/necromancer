@@ -9,97 +9,132 @@ SMALL_MONEY = 9999999
 CR_BOUNDARIES = [0, 9, 18, 27, 36, 45, 47, 49, 50, 57, 64, 65, 79, 80]
 
 
+WAGES = st.one_of(
+    st.just(0),
+    st.just(0),
+    st.just(0),
+    st.integers(0, 3000000),
+    st.integers(0, WAGE_MAX),
+    st.sampled_from([0, 1, 249999, 250000, 1690000, 2599999, 2600000, 2600001]),
+)
+MONEY = st.one_of(st.integers(0, 200000), st.integers(0, SMALL_MONEY), st.sampled_from([0, 1, 9999999]))
+CLAIM_ID = st.integers(0, 999999)
+DEPENDENTS = st.one_of(st.integers(0, 12), st.integers(13, 99))
+AGES = st.one_of(st.integers(0, 17), st.integers(18, 99), st.sampled_from([61, 62, 63]))
+RETIREMENT = st.sampled_from(["N", "V", "M"])
+FLAG = st.sampled_from(["Y", "N"])
+KINDS = st.sampled_from(["letters", "retirement", "flag", "short", "long", "blank",
+                         "cr_middle", "cr_trailing", "cr_start", "cr_insert", "cr_boundary", "cr_junk", "cr_many", "nonascii_id", "nonascii_filler", "nonascii_numeric"])
+LETTER_POS = st.integers(9, 63)
+LETTER_CHAR = st.sampled_from("AXZ-+ .")
+RET_CHAR = st.sampled_from("XZ1 ")
+FLAG_CHAR = st.sampled_from("XZ1 y")
+SHORT_LEN = st.integers(1, 79)
+LONG_TAIL = st.text("0123 ", min_size=1, max_size=5)
+MID_POS = st.integers(1, 78)
+CR_TRAILING = st.integers(1, 3)
+CR_INSERT_POS = st.integers(0, 80)
+CR_BOUNDARY_POS = st.sampled_from(CR_BOUNDARIES)
+CR_JUNK = st.text("GARBAGEX0123 ", min_size=1, max_size=8)
+CR_MANY_COUNT = st.integers(4, 12)
+NONASCII_ID_POS = st.integers(0, 8)
+NONASCII_ID_CHAR = st.sampled_from("\u00e9\u00fc\u4e2d")
+NONASCII_FILLER_POS = st.integers(65, 79)
+NONASCII_NUMERIC_POS = st.integers(9, 63)
+NONASCII_NUMERIC_CHAR = st.sampled_from("\u00e9\u0663\u4e2d")
+
+
 def wages():
-    return st.one_of(
-        st.just(0),
-        st.just(0),
-        st.just(0),
-        st.integers(0, 3000000),
-        st.integers(0, WAGE_MAX),
-        st.sampled_from([0, 1, 249999, 250000, 1690000, 2599999, 2600000, 2600001]),
-    )
+    return WAGES
 
 
 def money():
-    return st.one_of(st.integers(0, 200000), st.integers(0, SMALL_MONEY), st.sampled_from([0, 1, 9999999]))
+    return MONEY
 
 
 @st.composite
 def claims(draw):
     return Claim(
-        claimant_id="CLM" + str(draw(st.integers(0, 999999))).zfill(6),
-        q1=draw(wages()),
-        q2=draw(wages()),
-        q3=draw(wages()),
-        q4=draw(wages()),
-        dependents=draw(st.one_of(st.integers(0, 12), st.integers(13, 99))),
-        age=draw(st.one_of(st.integers(0, 17), st.integers(18, 99), st.sampled_from([61, 62, 63]))),
-        retirement=draw(st.sampled_from(["N", "V", "M"])),
-        pension=draw(money()),
-        severance=draw(money()),
-        flag=draw(st.sampled_from(["Y", "N"])),
+        claimant_id="CLM" + str(draw(CLAIM_ID)).zfill(6),
+        q1=draw(WAGES),
+        q2=draw(WAGES),
+        q3=draw(WAGES),
+        q4=draw(WAGES),
+        dependents=draw(DEPENDENTS),
+        age=draw(AGES),
+        retirement=draw(RETIREMENT),
+        pension=draw(MONEY),
+        severance=draw(MONEY),
+        flag=draw(FLAG),
     )
 
 
+CLAIMS = claims()
+VALID_RECORDS = CLAIMS.map(encode_claim)
+
+
 def valid_records():
-    return claims().map(encode_claim)
+    return VALID_RECORDS
 
 
 @st.composite
 def invalid_records(draw):
-    base = encode_claim(draw(claims()))
-    kind = draw(st.sampled_from(["letters", "retirement", "flag", "short", "long", "blank",
-                                    "cr_middle", "cr_trailing", "cr_start", "cr_insert", "cr_boundary", "cr_junk", "cr_many", "nonascii_id", "nonascii_filler", "nonascii_numeric"]))
+    base = encode_claim(draw(CLAIMS))
+    kind = draw(KINDS)
     if kind == "letters":
-        pos = draw(st.integers(9, 63))
-        return base[:pos] + draw(st.sampled_from("AXZ-+ .")) + base[pos + 1:]
+        pos = draw(LETTER_POS)
+        return base[:pos] + draw(LETTER_CHAR) + base[pos + 1:]
     if kind == "retirement":
-        return base[:49] + draw(st.sampled_from("XZ1 ")) + base[50:]
+        return base[:49] + draw(RET_CHAR) + base[50:]
     if kind == "flag":
-        return base[:64] + draw(st.sampled_from("XZ1 y")) + base[65:]
+        return base[:64] + draw(FLAG_CHAR) + base[65:]
     if kind == "short":
-        return base[: draw(st.integers(1, 79))]
+        return base[: draw(SHORT_LEN)]
     if kind == "long":
-        return base + draw(st.text("0123 ", min_size=1, max_size=5))
+        return base + draw(LONG_TAIL)
     if kind == "cr_middle":
-        pos = draw(st.integers(1, 78))
+        pos = draw(MID_POS)
         return base[:pos] + "\r" + base[pos + 1:]
     if kind == "cr_trailing":
-        return base + "\r" * draw(st.integers(1, 3))
+        return base + "\r" * draw(CR_TRAILING)
     if kind == "cr_start":
-        return "\r" * draw(st.integers(1, 3)) + base
+        return "\r" * draw(CR_TRAILING) + base
     if kind == "cr_insert":
-        pos = draw(st.integers(0, 80))
+        pos = draw(CR_INSERT_POS)
         return base[:pos] + "\r" + base[pos:]
     if kind == "cr_boundary":
-        pos = draw(st.sampled_from(CR_BOUNDARIES))
+        pos = draw(CR_BOUNDARY_POS)
         return base[:pos] + "\r" + base[pos:]
     if kind == "cr_junk":
-        return base + "\r" + draw(st.text("GARBAGEX0123 ", min_size=1, max_size=8))
+        return base + "\r" + draw(CR_JUNK)
     if kind == "cr_many":
         out = base
-        for _ in range(draw(st.integers(4, 12))):
+        for _ in range(draw(CR_MANY_COUNT)):
             pos = draw(st.integers(0, len(out)))
             out = out[:pos] + "\r" + out[pos:]
         return out
     if kind == "nonascii_id":
-        pos = draw(st.integers(0, 8))
-        return base[:pos] + draw(st.sampled_from("\u00e9\u00fc\u4e2d")) + base[pos + 1:]
+        pos = draw(NONASCII_ID_POS)
+        return base[:pos] + draw(NONASCII_ID_CHAR) + base[pos + 1:]
     if kind == "nonascii_filler":
-        pos = draw(st.integers(65, 79))
-        return base[:pos] + draw(st.sampled_from("\u00e9\u00fc\u4e2d")) + base[pos + 1:]
+        pos = draw(NONASCII_FILLER_POS)
+        return base[:pos] + draw(NONASCII_ID_CHAR) + base[pos + 1:]
     if kind == "nonascii_numeric":
-        pos = draw(st.integers(9, 63))
-        return base[:pos] + draw(st.sampled_from("\u00e9\u0663\u4e2d")) + base[pos + 1:]
+        pos = draw(NONASCII_NUMERIC_POS)
+        return base[:pos] + draw(NONASCII_NUMERIC_CHAR) + base[pos + 1:]
     return " " * 80
 
 
+INVALID_RECORDS = invalid_records()
+MIXED_RECORDS = st.one_of(CLAIMS.map(encode_claim), CLAIMS.map(encode_claim), CLAIMS.map(encode_claim), INVALID_RECORDS)
+
+
 def mixed_records():
-    return st.one_of(valid_records(), valid_records(), valid_records(), invalid_records())
+    return MIXED_RECORDS
 
 
 def record_batches(max_size):
-    return st.lists(mixed_records(), min_size=max(1, max_size // 2), max_size=max_size)
+    return st.lists(MIXED_RECORDS, min_size=max(1, max_size // 2), max_size=max_size)
 
 
 def golden():
