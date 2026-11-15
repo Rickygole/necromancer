@@ -174,3 +174,22 @@ def test_body_under_the_limit_is_accepted(hosted):
 @pytest.mark.parametrize("seed", [True, False, "5", 1.5, [1]])
 def test_non_integer_seed_is_refused(hosted, seed):
     error_of(hosted.post("/api/live", json={"profile": "dev", "seed": seed}), "BAD_REQUEST", 400)
+
+
+def test_recorded_evidence_is_cacheable_when_hosted(hosted):
+    for path in ("/api/snapshot", "/api/mutation-score"):
+        response = hosted.get(path)
+        assert response.status_code == 200
+        assert "s-maxage" in response.headers["cache-control"]
+
+
+def test_recorded_evidence_is_not_cached_off_host(client_off_host):
+    response = client_off_host.get("/api/snapshot")
+    assert response.status_code == 200
+    assert "cache-control" not in response.headers
+
+
+@pytest.fixture
+def client_off_host(monkeypatch):
+    monkeypatch.delenv("NECRO_HOSTED", raising=False)
+    return TestClient(app_module.app)

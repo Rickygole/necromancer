@@ -289,7 +289,7 @@ export function useRunner() {
         pendingRef.current = resolve;
         dispatch({ type: "start", runId: snapshot.run_id, replay: !live, source: live ? null : snapshot, label });
         const events = Array.isArray(snapshot.events) ? snapshot.events : [];
-        const step = reducedMotion() ? 0 : Math.min(120, Math.max(12, 3600 / Math.max(events.length, 1)));
+        const step = reducedMotion() ? 0 : Math.min(40, Math.max(2, 1200 / Math.max(events.length, 1)));
         events.forEach((event, index) => {
           timersRef.current.push(window.setTimeout(() => dispatch({ type: "event", event }), step * (index + 1)));
         });

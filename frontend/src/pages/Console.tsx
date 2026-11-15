@@ -37,8 +37,8 @@ const RECORDED_SHORT = ["Recorded baseline", "Recorded M4 injection", "Recorded 
 
 const DEFAULT_PATCH_MUTATION = "M4";
 const RECORDED_MUTATION = "M4";
-const HOLD_SHORT = 1200;
-const HOLD_LONG = 4000;
+const HOLD_SHORT = 700;
+const HOLD_LONG = 900;
 
 type RecordedKey = "baseline" | "injected" | "after_patch";
 

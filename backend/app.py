@@ -10,6 +10,7 @@ from typing import List, Literal, Optional
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, StrictInt
 from sse_starlette.sse import EventSourceResponse
@@ -127,6 +128,13 @@ def hosted():
 
 def oracle_available():
     return runner.oracle_ready()
+
+
+def cached_json(payload):
+    headers = {}
+    if hosted():
+        headers["Cache-Control"] = "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400"
+    return JSONResponse(payload, headers=headers)
 
 
 def bad(message, detail=None):
@@ -401,7 +409,7 @@ def snapshot():
     path = ROOT / "evidence" / "snapshot.json"
     if not path.exists():
         raise errors.ApiError("NOT_FOUND", "no snapshot has been rendered")
-    return json.loads(path.read_text())
+    return cached_json(json.loads(path.read_text()))
 
 
 @app.get("/api/mutation-score")
@@ -409,7 +417,7 @@ def mutation_score():
     path = ROOT / "evidence" / "mutation_score.json"
     if not path.exists():
         raise errors.ApiError("NOT_FOUND", "no mutation score has been recorded")
-    return json.loads(path.read_text())
+    return cached_json(json.loads(path.read_text()))
 
 
 @app.get("/api/patches")
