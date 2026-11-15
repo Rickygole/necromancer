@@ -8,7 +8,7 @@ export function Footer() {
       <Stitches className="site-foot__stitch" />
       <div className="site-foot__grid">
         <p className="site-foot__claim">
-          Every verdict is evidence over the cases counted, never a proof of equivalence. All data is synthetic.
+          Every verdict is evidence over the cases counted, never a proof of equivalence. All data is synthetic and the rules are invented. Not benefit advice, and not affiliated with any government agency.
         </p>
         <nav aria-label="Footer">
           <ul className="site-foot__links">

@@ -145,7 +145,7 @@ export const STAGED: string[] = [
   "UICALC is synthetic. It was written for this project, and its rules are not any state's law.",
   "The three legacy quirks were planted on purpose, then measured on the real GnuCOBOL compiler.",
   "The mismatch in the guided demo is an injected mutation, M4, not a legacy finding.",
-  "The three decisions are preserve choices that the reviewer delegated during the build. They are not yet confirmed.",
+  "The three decisions are preserve choices that the coding agents made for the owner during the build. The owner has not yet confirmed them.",
 ];
 
 const FALLBACK_SCORE: MutationScore = {
@@ -225,7 +225,7 @@ export const REPO_TREE: { path: string; text: string }[] = [
   { path: "backend/", text: "FastAPI app, SQLite store, recorded patches" },
   { path: "frontend/", text: "this site and the console" },
   { path: "oracle_mcp/", text: "MCP server that exposes the oracle" },
-  { path: "decisions/", text: "decision records (the reviewer delegated the three choices) and the incident log" },
+  { path: "decisions/", text: "decision records (the coding agents made the three choices for the owner, unconfirmed) and the incident log" },
   { path: "evidence/", text: "probe report, counterexamples, mutation score, snapshot" },
   { path: "tests/", text: "unit, property, mutation and API tests" },
   { path: ".kiro/", text: "specs, steering, hooks, agents, and the oracle MCP server registration" },
