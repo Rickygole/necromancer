@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { NAV, type Route } from "../router";
 import { trackHeaderHeight } from "../scroll";
 import { MotionToggle } from "./MotionToggle";
+import { SoundToggle } from "./SoundToggle";
 
 export function Header({ route }: { route: Route }) {
   const ref = useRef<HTMLElement>(null);
@@ -29,6 +30,7 @@ export function Header({ route }: { route: Route }) {
           ))}
         </ol>
       </nav>
+      <SoundToggle />
       <MotionToggle />
     </header>
   );

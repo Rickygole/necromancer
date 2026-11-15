@@ -460,6 +460,15 @@
   }
 }
 
+.sound-toggle__icon {
+  flex: none;
+}
+
+.sound-toggle:not(.motion-toggle--paused) {
+  color: var(--bone);
+  border-color: var(--candle);
+}
+
 html[data-motion="off"] .atmos__glow,
 html[data-motion="off"] .spirit {
   display: none;

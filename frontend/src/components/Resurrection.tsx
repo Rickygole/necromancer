@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useMotion } from "../motion";
+import { sting } from "../sound";
 import { count } from "../status";
 
 export const RISE_MS = 1400;
@@ -14,6 +15,7 @@ export function useResurrection(key: string | null): boolean {
   useEffect(() => {
     if (!key || !enabledRef.current) return;
     setRising(true);
+    sting("rise");
     const timer = window.setTimeout(() => setRising(false), RISE_MS);
     return () => {
       window.clearTimeout(timer);
