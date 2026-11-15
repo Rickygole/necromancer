@@ -133,7 +133,7 @@ def oracle_available():
 def cached_json(payload):
     headers = {}
     if hosted():
-        headers["Cache-Control"] = "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400"
+        headers["Cache-Control"] = "public, max-age=60, s-maxage=60"
     return JSONResponse(payload, headers=headers)
 
 
@@ -214,6 +214,11 @@ def create_run(req: RunRequest):
 
 @app.post("/api/live")
 def live_run(req: RunRequest):
+    if req.use_demo_config:
+        raise bad(
+            "use_demo_config is not supported on /api/live, the demo config is not read here, send an explicit mutation instead",
+            {"use_demo_config": True, "send": "mutation"},
+        )
     if req.profile not in PROFILES:
         raise bad("unknown profile", {"profile": req.profile, "known": sorted(PROFILES)})
     check_mutation(req.mutation)

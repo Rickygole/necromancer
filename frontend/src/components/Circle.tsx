@@ -8,7 +8,7 @@ import { StatusIcon } from "./StatusBadge";
 export interface DemoStep {
   label: string;
   short?: string;
-  state: "pending" | "active" | "done" | "failed" | "skipped";
+  state: "pending" | "active" | "waiting" | "done" | "failed" | "skipped";
   result?: Status;
   note?: string;
   startedAt?: number;
@@ -30,6 +30,7 @@ interface Props {
   profile: string | null;
   focusedId: string | null;
   runLabel: string;
+  note: string | null;
   onDemo: () => void;
   retry: { label: string; run: () => void } | null;
   onStop: () => void;
@@ -79,7 +80,8 @@ export function Circle(props: Props) {
   const glow = run.planned > 0 ? Math.min(1, run.matched / run.planned) : run.status === "MATCH" ? 1 : 0;
   const tone = toneOf(run.status);
   const percent = run.planned > 0 ? Math.round((run.cases / run.planned) * 100) : 0;
-  const total = Math.max(run.planned, run.cases);
+  const compared = run.matched + run.mismatched;
+  const total = Math.max(run.planned, run.cases, compared);
 
   const activeStep = demo?.find((step) => step.state === "active") ?? null;
   const now = useNow(running);
@@ -165,6 +167,7 @@ export function Circle(props: Props) {
               <span>{run.status}</span>
             </span>
             {run.replay ? <span className="tag tag--warn">Recorded</span> : null}
+            {props.note ? <span className="tag">{props.note}</span> : null}
           </p>
 
           {failed && run.error ? (
@@ -173,7 +176,9 @@ export function Circle(props: Props) {
               <p className="verdict__text">{run.error.message}</p>
               <p className="hint mono">
                 {run.error.code}
-                {run.cases === 0 ? ", no cases were compared" : `, stopped after ${casesOf(run.cases, run.planned)}`}
+                {compared === 0
+                  ? ", no cases were compared"
+                  : `, ${count(compared)} compared so far of ${count(total)} planned`}
               </p>
               {props.retry && run.error.retry ? (
                 <button type="button" className="button button--primary" disabled={busy} onClick={props.retry.run}>
@@ -191,8 +196,8 @@ export function Circle(props: Props) {
                   </p>
                   <p className="verdict__of num">
                     {running
-                      ? `out of ${count(run.cases)} compared so far, ${count(total)} planned`
-                      : `out of ${count(total)} cases compared`}
+                      ? `out of ${count(compared)} compared so far, ${count(total)} planned`
+                      : `out of ${count(compared)} cases compared`}
                     {context ? `, ${context}` : ""}
                   </p>
                 </>
@@ -242,10 +247,13 @@ export function Circle(props: Props) {
                     : PHASE_TEXT.idle}
               {run.replay ? ", replaying recorded evidence" : ""}
               {elapsed ? <span className="num">, {elapsed}</span> : null}
+              {run.replay && typeof props.recorded?.seconds === "number" ? (
+                <span className="num">, recorded run took {props.recorded.seconds.toFixed(1)} s</span>
+              ) : null}
             </p>
             {run.cases > 0 ? (
               <p className="progress__sum num">
-                {count(run.matched)} matched + {count(run.mismatched)} mismatched = {count(run.matched + run.mismatched)}{" "}
+                {count(run.matched)} matched + {count(run.mismatched)} mismatched = {count(compared)}{" "}
                 compared
               </p>
             ) : null}
@@ -262,7 +270,7 @@ export function Circle(props: Props) {
           </div>
 
           <div className="button-row verdict__actions">
-            <button type="button" className="button button--primary" onClick={props.onDemo} disabled={busy}>
+            <button id="guided-demo-button" type="button" className="button button--primary" onClick={props.onDemo} disabled={busy}>
               Guided demo
             </button>
             <button type="submit" form="run-controls" className="button" disabled={busy}>
@@ -305,7 +313,7 @@ export function Circle(props: Props) {
         ) : (
           <p className="empty">
             {run.status === "MATCH" || (run.status === "APPROVAL REQUIRED" && run.phase === "finished")
-              ? `No disagreements in ${casesOf(run.cases, run.planned)}. That is evidence over this run, not proof.`
+              ? `No disagreements in ${casesOf(compared, compared)}. That is evidence over this run, not proof.`
               : run.phase === "shrinking"
                 ? "Shrinking the failing input to its smallest form."
                 : running

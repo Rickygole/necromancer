@@ -62,6 +62,7 @@ export interface Report {
   decision_coverage?: { undecided?: string[]; observed?: string[] };
   seconds?: number;
   mutation_score?: number | string | null;
+  error?: { code?: string; message?: string; detail?: unknown };
 }
 
 export interface RunEvent {

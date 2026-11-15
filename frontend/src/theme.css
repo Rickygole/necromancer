@@ -2812,7 +2812,29 @@ html[data-motion="off"] .evidence__spinner {
   color: var(--bone);
 }
 
+.stepper__meta .status {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.step--waiting .step__mark {
+  border-color: var(--approval);
+  border-style: dotted;
+  color: var(--approval);
+}
+
+.step--waiting .stepper__fill {
+  background: var(--approval);
+}
+
+.held {
+  display: grid;
+  gap: var(--s-3);
+}
+
 .stepper__meta {
+  min-width: 0;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -2963,7 +2985,7 @@ html[data-motion="off"] .evidence__spinner {
   }
 
   .stepper__list {
-    grid-template-columns: repeat(auto-fit, minmax(min(8.25rem, 100%), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(11rem, 100%), 1fr));
   }
 
   .console-tools,

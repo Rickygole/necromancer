@@ -152,12 +152,24 @@ function reducer(state: RunState, action: Action): RunState {
           return { ...state, status: "MISMATCH", counterexamples: mergeCounterexamples(state.counterexamples, [cx]) };
         }
         case "verdict": {
+          const status = toStatus(event.verdict);
           const cases = event.cases ?? state.cases;
           const matched = event.matched ?? state.matched;
+          const reported = event.code || event.message;
+          const error =
+            status === "RUNTIME ERROR" && (state.error === null || reported)
+              ? {
+                  code: event.code ?? state.error?.code ?? "RUNTIME_ERROR",
+                  message: event.message ?? state.error?.message ?? "The oracle stopped partway through, so no verdict was reached.",
+                  retry: true,
+                  busy: false,
+                }
+              : state.error;
           return {
             ...state,
             phase: "finished",
-            status: toStatus(event.verdict),
+            status,
+            error,
             cases,
             matched,
             planned: Math.max(state.planned, cases),
@@ -301,7 +313,14 @@ export function useRunner() {
             if (Array.isArray(counterexamples)) dispatch({ type: "counterexamples", list: counterexamples });
             dispatch({
               type: "event",
-              event: { type: "verdict", verdict: snapshot.verdict, cases: snapshot.cases, matched: snapshot.matched },
+              event: {
+                type: "verdict",
+                verdict: snapshot.verdict,
+                cases: snapshot.cases,
+                matched: snapshot.matched,
+                code: snapshot.error?.code,
+                message: snapshot.error?.message,
+              },
             });
             resolve(toStatus(snapshot.verdict));
           }, step * (events.length + 1)),

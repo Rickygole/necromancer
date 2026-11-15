@@ -20,7 +20,7 @@ export function RunControls({ controls, onControls, mutations, injected, replayO
   const set = (patch: Partial<Controls>) => onControls({ ...controls, ...patch });
   const summary = replayOnly
     ? `recorded, ${controls.mutation === "M4" ? "M4 injected run" : "baseline"}`
-    : `${controls.profile}, seed ${controls.seed || DEMO_SEED}, mutation ${controls.mutation || injected || "none"}`;
+    : `${controls.profile}, seed ${controls.seed || DEMO_SEED}, mutation ${controls.mutation || (controls.useDemoConfig ? injected : null) || "none"}`;
 
   return (
     <details className="drawer">
@@ -89,7 +89,7 @@ export function RunControls({ controls, onControls, mutations, injected, replayO
               <span className="mutation__label">Twin with the three preserved legacy behaviors</span>
             </label>
             {mutations.map((m) => {
-              const active = controls.mutation === m.id || injected === m.id;
+              const active = controls.mutation === m.id || (controls.useDemoConfig && injected === m.id);
               const unavailable = replayOnly && !RECORDED_MUTATIONS.has(m.id);
               return (
                 <label
@@ -120,11 +120,15 @@ export function RunControls({ controls, onControls, mutations, injected, replayO
         <label className="check">
           <input
             type="checkbox"
-            disabled={replayOnly}
+            disabled={replayOnly || liveHosted}
             checked={controls.useDemoConfig}
             onChange={(e) => set({ useDemoConfig: e.target.checked })}
           />
-          <span>Use demo config{injected ? `, currently injects ${injected}` : ""}</span>
+          <span>
+            Use demo config
+            {controls.useDemoConfig && injected ? `, currently injects ${injected}` : ""}
+            {liveHosted ? ", not available on the hosted build, pick a mutation above" : ""}
+          </span>
         </label>
         <div className="button-row">
           <button type="submit" className="button" disabled={busy}>

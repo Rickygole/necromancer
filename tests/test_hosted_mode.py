@@ -176,11 +176,30 @@ def test_non_integer_seed_is_refused(hosted, seed):
     error_of(hosted.post("/api/live", json={"profile": "dev", "seed": seed}), "BAD_REQUEST", 400)
 
 
+def test_live_refuses_use_demo_config(hosted):
+    error = error_of(hosted.post("/api/live", json={"profile": "dev", "use_demo_config": True}), "BAD_REQUEST", 400)
+    assert "use_demo_config" in error["message"]
+    error_of(
+        hosted.post("/api/live", json={"profile": "demo", "mutation": "M4", "use_demo_config": True}),
+        "BAD_REQUEST",
+        400,
+    )
+
+
+def test_live_still_takes_an_explicit_mutation(hosted):
+    response = hosted.post("/api/live", json={"profile": "dev", "mutation": "M4"})
+    assert response.status_code == 200
+    assert response.json()["mutation"] == "M4"
+
+
 def test_recorded_evidence_is_cacheable_when_hosted(hosted):
     for path in ("/api/snapshot", "/api/mutation-score"):
         response = hosted.get(path)
         assert response.status_code == 200
-        assert "s-maxage" in response.headers["cache-control"]
+        control = response.headers["cache-control"]
+        assert "max-age=60" in control
+        assert "s-maxage=60" in control
+        assert "stale-while-revalidate" not in control
 
 
 def test_recorded_evidence_is_not_cached_off_host(client_off_host):

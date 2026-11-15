@@ -9,6 +9,7 @@ interface Props {
   run: RunState;
   busy: boolean;
   replayOnly: boolean;
+  liveHosted: boolean;
   retry: { label: string; run: () => void } | null;
   showRetry: boolean;
 }
@@ -16,12 +17,22 @@ interface Props {
 const STEP_MARK: Record<DemoStep["state"], string | null> = {
   pending: null,
   active: "◆",
+  waiting: "◐",
   done: "✓",
   failed: "✕",
   skipped: "○",
 };
 
-export function DemoStepper({ steps, started, run, busy, replayOnly, retry, showRetry }: Props) {
+const STATE_TEXT: Record<DemoStep["state"], string> = {
+  pending: "pending",
+  active: "active",
+  waiting: "waiting for a reviewer, not approved",
+  done: "done",
+  failed: "failed",
+  skipped: "skipped",
+};
+
+export function DemoStepper({ steps, started, run, busy, replayOnly, liveHosted, retry, showRetry }: Props) {
   const activeIndex = steps.findIndex((step) => step.state === "active");
   const now = useNow(activeIndex !== -1);
   const running = run.phase !== "idle" && run.phase !== "finished";
@@ -35,7 +46,9 @@ export function DemoStepper({ steps, started, run, busy, replayOnly, retry, show
     : activeIndex !== -1
       ? `Step ${activeIndex + 1} of ${steps.length}`
       : finished
-        ? "Finished"
+        ? steps.some((step) => step.state === "waiting")
+        ? "Finished, waiting for a reviewer"
+        : "Finished"
         : `Step ${lastDone + 1} of ${steps.length} done`;
 
   return (
@@ -43,7 +56,11 @@ export function DemoStepper({ steps, started, run, busy, replayOnly, retry, show
       <div className="stepper__head">
         <h2 id="demo-title">Guided demo</h2>
         <p className="hint">
-          {replayOnly ? "Recorded runs, in order" : "Real API calls, in order"}
+          {replayOnly
+            ? "Recorded runs, in order"
+            : liveHosted
+              ? "Live runs, with a simulated inject and a recorded rerun"
+              : "Real API calls, in order"}
           <span aria-hidden="true">{" · "}</span>
           <span className="stepper__where">{where}</span>
         </p>
@@ -75,7 +92,7 @@ export function DemoStepper({ steps, started, run, busy, replayOnly, retry, show
                   {step.short ?? step.label}
                 </span>
                 <span className="visually-hidden">
-                  Step {i + 1}, {step.label}, {step.state}
+                  Step {i + 1}, {step.label}, {STATE_TEXT[step.state]}
                 </span>
               </span>
               <span className="stepper__meta">

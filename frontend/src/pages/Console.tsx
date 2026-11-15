@@ -9,6 +9,7 @@ import { Decisions } from "../components/Decisions";
 import { DemoStepper } from "../components/DemoStepper";
 import { PatchPanel, type PatchState } from "../components/PatchPanel";
 import { RunControls } from "../components/RunControls";
+import { count } from "../status";
 import { Twin } from "../components/Twin";
 import { DEMO_SEED } from "../content";
 import { SAMPLE_CLAIMS } from "../data";
@@ -31,14 +32,44 @@ const RECORDED_LABELS = [
   "Approval card",
 ];
 
+const HOSTED_LABELS = [
+  "Baseline run, twin with the three preserved legacy behaviors",
+  "Simulated injection of mutation M4",
+  "Live run with M4 injected",
+  "Recorded patch and recorded full rerun",
+  "Approval card",
+];
+
+const HOSTED_SHORT = ["Baseline", "Simulated inject", "Run with M4", "Recorded patch and rerun", "Approval"];
+
 const DEMO_SHORT = ["Baseline", "Inject M4", "Run with M4", "Patch and rerun", "Approval"];
 
 const RECORDED_SHORT = ["Recorded baseline", "Recorded M4 injection", "Recorded M4 run", "Recorded patch and rerun", "Approval"];
 
 const DEFAULT_PATCH_MUTATION = "M4";
 const RECORDED_MUTATION = "M4";
-const HOLD_SHORT = 700;
-const HOLD_LONG = 900;
+const HOLD_SHORT = 400;
+const HOLD_LONG = 3000;
+const CANCELLED = "CANCELLED";
+
+function isCancelled(err: unknown): boolean {
+  return err instanceof Error && err.message === CANCELLED;
+}
+
+function swallowCancel(err: unknown) {
+  if (!isCancelled(err)) throw err;
+}
+
+interface Held {
+  runId: string;
+  mutation: string | null;
+  mismatched: number;
+  cases: number;
+  replay: boolean;
+  cx: Counterexample;
+}
+
+const IDLE_PATCH: PatchState = { phase: "idle", diff: null, runId: null, error: null };
 
 type RecordedKey = "baseline" | "injected" | "after_patch";
 
@@ -109,7 +140,10 @@ export function Console({ health, healthError }: Props) {
   const [focusedCx, setFocusedCx] = useState<string | null>(null);
   const [demo, setDemo] = useState<DemoStep[] | null>(null);
   const [demoRunning, setDemoRunning] = useState(false);
-  const [patch, setPatch] = useState<PatchState>({ phase: "idle", diff: null, runId: null, error: null });
+  const [patch, setPatch] = useState<PatchState>(IDLE_PATCH);
+  const [held, setHeld] = useState<Held | null>(null);
+  const [afterRunId, setAfterRunId] = useState<string | null>(null);
+  const pendingAfterRef = useRef(false);
   const snapshotRef = useRef<Snapshot | null>(null);
   const demoGenRef = useRef(0);
   const [retry, setRetry] = useState<{ label: string; run: () => void } | null>(null);
@@ -133,6 +167,8 @@ export function Console({ health, healthError }: Props) {
       .catch(() => setDecisions([]));
   }, []);
 
+  const injectedRef = useRef(injected);
+  injectedRef.current = injected;
   const focusedCxRef = useRef(focusedCx);
   focusedCxRef.current = focusedCx;
   useEffect(() => {
@@ -151,6 +187,45 @@ export function Console({ health, healthError }: Props) {
     }
   }, [firstCxId]);
 
+  const heldCx = run.counterexamples[0] ?? null;
+  const heldMutation = heldCx?.mutation ?? run.report?.mutation ?? run.source?.mutation ?? null;
+  useEffect(() => {
+    if (run.phase === "finished" && run.status === "MISMATCH" && run.runId && heldCx) {
+      setHeld({
+        runId: run.runId,
+        mutation: heldMutation,
+        mismatched: run.mismatched,
+        cases: run.cases,
+        replay: run.replay,
+        cx: heldCx,
+      });
+    }
+  }, [run.phase, run.status, run.runId, run.mismatched, run.cases, run.replay, heldCx, heldMutation]);
+
+  useEffect(() => {
+    if (pendingAfterRef.current && run.runId) {
+      pendingAfterRef.current = false;
+      setAfterRunId(run.runId);
+    }
+  }, [run.runId]);
+
+  const begin = useCallback(() => {
+    const gen = ++demoGenRef.current;
+    return () => {
+      if (gen !== demoGenRef.current) throw new Error(CANCELLED);
+    };
+  }, []);
+
+  const resetFocus = useCallback(() => {
+    setFocus(claimFocus(claimId));
+    setFocusedCx(null);
+  }, [claimId]);
+
+  const clearInjection = useCallback(() => {
+    setInjected(null);
+    setControls((c) => ({ ...c, mutation: "", useDemoConfig: false }));
+  }, []);
+
   const launch = useCallback(
     (body: RunRequest) => {
       setRequested({ seed: body.seed ?? null, profile: body.profile });
@@ -165,14 +240,16 @@ export function Console({ health, healthError }: Props) {
   }, []);
 
   const replayRecorded = useCallback(
-    async (key: RecordedKey): Promise<Status> => {
+    async (key: RecordedKey, check?: () => void): Promise<Status> => {
       runner.starting();
       try {
         const snapshot = await loadSnapshot();
+        check?.();
         const recorded = recordedRun(snapshot, key);
         if (!recorded) throw new Error(`The snapshot has no recorded ${RECORDED_NAMES[key]} run.`);
         return await runner.replay(recorded);
       } catch (err) {
+        if (isCancelled(err)) throw err;
         const { message } = describeError(err);
         runner.fail("SNAPSHOT_UNAVAILABLE", `No recorded evidence to replay. ${message}`);
         return "RUNTIME ERROR";
@@ -182,7 +259,7 @@ export function Console({ health, healthError }: Props) {
   );
 
   const replaySnapshot = useCallback(
-    () => replayRecorded(controls.mutation === RECORDED_MUTATION ? "injected" : "baseline"),
+    (check?: () => void) => replayRecorded(controls.mutation === RECORDED_MUTATION ? "injected" : "baseline", check),
     [replayRecorded, controls.mutation],
   );
 
@@ -206,56 +283,67 @@ export function Console({ health, healthError }: Props) {
     (overrides: Partial<RunRequest> = {}): RunRequest => {
       const body: RunRequest = { profile: controls.profile, seed: controls.seed ? Number(controls.seed) : DEMO_SEED };
       if (controls.mutation) body.mutation = controls.mutation;
-      if (controls.useDemoConfig) body.use_demo_config = true;
+      if (controls.useDemoConfig && !liveHosted) body.use_demo_config = true;
       return { ...body, ...overrides };
     },
-    [controls],
+    [controls, liveHosted],
   );
 
   const onRun = useCallback(() => {
-    setFocusedCx(null);
+    resetFocus();
+    setHeld(null);
+    setAfterRunId(null);
+    pendingAfterRef.current = false;
     if (replayOnly) {
-      setRetry({ label: "Retry the replay", run: () => void replaySnapshot() });
-      void replaySnapshot();
+      const replayNow = () => void replaySnapshot(begin()).catch(swallowCancel);
+      setRetry({ label: "Retry the replay", run: replayNow });
+      replayNow();
       return;
     }
     const body = buildRequest();
     setRetry({ label: "Retry this run", run: () => void launch(body) });
     void launch(body);
-  }, [replayOnly, replaySnapshot, launch, buildRequest]);
+  }, [replayOnly, replaySnapshot, launch, buildRequest, resetFocus, begin]);
 
   const onRerun = useCallback(
     (cx: Counterexample) => {
       if (replayOnly) {
-        void replayRecorded(cx.mutation === RECORDED_MUTATION ? "injected" : "baseline");
+        void replayRecorded(cx.mutation === RECORDED_MUTATION ? "injected" : "baseline", begin()).catch(swallowCancel);
         return;
       }
       const body: RunRequest = { profile: controls.profile, seed: cx.seed };
       if (cx.mutation) body.mutation = cx.mutation;
       else if (controls.mutation) body.mutation = controls.mutation;
-      if (controls.useDemoConfig || injected) body.use_demo_config = true;
+      else if (liveHosted && injected) body.mutation = injected;
+      if (!liveHosted && (controls.useDemoConfig || injected)) body.use_demo_config = true;
       setRetry({ label: "Retry this run", run: () => void launch(body) });
       void launch(body);
     },
-    [replayOnly, replayRecorded, launch, controls, injected],
+    [replayOnly, liveHosted, replayRecorded, launch, controls, injected, begin],
   );
 
-  const applyPatch = useCallback(async (mutationId: string) => {
-    setPatch({ phase: "applying", diff: null, runId: null, error: null });
-    const result = await api.applyPatch("fix-" + mutationId);
-    const diff = typeof result.diff === "string" ? result.diff : typeof result.patch === "string" ? result.patch : null;
-    setPatch({ phase: "applied", diff, runId: result.run_id ?? null, error: null });
-    setInjected(null);
-    setControls((c) => ({ ...c, mutation: "" }));
-    return result.run_id ?? null;
-  }, []);
+  const applyPatch = useCallback(
+    async (mutationId: string, check?: () => void) => {
+      setPatch({ phase: "applying", diff: null, runId: null, error: null });
+      const result = await api.applyPatch("fix-" + mutationId);
+      check?.();
+      const diff = typeof result.diff === "string" ? result.diff : typeof result.patch === "string" ? result.patch : null;
+      setPatch({ phase: "applied", diff, runId: result.run_id ?? null, error: null, recorded: hosted });
+      pendingAfterRef.current = true;
+      clearInjection();
+      return result.run_id ?? null;
+    },
+    [hosted, clearInjection],
+  );
 
-  const exorciseRecorded = useCallback(async (): Promise<Status> => {
+  const exorciseRecorded = useCallback(async (check?: () => void): Promise<Status> => {
     setPatch({ phase: "applying", diff: null, runId: null, error: null, recorded: true });
     let after: Snapshot | null = null;
     try {
       after = recordedRun(await loadSnapshot(), "after_patch");
+      check?.();
     } catch (err) {
+      if (isCancelled(err)) throw err;
       setPatch({
         phase: "error",
         diff: null,
@@ -270,20 +358,22 @@ export function Console({ health, healthError }: Props) {
       return "NOT RUN";
     }
     const diff = await recordedDiff(RECORDED_MUTATION);
+    check?.();
     setPatch({ phase: "applied", diff, runId: after.run_id, error: null, recorded: true });
-    setInjected(null);
-    setControls((c) => ({ ...c, mutation: "" }));
+    pendingAfterRef.current = true;
+    clearInjection();
     return runner.replay(after);
-  }, [loadSnapshot, recordedDiff, runner]);
+  }, [loadSnapshot, recordedDiff, runner, clearInjection]);
 
   const onExorcise = useCallback(async () => {
     setRetry(null);
+    const check = begin();
     if (replayOnly) {
-      await exorciseRecorded();
+      await exorciseRecorded(check).catch(swallowCancel);
       return;
     }
     try {
-      const runId = await applyPatch(injected ?? DEFAULT_PATCH_MUTATION);
+      const runId = await applyPatch(injected ?? DEFAULT_PATCH_MUTATION, check);
       const full = { profile: "full" as const, seed: controls.seed ? Number(controls.seed) : undefined };
       setRetry({ label: "Retry the rerun", run: () => void launch(full) });
       if (runId && !liveHosted) {
@@ -292,9 +382,10 @@ export function Console({ health, healthError }: Props) {
       }
       else await launch(full);
     } catch (err) {
+      if (isCancelled(err)) return;
       setPatch({ phase: "error", diff: null, runId: null, error: describeError(err).message });
     }
-  }, [replayOnly, liveHosted, exorciseRecorded, applyPatch, runner, launch, injected, controls.seed]);
+  }, [replayOnly, liveHosted, exorciseRecorded, applyPatch, runner, launch, injected, controls.seed, begin]);
 
   const focusApproval = () => {
     window.setTimeout(() => {
@@ -310,8 +401,8 @@ export function Console({ health, healthError }: Props) {
     const gen = ++demoGenRef.current;
     const cancelled = () => gen !== demoGenRef.current;
     setDemoRunning(true);
-    const labels = replayOnly ? RECORDED_LABELS : DEMO_LABELS;
-    const shorts = replayOnly ? RECORDED_SHORT : DEMO_SHORT;
+    const labels = replayOnly ? RECORDED_LABELS : liveHosted ? HOSTED_LABELS : DEMO_LABELS;
+    const shorts = replayOnly ? RECORDED_SHORT : liveHosted ? HOSTED_SHORT : DEMO_SHORT;
     const steps: DemoStep[] = labels.map((label, i) => ({ label, short: shorts[i], state: "pending" }));
     const update = (i: number, patchStep: Partial<DemoStep>) => {
       const next = { ...steps[i], ...patchStep };
@@ -326,7 +417,7 @@ export function Console({ health, healthError }: Props) {
     const finishApproval = (healed: Status, recordedNote: boolean) => {
       if (APPROVABLE.includes(healed)) {
         update(4, {
-          state: "done",
+          state: "waiting",
           result: "APPROVAL REQUIRED",
           note: recordedNote ? "Recorded evidence, waiting for a reviewer" : "Waiting for a reviewer",
         });
@@ -339,12 +430,17 @@ export function Console({ health, healthError }: Props) {
       }
     };
     setDemo([...steps]);
-    setFocusedCx(null);
+    resetFocus();
+    setPatch(IDLE_PATCH);
+    setHeld(null);
+    setAfterRunId(null);
+    pendingAfterRef.current = false;
+    clearInjection();
     let current = 0;
     try {
       if (replayOnly) {
         update(0, { state: "active" });
-        const baseline = await replayRecorded("baseline");
+        const baseline = await replayRecorded("baseline", guard);
         guard();
         if (baseline === "RUNTIME ERROR") throw new Error("The recorded baseline could not be replayed.");
         update(0, { state: "done", result: baseline, note: `Recorded run ${snapshotRef.current?.runs?.baseline?.run_id ?? ""}`.trim() });
@@ -359,7 +455,7 @@ export function Console({ health, healthError }: Props) {
 
         current = 2;
         update(2, { state: "active" });
-        const broken = await replayRecorded("injected");
+        const broken = await replayRecorded("injected", guard);
         guard();
         if (broken === "RUNTIME ERROR") throw new Error("The recorded M4 run could not be replayed.");
         update(2, { state: "done", result: broken, note: broken === "MISMATCH" ? "Recorded counterexample, already shrunk" : "Recorded" });
@@ -368,7 +464,7 @@ export function Console({ health, healthError }: Props) {
 
         current = 3;
         update(3, { state: "active" });
-        const healed = await exorciseRecorded();
+        const healed = await exorciseRecorded(guard);
         guard();
         if (healed === "NOT RUN") throw new Error("The recorded rerun after the patch is missing.");
         update(3, { state: healed === "RUNTIME ERROR" ? "failed" : "done", result: healed, note: "Recorded full profile rerun" });
@@ -378,7 +474,7 @@ export function Console({ health, healthError }: Props) {
         return;
       }
       const seed = controls.seed ? Number(controls.seed) : DEMO_SEED;
-      setControls((c) => ({ ...c, seed: String(seed), mutation: "", profile: "demo" }));
+      setControls((c) => ({ ...c, seed: String(seed), mutation: "", profile: "demo", useDemoConfig: false }));
       const stepFailed = (status: Status) => status === "RUNTIME ERROR" || status === "BUILD FAILED";
 
       update(0, { state: "active" });
@@ -394,12 +490,16 @@ export function Console({ health, healthError }: Props) {
       await api.inject("M4");
       guard();
       setInjected("M4");
-      setControls((c) => ({ ...c, useDemoConfig: true }));
+      setControls((c) => (liveHosted ? { ...c, mutation: "M4" } : { ...c, useDemoConfig: true }));
       update(1, { state: "done", note: liveHosted ? "POST /api/demo/inject, simulated on the hosted build" : "POST /api/demo/inject" });
 
       current = 2;
       update(2, { state: "active" });
-      const broken = await launch({ profile: "demo", seed, mutation: "M4", use_demo_config: true });
+      const broken = await launch(
+        liveHosted
+          ? { profile: "demo", seed, mutation: "M4" }
+          : { profile: "demo", seed, mutation: "M4", use_demo_config: true },
+      );
       guard();
       if (stepFailed(broken)) throw new Error("The run with M4 injected did not finish.");
       update(2, { state: "done", result: broken, note: broken === "MISMATCH" ? "Counterexample shrunk" : undefined });
@@ -408,7 +508,8 @@ export function Console({ health, healthError }: Props) {
 
       current = 3;
       update(3, { state: "active" });
-      const rerunId = await applyPatch("M4");
+      const rerunId = await applyPatch("M4", guard);
+      guard();
       if (rerunId && !liveHosted) setRequested({ seed: null, profile: "full" });
       const healed = rerunId && !liveHosted ? await runner.follow(rerunId) : await launch({ profile: "full", seed });
       guard();
@@ -419,6 +520,7 @@ export function Console({ health, healthError }: Props) {
       finishApproval(healed, liveHosted);
     } catch (err) {
       if (cancelled()) return;
+      clearInjection();
       const { code, message } = describeError(err);
       update(current, { state: "failed", note: code === "CLIENT" ? message : `${message} (${code})` });
       for (let i = current + 1; i < steps.length; i++) {
@@ -429,14 +531,24 @@ export function Console({ health, healthError }: Props) {
     } finally {
       if (!cancelled()) setDemoRunning(false);
     }
-  }, [replayOnly, liveHosted, replayRecorded, exorciseRecorded, controls.seed, runner, launch, applyPatch]);
+  }, [replayOnly, liveHosted, replayRecorded, exorciseRecorded, controls.seed, runner, launch, applyPatch, resetFocus, clearInjection]);
 
   const onStop = useCallback(() => {
     demoGenRef.current += 1;
     runner.cancel();
     setDemo(null);
     setDemoRunning(false);
-  }, [runner]);
+    setHeld(null);
+    setAfterRunId(null);
+    pendingAfterRef.current = false;
+    setPatch((p) => (p.phase === "applying" ? IDLE_PATCH : p));
+    resetFocus();
+    if (injectedRef.current !== null) clearInjection();
+    window.setTimeout(() => {
+      const target = document.getElementById("guided-demo-button");
+      target?.focus();
+    }, 50);
+  }, [runner, resetFocus, clearInjection]);
 
   const onDemoRef = useRef(onDemo);
   onDemoRef.current = onDemo;
@@ -462,8 +574,20 @@ export function Console({ health, healthError }: Props) {
       } catch (err) {
         throw new Error(describeError(err).message);
       }
+      if (approved) {
+        const who = reviewer.trim();
+        setDemo((d) =>
+          d && d[4]?.state === "waiting"
+            ? d.map((step, i) =>
+                i === 4
+                  ? { ...step, state: "done", result: undefined, note: `Approved by ${who}${hosted ? ", simulated on the hosted build" : ""}` }
+                  : step,
+              )
+            : d,
+        );
+      }
     },
-    [run.runId],
+    [run.runId, hosted],
   );
 
   const onPickClaim = (id: string) => {
@@ -479,8 +603,8 @@ export function Console({ health, healthError }: Props) {
     scrollToHeading("sources-title");
   };
 
-  const stepLabels = replayOnly ? RECORDED_LABELS : DEMO_LABELS;
-  const stepShorts = replayOnly ? RECORDED_SHORT : DEMO_SHORT;
+  const stepLabels = replayOnly ? RECORDED_LABELS : liveHosted ? HOSTED_LABELS : DEMO_LABELS;
+  const stepShorts = replayOnly ? RECORDED_SHORT : liveHosted ? HOSTED_SHORT : DEMO_SHORT;
   const steps: DemoStep[] = demo ?? stepLabels.map((label, i) => ({ label, short: stepShorts[i], state: "pending" }));
   const runLabel = replayOnly ? (controls.mutation === "M4" ? "Replay recorded M4 run" : "Replay recorded baseline") : "Run comparison";
   const failedRun = run.phase === "finished" && run.error !== null && run.status !== "BUILD FAILED";
@@ -557,6 +681,7 @@ export function Console({ health, healthError }: Props) {
         profile={shownProfile}
         focusedId={sourcesOpen ? focusedCx : null}
         runLabel={runLabel}
+        note={afterRunId !== null && run.runId === afterRunId ? "Run after the patch" : null}
         onDemo={onDemo}
         retry={retry}
         onStop={onStop}
@@ -565,12 +690,35 @@ export function Console({ health, healthError }: Props) {
         onShowMore={() => scrollToHeading("more-cx-title")}
       />
 
+      {held && held.runId !== run.runId && !run.counterexamples.some((cx) => cx.id === held.cx.id) ? (
+        <section className="block held" role="group" aria-labelledby="held-title">
+          <div className="block__head">
+            <h3 id="held-title">{held.mutation ? "From the injected run" : "From an earlier run"}</h3>
+            <p className="hint num">
+              {held.replay ? "Recorded, " : ""}
+              {held.mutation ? `${held.mutation} injected, ` : ""}
+              {count(held.mismatched)} of {count(held.cases)} cases disagreed, run{" "}
+              <span className="mono">{held.runId}</span>. Not the current run.
+            </p>
+          </div>
+          <CounterexampleCard
+            cx={held.cx}
+            busy={busy}
+            compact
+            focused={sourcesOpen && focusedCx === held.cx.id}
+            onFocus={() => onFocusCx(held.cx)}
+            onRerun={() => onRerun(held.cx)}
+          />
+        </section>
+      ) : null}
+
       <DemoStepper
         steps={steps}
         started={demo !== null}
         run={run}
         busy={busy}
         replayOnly={replayOnly}
+        liveHosted={liveHosted}
         retry={retry}
         showRetry={!(failedRun && run.error?.retry)}
       />
@@ -609,7 +757,7 @@ export function Console({ health, healthError }: Props) {
           <p className="hint">Human decisions, the recorded patch and the final approval</p>
         </div>
 
-        {run.report && run.phase === "finished" ? (
+        {run.report && run.phase === "finished" && !failedRun ? (
           <ApprovalCard
             key={run.report.run_id}
             report={run.report}

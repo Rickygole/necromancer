@@ -64,8 +64,13 @@ export function PatchPanel({ patch, busy, onExorcise }: Props) {
         ) : null}
         {patch.phase === "applied" && patch.recorded ? (
           <p className="hint">
-            <span className="tag tag--warn">Recorded</span> Patch text shown as recorded. Replaying rerun{" "}
-            <span className="mono">{patch.runId}</span>.
+            {patch.runId ? (
+              <>
+                Recorded patch shown. Recorded rerun <span className="mono">{patch.runId}</span> started.
+              </>
+            ) : (
+              "Recorded patch shown. Recorded rerun started."
+            )}
           </p>
         ) : patch.phase === "applied" ? (
           <p className="hint">
