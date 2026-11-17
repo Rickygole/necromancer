@@ -18,12 +18,12 @@ Results are evidence over the cases counted in each run, with the count and the 
 
 All code in this repository was written on or after October 30, 2026. Before that date a short feasibility spike checked whether GnuCOBOL could act as an oracle. No spike code was copied into this repository.
 
-The repository was built in a single working session, so the commit history is dense and recent. Commits were made in batches from the working tree, so their times show when files were committed, not when the work was done. It was produced by a human owner working with several AI coding agents. The `.kiro` directory holds steering, specs, custom agent definitions and an MCP registration. How those files were produced is described in `KIRO.md`.
+The repository was built over a few days in November 2026, so the commit history is dense and recent. Commits were made in batches from the working tree, so their times show when files were committed, not when the work was done. It was produced by a human owner working with several AI coding agents. The `.kiro` directory holds steering, specs, custom agent definitions and an MCP registration. How those files were produced is described in `KIRO.md`.
 
 ## How it works
 
 1. `legacy/UICALC.cbl` is compiled with GnuCOBOL 3.1.2.0 and is the oracle.
-2. `modern/` holds a Python twin that was first written from the business rules table only, and committed before the first differential run against UICALC.
+2. `modern/` holds a Python twin that was first written from the business rules table only, before the first differential run against UICALC.
 3. `harness/` generates golden, boundary, invalid and property based cases, runs both sides on identical bytes, compares every field exactly, and shrinks each failure to a minimal claimant.
 4. Each class of difference needs a decision: preserve the legacy behavior or correct it.
 5. Five named mutations check that the tests have teeth. All five are caught. Five further hidden mutants, found by reviews of the corpus, are also caught.
