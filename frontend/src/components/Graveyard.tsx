@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { QUIRKS } from "../content";
-import { thunder } from "../sound";
+import { rumble, thunder } from "../sound";
 import { useDeep, webglReady, whenIdle } from "../three/gate";
 import type { Engraving } from "../three/graveyard";
 import { Scene } from "./Scene";
@@ -62,7 +62,7 @@ export function Graveyard() {
               timer = window.setTimeout(() => setPhase("deep"), 700);
             },
             onFail: () => setFailed(true),
-            onMove: () => undefined,
+            onMove: rumble,
             onThunder: thunder,
           });
           if (!handle) setFailed(true);

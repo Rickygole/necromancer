@@ -260,6 +260,43 @@ export function thunder() {
   src.stop(t + 3.5);
 }
 
+let lastRumble = 0;
+
+export function rumble() {
+  if (!on || !rig || rig.ctx.state !== "running") return;
+  if (reducedQuery?.matches) return;
+  const stamp = Date.now();
+  if (stamp - lastRumble < 4000) return;
+  lastRumble = stamp;
+  const { ctx, master, noise } = rig;
+  const t = ctx.currentTime + 0.02;
+  const src = ctx.createBufferSource();
+  src.buffer = noise;
+  src.loop = true;
+  const low = ctx.createBiquadFilter();
+  low.type = "lowpass";
+  low.frequency.setValueAtTime(70, t);
+  low.frequency.linearRampToValueAtTime(140, t + 0.9);
+  low.frequency.exponentialRampToValueAtTime(60, t + 2.6);
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.2, t + 0.9);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 2.8);
+  src.connect(low).connect(g).connect(master);
+  src.start(t);
+  src.stop(t + 2.9);
+  const sub = ctx.createOscillator();
+  sub.type = "sine";
+  sub.frequency.setValueAtTime(34, t);
+  const subGain = ctx.createGain();
+  subGain.gain.setValueAtTime(0.0001, t);
+  subGain.gain.exponentialRampToValueAtTime(0.12, t + 1);
+  subGain.gain.exponentialRampToValueAtTime(0.0001, t + 2.7);
+  sub.connect(subGain).connect(master);
+  sub.start(t);
+  sub.stop(t + 2.8);
+}
+
 export function sting(kind: Sting) {
   if (!on || !rig || rig.ctx.state !== "running") return;
   if (reducedQuery?.matches) return;
