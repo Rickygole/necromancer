@@ -5,6 +5,7 @@ import "./styles.css";
 import "./theme.css";
 import "./haunt.css";
 import "./dread.css";
+import "./depth.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

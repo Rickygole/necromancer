@@ -1,0 +1,61 @@
+.crypt3d {
+  --veil: 0;
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 700ms var(--ease-out);
+}
+
+.crypt3d.is-ready {
+  opacity: 1;
+}
+
+.crypt3d__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.crypt3d__veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(11, 10, 14, 0.4) 0%, transparent 16%);
+}
+
+.crypt3d__veil::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(11, 10, 14, 0.7);
+  opacity: var(--veil);
+}
+
+.scene--leaving > :not(.eyes, .cobweb, .spider) {
+  opacity: 0;
+  transition: opacity 600ms var(--ease-out);
+}
+
+html[data-deep="on"] .hero__copy::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -3rem -6rem -3rem -4rem;
+  pointer-events: none;
+  background: radial-gradient(closest-side, rgba(11, 10, 14, 0.84) 62%, rgba(11, 10, 14, 0.5) 84%, rgba(11, 10, 14, 0) 100%);
+}
+
+@media (max-width: 860px) {
+  html[data-deep="on"] .hero__copy::before {
+    inset: -3rem 0 -2rem;
+    background: linear-gradient(180deg, rgba(11, 10, 14, 0.84) 0%, rgba(11, 10, 14, 0.8) 88%, rgba(11, 10, 14, 0) 100%);
+  }
+}
+
+@media (forced-colors: active) {
+  .crypt3d {
+    display: none;
+  }
+}

@@ -25,10 +25,15 @@ function archPolygon(): string {
 
 const ARCH = archPolygon();
 
-export function Scene() {
+interface SceneProps {
+  variant?: "flat" | "fading" | "deep";
+}
+
+export function Scene({ variant = "flat" }: SceneProps) {
   const ref = useRef<HTMLDivElement>(null);
   const motion = useMotion();
-  const enabled = motion.enabled;
+  const deep = variant === "deep";
+  const enabled = motion.enabled && !deep;
   const visibleRef = useRef(true);
 
   useEffect(() => {
@@ -109,8 +114,19 @@ export function Scene() {
     };
   }, [enabled]);
 
+  if (deep) {
+    return (
+      <div ref={ref} className="scene scene--deep" aria-hidden="true">
+        <Eyes />
+        <Cobweb className="cobweb--left" />
+        <Cobweb className="cobweb--right" flip />
+        <Spider />
+      </div>
+    );
+  }
+
   return (
-    <div ref={ref} className="scene" aria-hidden="true">
+    <div ref={ref} className={variant === "fading" ? "scene scene--leaving" : "scene"} aria-hidden="true">
       <span className="lightning" />
       <DeadTree className="scene__tree" />
       <Eyes />

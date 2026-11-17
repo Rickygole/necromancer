@@ -24,4 +24,4 @@ lightningcss is licensed under the MPL 2.0. It is a build tool pulled in by Vite
 
 ## Other dependencies
 
-Python packages (FastAPI, pydantic, Hypothesis, pytest, sse-starlette, httpx, mcp) and JavaScript packages (React, Vite, TypeScript) are used under their own licenses, which are permissive or MPL 2.0 (Hypothesis and certifi), as listed in their package metadata.
+Python packages (FastAPI, pydantic, Hypothesis, pytest, sse-starlette, httpx, mcp) and JavaScript packages (React, three.js, Vite, TypeScript) are used under their own licenses, which are permissive or MPL 2.0 (Hypothesis and certifi), as listed in their package metadata.

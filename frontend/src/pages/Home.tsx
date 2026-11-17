@@ -1,7 +1,7 @@
 import { CoffeeRing, PencilLine, Stitches, Tally } from "../components/Doodles";
+import { Graveyard } from "../components/Graveyard";
 import { Lantern } from "../components/Lantern";
 import { Reveal } from "../components/Reveal";
-import { Scene } from "../components/Scene";
 import { Stamp } from "../components/Stamp";
 import { TiltCard } from "../components/TiltCard";
 import { Wound } from "../components/Wound";
@@ -37,7 +37,7 @@ export function Home() {
   return (
     <div className="home">
       <section className="hero" aria-labelledby="hero-title">
-        <Scene />
+        <Graveyard />
         <Lantern />
         <div className="hero__copy">
           <p className="hero__case mono">
