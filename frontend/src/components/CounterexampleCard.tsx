@@ -1,5 +1,6 @@
 import { epitaph } from "../epitaph";
 import { useRise } from "../rise";
+import { useTilt } from "../tilt";
 import { INPUT_FIELDS, OUTPUT_FIELDS } from "../records";
 import type { Counterexample } from "../types";
 import { OutputDiff, RecordFields } from "./RecordFields";
@@ -17,6 +18,7 @@ interface Props {
 export function CounterexampleCard({ cx, focused, busy, onFocus, onRerun, compact = false }: Props) {
   const fields = cx.diff.filter((d) => d.field !== "trace").map((d) => d.field);
   const [riseRef, rise] = useRise<HTMLElement>();
+  useTilt(riseRef, compact ? 4 : 3);
   return (
     <article
       ref={riseRef}

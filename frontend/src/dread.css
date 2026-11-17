@@ -537,7 +537,7 @@ html[data-tab="hidden"] *::after {
 .rises.is-up {
   opacity: 1;
   transform: none;
-  animation: rise-earth 800ms cubic-bezier(0.2, 0.75, 0.25, 1) 1 both;
+  animation: rise-earth 800ms cubic-bezier(0.2, 0.75, 0.25, 1) 1 backwards;
 }
 
 @keyframes rise-earth {

@@ -16,6 +16,26 @@ import { setLiveMode } from "./runner";
 import { revealHero } from "./scroll";
 import type { Health } from "./types";
 
+let door: Animation | null = null;
+
+function swingDoor() {
+  door?.cancel();
+  door = null;
+  const main = document.getElementById("main");
+  if (!main || document.documentElement.dataset.motion !== "on" || typeof main.animate !== "function") return;
+  const origin = `0px ${Math.round(window.innerHeight / 2)}px`;
+  door = main.animate(
+    [
+      { transform: "perspective(1600px) rotateY(-32deg) translateZ(-60px)", opacity: 0, transformOrigin: origin },
+      { transform: "perspective(1600px) rotateY(0deg) translateZ(0px)", opacity: 1, transformOrigin: origin },
+    ],
+    { duration: 400, easing: "cubic-bezier(0.2, 0.7, 0.2, 1)" },
+  );
+  door.onfinish = () => {
+    door = null;
+  };
+}
+
 export function App() {
   const route = useRoute();
   const [health, setHealth] = useState<Health | null>(null);
@@ -43,6 +63,7 @@ export function App() {
       if (!demoReady) return;
     } else {
       window.scrollTo(0, 0);
+      swingDoor();
     }
     let frame = 0;
     let tries = 0;

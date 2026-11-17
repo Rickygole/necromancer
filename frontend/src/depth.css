@@ -87,3 +87,11 @@ html[data-deep="on"] .hero__copy::before {
     margin-left: var(--s-6);
   }
 }
+
+html[data-motion="on"] .card[data-tilt] {
+  transition: transform 220ms var(--ease-out);
+}
+
+html[data-motion="on"] .card[data-tilt="active"] {
+  transform: perspective(1000px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+}

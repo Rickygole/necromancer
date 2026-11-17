@@ -2,6 +2,7 @@ import { useId, useState } from "react";
 import type { Counterexample, Decision } from "../types";
 import { UNCONFIRMED_REVIEWER } from "../content";
 import { useRise } from "../rise";
+import { useTilt } from "../tilt";
 
 interface Props {
   klass: string;
@@ -19,6 +20,7 @@ export function DecisionCard({ klass, examples, existing, onSubmit }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState<Decision | null>(null);
   const [riseRef, rise] = useRise<HTMLElement>();
+  useTilt(riseRef, 4, Boolean(existing));
 
   const fields = Array.from(
     new Set(examples.flatMap((cx) => cx.diff.map((d) => d.field)).filter((f) => f !== "trace")),
