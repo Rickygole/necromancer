@@ -3,3 +3,4 @@ dist/
 public/legacy/
 public/modern/
 public/patches/
+src/generated/

@@ -18,6 +18,10 @@ const files = [
     from: resolve(root, `../licenses/${id}.txt`),
     to: resolve(root, `public/licenses/${id}.txt`),
   })),
+  ...["report", "probes"].map((name) => ({
+    from: resolve(root, `../case_studies/carddemo_interest/evidence/${name}.json`),
+    to: resolve(root, `src/generated/carddemo/${name}.json`),
+  })),
 ];
 
 for (const file of files) {
