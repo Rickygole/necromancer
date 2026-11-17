@@ -3363,6 +3363,7 @@ html[data-motion="off"] .evidence__spinner {
     flex: none;
     min-width: 0;
     max-width: 100%;
+    margin-right: auto;
   }
 
   .logo__word {
@@ -3371,12 +3372,11 @@ html[data-motion="off"] .evidence__spinner {
   }
 
   .site-nav {
-    flex: 1 1 6rem;
+    order: 3;
+    flex: 1 1 100%;
     min-width: 0;
     overflow-x: auto;
     scrollbar-width: none;
-    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 1.75rem), transparent);
-    mask-image: linear-gradient(to right, #000 calc(100% - 1.75rem), transparent);
   }
 
   .site-nav::-webkit-scrollbar {
@@ -3385,8 +3385,7 @@ html[data-motion="off"] .evidence__spinner {
 
   .site-nav ol {
     flex-wrap: nowrap;
-    gap: var(--s-3);
-    padding-inline-end: 1.75rem;
+    gap: var(--s-2) var(--s-5);
   }
 
   .site-nav a {
@@ -3417,6 +3416,19 @@ html[data-motion="off"] .evidence__spinner {
 
   .motion-toggle--system {
     display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .site-nav ol {
+    justify-content: space-between;
+    column-gap: var(--s-2);
+  }
+}
+
+@media (max-width: 360px) {
+  .site-nav a {
+    font-size: var(--t-xs);
   }
 }
 
