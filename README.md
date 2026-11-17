@@ -12,11 +12,12 @@ Results are evidence over the cases counted in each run, with the count and the 
 - The three legacy quirks (narrow quotient wrap, unsigned subtraction, offset field wrap) were written into the COBOL on purpose so the oracle has something real to find. Their behavior was measured on the compiler, not assumed.
 - The mismatch shown in the guided demo is an injected mutation (M4), labelled as such. It is a demonstration of the harness catching a regression, not a legacy finding.
 - The three decision records in `decisions/` choose to preserve legacy behavior. The coding agents made those choices on the owner's behalf. The owner has not yet confirmed them.
+- `case_studies/carddemo_interest/` is a second, separate check on COBOL that this project did not write: the monthly interest paragraph of CardDemo's `CBACT04C.cbl`, vendored unmodified from https://github.com/aws-samples/aws-mainframe-modernization-carddemo at commit `59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e` under the Apache License 2.0 (Amazon.com, Inc. or its affiliates). Only that paragraph is checked, inside a small harness wrapper that stands in for the file write, not the whole batch program. Its twin was written and committed before it was run against the compiled COBOL. The run found real differences (the COBOL truncates where the twin rounds half up, a rule the source does not state, and it silently drops high digits on overflow), reported with their counts, minimal inputs and causes in that directory's README. It is evidence over its stated cases, not a proof of equivalence, it does not use the UICALC numbers below, and it is not part of the recorded snapshot.
 - The case counts differ on purpose: the demo profile runs 3,901 cases, the full profile runs 40,838, and the mutation score uses a separate fixed set of 4,090 cases. All use seed 731942.
 
 ## Build disclosure
 
-All code in this repository was written on or after October 30, 2026. Before that date a short feasibility spike checked whether GnuCOBOL could act as an oracle. No spike code was copied into this repository.
+All code in this repository was written on or after October 30, 2026, except the CardDemo files vendored in `case_studies/carddemo_interest/vendor/`, which are third party Apache-2.0 source and are listed in `THIRD_PARTY_NOTICES.md`. Before that date a short feasibility spike checked whether GnuCOBOL could act as an oracle. No spike code was copied into this repository.
 
 The repository was built over a few days in November 2026, so the commit history is dense and recent. Commits were made in batches from the working tree, so their times show when files were committed, not when the work was done. It was produced by a human owner working with several AI coding agents. The `.kiro` directory holds steering, specs, custom agent definitions and an MCP registration. How those files were produced is described in `KIRO.md`.
 
@@ -41,6 +42,7 @@ The hosted build runs the same harness against a prebuilt Linux copy of the orac
 ## Layout
 
     legacy/      UICALC.cbl and semantics probes
+    case_studies/  vendored third party COBOL (CardDemo interest paragraph), its twin, runner and evidence
     oracle/      build script, batch runner, probe runner
     modern/      Python twin
     harness/     corpus, fixed constants provider, comparator, engine, mutation score, snapshot

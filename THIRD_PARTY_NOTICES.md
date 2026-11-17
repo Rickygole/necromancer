@@ -18,6 +18,10 @@ The prebuilt oracle binary is linked statically against glibc, which is licensed
 
 The release asset `uicalc-linux-x64` is the program in `legacy/UICALC.cbl` compiled with GnuCOBOL 3.1.2 and linked statically against libcob and GNU MP. To relink against a modified version of either library, rebuild it with `.github/workflows/oracle-linux.yml`. `legacy/UICALC.cbl` is the complete corresponding source of the program. The license texts are in the `licenses/` directory of this repository and are attached to each release.
 
+## CardDemo (vendored COBOL source)
+
+The directory `case_studies/carddemo_interest/vendor/` holds three source files and the license files of the CardDemo sample application by Amazon.com, Inc. or its affiliates, copied byte for byte: `CBACT04C.cbl`, `CVTRA01Y.cpy` and `CVTRA02Y.cpy`, with the upstream `LICENSE` and `NOTICE`. They are licensed under the Apache License, Version 2.0, which is included in that directory. Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved. Source: https://github.com/aws-samples/aws-mainframe-modernization-carddemo at commit `59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e`. The files are unmodified. The rest of this repository stays under the MIT license. Details, hashes and the license evidence are in `case_studies/carddemo_interest/NOTICE`.
+
 ## lightningcss
 
 lightningcss is licensed under the MPL 2.0. It is a build tool pulled in by Vite and is not shipped in the site bundle. Source: https://github.com/parcel-bundler/lightningcss
