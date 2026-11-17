@@ -28,7 +28,9 @@ export function Footer() {
           Made for Kiroween 2026. The oracle speaks a language older than everyone who worked on this, and it still
           wins every argument.
         </p>
-        <p className="site-foot__fine mono">MIT licensed. No real claimants were harmed. There were never any real claimants.</p>
+        <p className="site-foot__fine mono">
+          MIT licensed. <a href="/THIRD_PARTY_NOTICES.md">Third party notices</a>. No real claimants were harmed. There were never any real claimants.
+        </p>
       </div>
     </footer>
   );
