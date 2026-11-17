@@ -1,0 +1,29 @@
+{
+  "PRB1": [
+    "+000001000.00 * +0005.00 / 1200 : plain +000000004.16 rounded +000000004.17",
+    "-000001000.00 * +0005.00 / 1200 : plain -000000004.16 rounded -000000004.17",
+    "+000000600.00 * +0000.01 / 1200 : plain +000000000.00 rounded +000000000.01",
+    "-000000600.00 * +0000.01 / 1200 : plain +000000000.00 rounded -000000000.01",
+    "+000000600.00 * +0000.02 / 1200 : plain +000000000.01 rounded +000000000.01"
+  ],
+  "PRB2": [
+    "size error raised",
+    "compute without clause: +333324999.91",
+    "compute with ON SIZE ERROR, target left at: +000000007.00",
+    "add without clause: +000000004.15",
+    "add size error raised",
+    "add with ON SIZE ERROR, target left at: +999999999.99"
+  ],
+  "PRB3": [
+    "minus 1000000000.00 moved to a lone field: +000000000.00",
+    "same value moved into a group member: -00000000000+00000000000",
+    "same value shown directly: +000000000.00",
+    "plus 1000000000.00 moved into a group member: +00000000000+00000000000"
+  ],
+  "rounded_counterfactual": {
+    "cases": 51251,
+    "mismatches_with_rounded_added": 2401,
+    "of_which_twin_reports_size_error": 2401,
+    "of_which_without_size_error": 0
+  }
+}
