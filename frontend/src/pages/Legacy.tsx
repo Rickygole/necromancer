@@ -1,3 +1,4 @@
+import { CaseStudySlot } from "../components/CaseStudySlot";
 import { Crack, PencilLine } from "../components/Doodles";
 import { Reveal } from "../components/Reveal";
 import { Stamp } from "../components/Stamp";
@@ -189,6 +190,8 @@ export function Legacy() {
           </Reveal>
         </div>
       </section>
+
+      <CaseStudySlot />
     </article>
   );
 }

@@ -1842,6 +1842,7 @@ html[data-motion="off"] .evidence__spinner {
   align-items: start;
 }
 
+
 .notes__sheet {
   padding: var(--s-6);
   rotate: 0.5deg;
@@ -2120,6 +2121,378 @@ html[data-motion="off"] .evidence__spinner {
   display: grid;
   gap: var(--s-5);
   margin-top: var(--s-6);
+}
+
+.carddemo {
+  display: grid;
+  gap: var(--s-5);
+  margin-top: var(--s-8);
+  scroll-margin-top: calc(var(--head-h, var(--masthead-h)) + var(--s-3));
+}
+
+.carddemo__intro {
+  display: grid;
+  justify-items: start;
+  gap: var(--s-3);
+  max-width: 46rem;
+}
+
+.carddemo__intro p:not(.eyebrow) {
+  font-family: var(--font-text);
+  line-height: 1.6;
+  color: var(--bone-dim);
+  max-width: 62ch;
+}
+
+#carddemo-title:focus {
+  outline: none;
+}
+
+.carddemo__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: var(--s-5) var(--s-6);
+  align-items: start;
+}
+
+.carddemo__caption {
+  margin-top: var(--s-3);
+  font-family: var(--font-text);
+  font-size: var(--t-sm);
+  line-height: 1.55;
+  color: var(--bone-dim);
+}
+
+.carddemo__run {
+  padding: var(--s-5) var(--s-6);
+  rotate: 0.4deg;
+}
+
+.carddemo__run h3 {
+  font-size: var(--t-lg);
+}
+
+.carddemo__tally {
+  margin-top: var(--s-2);
+  color: var(--paper-dim);
+}
+
+.carddemo__big {
+  font-family: var(--font-display);
+  font-size: var(--t-2xl);
+  line-height: 1.1;
+  color: var(--paper-ink);
+}
+
+.carddemo__meta {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--s-3);
+  margin: var(--s-3) 0 0;
+  padding: var(--s-3) 0;
+  border-block: 1px dashed var(--line);
+}
+
+.carddemo__meta dt {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--paper-dim);
+}
+
+.carddemo__meta dd {
+  margin: 0.15rem 0 0;
+  overflow-wrap: anywhere;
+}
+
+.carddemo__wide {
+  grid-column: 1 / -1;
+}
+
+.carddemo__families {
+  width: 100%;
+  margin-top: var(--s-3);
+  border-collapse: collapse;
+  font-size: var(--t-sm);
+}
+
+.carddemo__families th,
+.carddemo__families td {
+  padding: var(--s-1) var(--s-2) var(--s-1) 0;
+  border-bottom: 1px solid var(--line-soft);
+  text-align: right;
+}
+
+.carddemo__families th:first-child {
+  text-align: left;
+}
+
+.carddemo__families thead th {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: var(--t-xs);
+  color: var(--paper-dim);
+}
+
+.carddemo__note {
+  margin-top: var(--s-3);
+  font-family: var(--font-text);
+  font-size: var(--t-sm);
+  line-height: 1.55;
+  color: var(--paper-dim);
+}
+
+.graves {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s-5);
+  margin: var(--s-4) 0 0;
+  padding: 0;
+  list-style: none;
+  align-items: start;
+}
+
+.grave--2 {
+  margin-top: var(--s-6);
+}
+
+.grave__stone {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: var(--s-7) var(--s-5) var(--s-5);
+  overflow: hidden;
+  background-color: var(--ink-2);
+  background-image: var(--noise), linear-gradient(180deg, #29252f, var(--ink-2) 45%);
+  background-size: 180px, auto;
+  background-blend-mode: soft-light, normal;
+  box-shadow: var(--carved);
+  border-radius: 50% 50% 4px 4px / 6rem 6rem 4px 4px;
+}
+
+.grave__crack {
+  position: absolute;
+  top: 0.5rem;
+  left: 58%;
+  width: 3rem;
+  color: rgba(0, 0, 0, 0.7);
+  filter: drop-shadow(1px 0 0 rgba(255, 255, 255, 0.05));
+}
+
+.grave__lies {
+  font-size: var(--t-xs);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--bone-dim);
+}
+
+.grave__name {
+  font-size: var(--t-xl);
+  line-height: 1.15;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.grave__epitaph {
+  padding-bottom: var(--s-3);
+  border-bottom: 1px dashed var(--line);
+  font-family: var(--font-display);
+  font-style: italic;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--bone);
+  text-wrap: balance;
+}
+
+.grave__body {
+  display: grid;
+  gap: var(--s-3);
+}
+
+.grave__input {
+  display: grid;
+  gap: var(--s-1);
+  margin: 0;
+}
+
+.grave__input div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0 var(--s-3);
+}
+
+.grave__input dt {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--bone-faint);
+}
+
+.grave__input dd {
+  margin: 0;
+  font-size: var(--t-sm);
+}
+
+.grave__out {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-xs);
+}
+
+.grave__out caption {
+  caption-side: top;
+  padding-bottom: var(--s-1);
+  font-family: var(--font-mono);
+  text-align: left;
+  color: var(--bone-faint);
+}
+
+.grave__out th,
+.grave__out td {
+  padding: var(--s-1) 0 var(--s-1) var(--s-2);
+  border-bottom: 1px solid var(--line-soft);
+  text-align: right;
+  vertical-align: top;
+}
+
+.grave__out th:first-child {
+  padding-left: 0;
+  text-align: left;
+}
+
+.grave__out thead th {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  color: var(--bone-faint);
+}
+
+.grave__out tbody th {
+  font-weight: 400;
+}
+
+.grave__out .is-diff td:nth-child(2) {
+  color: var(--pumpkin-hi);
+}
+
+.grave__mark {
+  display: block;
+  font-family: var(--font-mono);
+  color: var(--pumpkin-hi);
+}
+
+.grave__cause,
+.grave__scope {
+  font-family: var(--font-text);
+  line-height: 1.55;
+  color: var(--bone-dim);
+}
+
+.grave__cause strong {
+  font-weight: 400;
+  color: var(--bone);
+}
+
+.grave__check {
+  font-family: var(--font-text);
+  font-size: var(--t-sm);
+  line-height: 1.55;
+  color: var(--bone-dim);
+}
+
+.grave__probe {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.grave__count {
+  margin-top: auto;
+  padding-top: var(--s-3);
+  border-top: 1px dashed var(--line);
+  font-size: var(--t-xs);
+  text-align: center;
+  color: var(--bone-faint);
+}
+
+.carddemo__aside {
+  font-family: var(--font-text);
+  font-size: var(--t-sm);
+  color: var(--bone-faint);
+}
+
+.carddemo__limits {
+  max-width: 46rem;
+  padding: var(--s-5);
+  border: 1px dashed var(--line);
+}
+
+.carddemo__limits h3 {
+  font-size: var(--t-lg);
+}
+
+.carddemo__limits ul {
+  margin: var(--s-3) 0 0;
+  padding-left: var(--s-5);
+  font-family: var(--font-text);
+  line-height: 1.6;
+  color: var(--bone-dim);
+}
+
+.carddemo__limits li + li {
+  margin-top: var(--s-2);
+}
+
+.carddemo__limits p {
+  margin-top: var(--s-3);
+  font-family: var(--font-text);
+  line-height: 1.6;
+  color: var(--bone-dim);
+}
+
+@media (max-width: 1100px) {
+  .carddemo__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .graves {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .grave--2 {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 860px) {
+  .graves {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .carddemo__run {
+    padding: var(--s-4);
+    rotate: none;
+  }
+
+  .carddemo__meta {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .grave__stone {
+    padding: var(--s-6) var(--s-4) var(--s-4);
+    border-radius: 50% 50% 4px 4px / 4rem 4rem 4px 4px;
+  }
+}
+
+@media (forced-colors: active) {
+  .grave__stone,
+  .carddemo__limits {
+    border: 1px solid CanvasText;
+  }
+
+  .grave__mark {
+    color: CanvasText;
+  }
 }
 
 .build__tree {
@@ -3881,6 +4254,7 @@ html[data-motion="off"] .evidence__spinner {
   line-height: 1.45;
   color: var(--bone-dim);
 }
+
 
 @media (max-width: 1000px) {
   .proof {

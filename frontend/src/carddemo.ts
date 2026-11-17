@@ -2,6 +2,8 @@ import probes from "./generated/carddemo/probes.json";
 import report from "./generated/carddemo/report.json";
 import { REPO_URL } from "./content";
 
+export { CARDDEMO_README_URL } from "./content";
+
 export const CARDDEMO_REPORT = report;
 export const CARDDEMO_PROBES = probes;
 
@@ -11,8 +13,6 @@ export const CARDDEMO_SOURCE_URL = `${CARDDEMO_UPSTREAM}/blob/${CARDDEMO_COMMIT}
 export const CARDDEMO_TREE_URL = `${CARDDEMO_UPSTREAM}/tree/${CARDDEMO_COMMIT}`;
 export const CARDDEMO_TWIN_COMMIT = "682c52e7140078cf8fec30070bade02e587d75c8";
 export const CARDDEMO_TWIN_URL = `${REPO_URL}/commit/${CARDDEMO_TWIN_COMMIT}`;
-export const CARDDEMO_README_URL = `${REPO_URL}/tree/main/case_studies/carddemo_interest`;
-export const CARDDEMO_HREF = "#/legacy?carddemo";
 
 export const CARDDEMO_PARAGRAPH = [
   "1300-COMPUTE-INTEREST.",

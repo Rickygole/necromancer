@@ -3,6 +3,7 @@ import { api } from "./api";
 import type { MutationScore } from "./types";
 
 export const REPO_URL = "https://github.com/Rickygole/necromancer";
+export const CARDDEMO_README_URL = `${REPO_URL}/tree/main/case_studies/carddemo_interest`;
 
 export interface Rule {
   id: string;
