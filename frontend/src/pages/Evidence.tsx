@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { api, describeError } from "../api";
-import { Blot, CoffeeRing, Stitches, Tally, WaxSeal } from "../components/Doodles";
+import { Blot, CoffeeRing, PencilLine, Stitches, Tally, WaxSeal } from "../components/Doodles";
 import { OutputDiff, RecordFields } from "../components/RecordFields";
 import { Reveal } from "../components/Reveal";
 import { Stamp } from "../components/Stamp";
@@ -9,6 +9,7 @@ import { TiltCard } from "../components/TiltCard";
 import { TraceTable } from "../components/TraceTable";
 import { DEMO_SEED, HIDDEN_MUTANTS, MUTATIONS, useMutationScore } from "../content";
 import { INPUT_FIELDS, OUTPUT_FIELDS, formatValue } from "../records";
+import { CARDDEMO_HREF } from "../router";
 import { count, toStatus } from "../status";
 import type { Counterexample, Decision, Snapshot, StoryRun } from "../types";
 
@@ -477,6 +478,22 @@ export function Evidence() {
               ))}
             </ul>
           )}
+        </Reveal>
+      </section>
+
+      <section className="also" aria-labelledby="also-title">
+        <Reveal className="also__card">
+          <h2 id="also-title" className="also__title">
+            also run on code we did not write
+          </h2>
+          <p>
+            A separate check on one paragraph of AWS CardDemo, with its own counts and limits. It is not part of the
+            snapshot above.
+          </p>
+          <a className="pencil-link" href={CARDDEMO_HREF}>
+            read the CardDemo case study
+            <PencilLine className="pencil-link__line" />
+          </a>
         </Reveal>
       </section>
     </article>

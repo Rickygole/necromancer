@@ -6,7 +6,7 @@ import { Stamp } from "../components/Stamp";
 import { TiltCard } from "../components/TiltCard";
 import { Wound } from "../components/Wound";
 import { DEMO_CASES, DEMO_SEED, FULL_CASES, MUTATION_CASES, QUIRKS, useMutationScore } from "../content";
-import { DEMO_HREF } from "../router";
+import { CARDDEMO_HREF, DEMO_HREF } from "../router";
 import { count } from "../status";
 
 const EXHIBIT = QUIRKS[0];
@@ -168,6 +168,13 @@ export function Home() {
             </dd>
           </div>
         </dl>
+        <p className="proof__also">
+          <a className="pencil-link" href={CARDDEMO_HREF}>
+            also run on code we did not write
+            <PencilLine className="pencil-link__line" />
+          </a>
+          <span className="proof__also-note">one paragraph of AWS CardDemo, with its own counts and limits</span>
+        </p>
       </section>
 
       <section className="tags" aria-labelledby="tags-title">

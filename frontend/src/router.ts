@@ -57,6 +57,8 @@ export function useRoute(): Route {
 
 export const DEMO_HREF = "#/console?demo";
 
+export const CARDDEMO_HREF = "#/legacy?carddemo";
+
 export function wantsDemo(): boolean {
   return typeof window !== "undefined" && /\?(.*&)?demo(&|=|$)/.test(window.location.hash);
 }
