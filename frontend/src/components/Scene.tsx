@@ -1,5 +1,6 @@
 import { useEffect, useRef, type CSSProperties } from "react";
 import { useMotion } from "../motion";
+import { Cobweb, Spider, Swoop } from "./Crawlers";
 import { Bat, Crack, DeadTree } from "./Doodles";
 import { Embers } from "./Embers";
 import { Eyes } from "./Eyes";
@@ -162,6 +163,10 @@ export function Scene() {
       <div className="fog fog--front">
         <span />
       </div>
+      <Swoop />
+      <Cobweb className="cobweb--left" />
+      <Cobweb className="cobweb--right" flip />
+      <Spider />
     </div>
   );
 }
