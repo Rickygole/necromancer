@@ -30,7 +30,7 @@ def calc(record):
     balance = Decimal(case.balance) * CENT
     rate = Decimal(case.rate) * CENT
     monthly, new_total = step(total, balance, rate)
-    return (render(monthly) + render(new_total)).ljust(RESULT_LEN)
+    return (render(monthly) + render(new_total)).ljust(RESULT_LEN, ".")
 
 
 def calc_batch(records):

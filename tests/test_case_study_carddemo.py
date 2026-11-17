@@ -4,7 +4,9 @@ from pathlib import Path
 
 import pytest
 
-from case_studies.carddemo_interest import layout, twin
+from case_studies.carddemo_interest import analysis, build, gen, layout, run as case_run, twin
+from case_studies.carddemo_interest.compare import compare_one
+from oracle import runner
 
 CASE_DIR = Path(__file__).resolve().parent.parent / "case_studies" / "carddemo_interest"
 VENDOR = CASE_DIR / "vendor"
@@ -69,3 +71,68 @@ def test_twin_reports_size_error_instead_of_wrapping():
 def test_twin_uses_no_floats():
     source = (CASE_DIR / "twin.py").read_text()
     assert "float" not in source
+
+needs_cobc = pytest.mark.skipif(not runner.cobc_available(), reason="cobc is not available")
+
+
+def test_extracted_paragraph_is_a_verbatim_slice_of_the_vendored_program():
+    paragraph, misc = build.extract()
+    source = (VENDOR / "CBACT04C.cbl").read_text()
+    assert paragraph in source
+    assert misc in source
+    assert "COMPUTE WS-MONTHLY-INT" in paragraph
+    assert "( TRAN-CAT-BAL * DIS-INT-RATE) / 1200" in paragraph
+    assert "ROUNDED" not in paragraph
+    assert "SIZE ERROR" not in paragraph
+    assert "WS-MONTHLY-INT            PIC S9(09)V99." in misc
+    assert "WS-TOTAL-INT              PIC S9(09)V99." in misc
+
+
+def test_generator_is_deterministic_and_counts_are_stable():
+    first = gen.all_cases(300, gen.DEFAULT_SEED)
+    second = gen.all_cases(300, gen.DEFAULT_SEED)
+    assert first == second
+    other = gen.all_cases(300, gen.DEFAULT_SEED + 1)
+    assert first[2] != other[2]
+    for _, records in first:
+        assert all(len(r) == layout.RECORD_LEN for r in records)
+    assert len(set(first[1][1])) == len(first[1][1])
+
+
+def test_generator_reaches_the_overflow_and_rounding_regions():
+    records = [r for _, rs in gen.all_cases(2000, gen.DEFAULT_SEED) for r in rs]
+    lines = twin.calc_batch(records)
+    assert any(twin.SIZE_ERROR in line for line in lines)
+    rounded_up = [
+        r for r, line in zip(records, lines)
+        if twin.SIZE_ERROR not in line
+        and layout.split_result(line)["monthly"] != analysis.stored_text(analysis.truncated_monthly(layout.decode(r)))
+    ]
+    assert rounded_up
+
+
+@needs_cobc
+def test_wrapper_matches_the_integer_cause_model_on_curated_cases():
+    built = build.build()
+    records = [r for name, rs in gen.all_cases(0, gen.DEFAULT_SEED) for r in rs]
+    lines = case_run.run_oracle(records, built.binary)
+    assert all(analysis.model_line(r) == line for r, line in zip(records, lines))
+
+
+@needs_cobc
+def test_oracle_truncates_where_the_twin_rounds():
+    built = build.build()
+    record = layout.encode(layout.Case(0, 100000, 500))
+    line = runner.run_batch([record], built.binary)[0]
+    comparison = compare_one(record, line, twin.calc(record))
+    assert layout.split_result(line)["monthly"] == "+00000000416"
+    assert [d.field for d in comparison.diffs] == ["monthly", "total"]
+
+
+@needs_cobc
+def test_oracle_wraps_high_order_digits_on_overflow():
+    built = build.build()
+    record = layout.encode(layout.Case(0, 99999999999, 999999))
+    line = runner.run_batch([record], built.binary)[0]
+    assert layout.split_result(line)["monthly"] == "+33332499991"
+    assert twin.calc(record).startswith(twin.SIZE_ERROR)
