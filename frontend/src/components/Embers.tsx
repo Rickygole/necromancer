@@ -77,6 +77,7 @@ export function Embers({ running }: Props) {
     let bats: Bat[] = [];
     let frame = 0;
     let last = 0;
+    let drawn = 0;
     let visible = true;
 
     const spawnEmber = (anywhere: boolean): Ember => ({
@@ -129,6 +130,11 @@ export function Embers({ running }: Props) {
     };
 
     const step = (t: number) => {
+      if (t - drawn < 30) {
+        frame = window.requestAnimationFrame(step);
+        return;
+      }
+      drawn = t;
       const dt = Math.min(0.05, (t - (last || t)) / 1000);
       last = t;
       for (let i = 0; i < embers.length; i += 1) {

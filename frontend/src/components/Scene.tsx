@@ -50,23 +50,18 @@ export function Scene() {
     let current = { x: 0, y: 0 };
     let frame = 0;
     let last = 0;
-
-    const onPointer = (event: PointerEvent) => {
-      target = {
-        x: (event.clientX / window.innerWidth) * 2 - 1,
-        y: (event.clientY / window.innerHeight) * 2 - 1,
-      };
-    };
+    let shownY = -1;
 
     const tick = (t: number) => {
       const dt = Math.min(64, t - (last || t));
       last = t;
       const k = 1 - Math.pow(0.9, dt / 16);
       current = { x: current.x + (target.x - current.x) * k, y: current.y + (target.y - current.y) * k };
-      const idle = Math.sin(t * 0.00035) * 7;
       const sy = Math.min(window.scrollY, window.innerHeight);
-      set(3 - current.y * 9, -14 + idle + current.x * 18, current.x, current.y, sy);
-      frame = window.requestAnimationFrame(tick);
+      set(3 - current.y * 9, -14 + current.x * 18, current.x, current.y, sy);
+      const settled = Math.abs(target.x - current.x) < 0.001 && Math.abs(target.y - current.y) < 0.001 && sy === shownY;
+      shownY = sy;
+      frame = settled ? 0 : window.requestAnimationFrame(tick);
     };
 
     const sync = () => {
@@ -80,17 +75,27 @@ export function Scene() {
       }
     };
 
+    const onPointer = (event: PointerEvent) => {
+      target = {
+        x: (event.clientX / window.innerWidth) * 2 - 1,
+        y: (event.clientY / window.innerHeight) * 2 - 1,
+      };
+      sync();
+    };
+
     const io = new IntersectionObserver((entries) => {
       visibleRef.current = entries.some((entry) => entry.isIntersecting);
       sync();
     });
     io.observe(el);
     window.addEventListener("pointermove", onPointer, { passive: true });
+    window.addEventListener("scroll", sync, { passive: true });
     document.addEventListener("visibilitychange", sync);
     sync();
     return () => {
       io.disconnect();
       window.removeEventListener("pointermove", onPointer);
+      window.removeEventListener("scroll", sync);
       document.removeEventListener("visibilitychange", sync);
       if (frame) window.cancelAnimationFrame(frame);
     };
@@ -118,39 +123,41 @@ export function Scene() {
       </div>
       <Embers running={enabled} />
       <div className="stage">
-        <div className="stone">
-          {Array.from({ length: SLICES }, (_, i) => {
-            const z = (i / (SLICES - 1) - 0.5) * 2;
-            const front = i === SLICES - 1;
-            const back = i === 0;
-            return (
-              <div
-                key={i}
-                className={`stone__slice${front ? " stone__slice--front" : ""}${back ? " stone__slice--back" : ""}`}
-                style={{ "--z": z.toFixed(3), clipPath: ARCH } as CSSProperties}
-              >
-                {front ? (
-                  <div className="stone__face">
-                    <p className="stone__small">here lies</p>
-                    <p className="stone__name">UICALC</p>
-                    <p className="stone__pic">WS-QUOTIENT PIC 9(3)</p>
-                    <p className="stone__epitaph">
-                      26,000.00 / 26 = 000
-                      <br />
-                      it truncated quietly
-                    </p>
-                    <Crack className="stone__crack" />
-                    <span className="stone__moss" />
-                  </div>
-                ) : null}
-              </div>
-            );
-          })}
-          <div className="plinth">
-            <span className="plinth__face plinth__face--front" />
-            <span className="plinth__face plinth__face--top" />
-            <span className="plinth__face plinth__face--left" />
-            <span className="plinth__face plinth__face--right" />
+        <div className="stone-sway">
+          <div className="stone">
+            {Array.from({ length: SLICES }, (_, i) => {
+              const z = (i / (SLICES - 1) - 0.5) * 2;
+              const front = i === SLICES - 1;
+              const back = i === 0;
+              return (
+                <div
+                  key={i}
+                  className={`stone__slice${front ? " stone__slice--front" : ""}${back ? " stone__slice--back" : ""}`}
+                  style={{ "--z": z.toFixed(3), clipPath: ARCH } as CSSProperties}
+                >
+                  {front ? (
+                    <div className="stone__face">
+                      <p className="stone__small">here lies</p>
+                      <p className="stone__name">UICALC</p>
+                      <p className="stone__pic">WS-QUOTIENT PIC 9(3)</p>
+                      <p className="stone__epitaph">
+                        26,000.00 / 26 = 000
+                        <br />
+                        it truncated quietly
+                      </p>
+                      <Crack className="stone__crack" />
+                      <span className="stone__moss" />
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
+            <div className="plinth">
+              <span className="plinth__face plinth__face--front" />
+              <span className="plinth__face plinth__face--top" />
+              <span className="plinth__face plinth__face--left" />
+              <span className="plinth__face plinth__face--right" />
+            </div>
           </div>
         </div>
         <span className="stone__shadow" />

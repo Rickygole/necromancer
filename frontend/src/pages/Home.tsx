@@ -1,4 +1,5 @@
 import { CoffeeRing, PencilLine, Stitches, Tally } from "../components/Doodles";
+import { Lantern } from "../components/Lantern";
 import { Reveal } from "../components/Reveal";
 import { Scene } from "../components/Scene";
 import { Stamp } from "../components/Stamp";
@@ -37,6 +38,7 @@ export function Home() {
     <div className="home">
       <section className="hero" aria-labelledby="hero-title">
         <Scene />
+        <Lantern />
         <div className="hero__copy">
           <p className="hero__case mono">
             <span>case file {DEMO_SEED}</span>
