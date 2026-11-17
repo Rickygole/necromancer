@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { api } from "../api";
+import { useRise } from "../rise";
 import { sting } from "../sound";
 import { casesOf, count } from "../status";
 import type { MutationScore, Report, Status } from "../types";
@@ -41,6 +42,7 @@ export function ApprovalCard({ report, verdict, simulated, replay, onSubmit }: P
   const noteRef = useRef<HTMLTextAreaElement>(null);
   const [outcome, setOutcome] = useState<{ approved: boolean; reviewer: string } | null>(null);
   const [sweep, setSweep] = useState<string | null>(null);
+  const [riseRef, rise] = useRise<HTMLElement>();
 
   useEffect(() => {
     let live = true;
@@ -100,7 +102,7 @@ export function ApprovalCard({ report, verdict, simulated, replay, onSubmit }: P
   };
 
   return (
-    <section className="card approval approval--ritual" aria-labelledby={`${id}-title`} id="approval">
+    <section ref={riseRef} className={`card approval approval--ritual${rise}`} aria-labelledby={`${id}-title`} id="approval">
       <header className="card__head">
         <div>
           <p className="approval__kicker mono">final approval</p>

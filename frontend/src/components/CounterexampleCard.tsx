@@ -1,4 +1,5 @@
 import { epitaph } from "../epitaph";
+import { useRise } from "../rise";
 import { INPUT_FIELDS, OUTPUT_FIELDS } from "../records";
 import type { Counterexample } from "../types";
 import { OutputDiff, RecordFields } from "./RecordFields";
@@ -15,8 +16,13 @@ interface Props {
 
 export function CounterexampleCard({ cx, focused, busy, onFocus, onRerun, compact = false }: Props) {
   const fields = cx.diff.filter((d) => d.field !== "trace").map((d) => d.field);
+  const [riseRef, rise] = useRise<HTMLElement>();
   return (
-    <article className={focused ? "card cx cx--stone is-focused" : "card cx cx--stone"} aria-labelledby={`cx-${cx.id}`}>
+    <article
+      ref={riseRef}
+      className={`card cx cx--stone${focused ? " is-focused" : ""}${rise}`}
+      aria-labelledby={`cx-${cx.id}`}
+    >
       <header className="card__head">
         <div className="cx__name">
           <p className="cx__lies mono">

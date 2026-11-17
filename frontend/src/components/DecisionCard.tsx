@@ -1,6 +1,7 @@
 import { useId, useState } from "react";
 import type { Counterexample, Decision } from "../types";
 import { UNCONFIRMED_REVIEWER } from "../content";
+import { useRise } from "../rise";
 
 interface Props {
   klass: string;
@@ -17,6 +18,7 @@ export function DecisionCard({ klass, examples, existing, onSubmit }: Props) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState<Decision | null>(null);
+  const [riseRef, rise] = useRise<HTMLElement>();
 
   const fields = Array.from(
     new Set(examples.flatMap((cx) => cx.diff.map((d) => d.field)).filter((f) => f !== "trace")),
@@ -55,7 +57,7 @@ export function DecisionCard({ klass, examples, existing, onSubmit }: Props) {
 
   if (existing) {
     return (
-      <article className="card decision decision--recorded" aria-labelledby={`${id}-title`}>
+      <article ref={riseRef} className={`card decision decision--recorded${rise}`} aria-labelledby={`${id}-title`}>
         <header className="card__head">
           <div>
             <h4 id={`${id}-title`}>
@@ -110,7 +112,7 @@ export function DecisionCard({ klass, examples, existing, onSubmit }: Props) {
   }
 
   return (
-    <article className="card decision" aria-labelledby={`${id}-title`}>
+    <article ref={riseRef} className={`card decision${rise}`} aria-labelledby={`${id}-title`}>
       <header className="card__head">
         <div>
           <h4 id={`${id}-title`}>

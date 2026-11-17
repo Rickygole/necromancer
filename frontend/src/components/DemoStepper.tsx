@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { useMotion } from "../motion";
 import type { RunState } from "../runner";
 import { toneOf } from "../status";
 import { seconds, useNow, type DemoStep } from "./Circle";
@@ -12,6 +14,7 @@ interface Props {
   liveHosted: boolean;
   retry: { label: string; run: () => void } | null;
   showRetry: boolean;
+  mutation: string | null;
 }
 
 const STEP_MARK: Record<DemoStep["state"], string | null> = {
@@ -32,7 +35,43 @@ const STATE_TEXT: Record<DemoStep["state"], string> = {
   skipped: "skipped",
 };
 
-export function DemoStepper({ steps, started, run, busy, replayOnly, liveHosted, retry, showRetry }: Props) {
+function incantation(steps: DemoStep[], mutation: string | null): string {
+  const [, inject, haunted, patch] = steps;
+  if (!inject || !haunted) return "";
+  const name = mutation ?? "the mutation";
+  if (inject.state === "active") return "summoning the mutation…";
+  if (inject.state !== "done") return "";
+  if (haunted.state === "active") return `${name} is bound into the twin. the claims are walking…`;
+  if (haunted.state === "done" && patch?.state === "pending") {
+    return haunted.result === "MISMATCH" ? `${name} woke. the oracle disagrees.` : `${name} slept through it.`;
+  }
+  if (patch?.state === "active") return `banishing ${name} with the recorded patch…`;
+  return "";
+}
+
+function useTyped(text: string): string {
+  const motion = useMotion();
+  const [shown, setShown] = useState(text);
+  useEffect(() => {
+    if (!motion.enabled || !text) {
+      setShown(text);
+      return;
+    }
+    let i = 0;
+    setShown("");
+    const timer = window.setInterval(() => {
+      i += 1;
+      setShown(text.slice(0, i));
+      if (i >= text.length) window.clearInterval(timer);
+    }, 34);
+    return () => window.clearInterval(timer);
+  }, [text, motion.enabled]);
+  return shown;
+}
+
+export function DemoStepper({ steps, started, run, busy, replayOnly, liveHosted, retry, showRetry, mutation }: Props) {
+  const spell = incantation(steps, mutation);
+  const typed = useTyped(spell);
   const activeIndex = steps.findIndex((step) => step.state === "active");
   const now = useNow(activeIndex !== -1);
   const running = run.phase !== "idle" && run.phase !== "finished";
@@ -65,6 +104,11 @@ export function DemoStepper({ steps, started, run, busy, replayOnly, liveHosted,
           <span className="stepper__where">{where}</span>
         </p>
       </div>
+      {started ? (
+        <p className={`incant${spell ? " is-casting" : ""}`} aria-hidden="true">
+          {typed}
+        </p>
+      ) : null}
       <ol className="stepper__list">
         {steps.map((step, i) => {
           const active = step.state === "active";

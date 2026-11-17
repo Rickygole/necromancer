@@ -752,6 +752,7 @@ export function Console({ health, healthError }: Props) {
         liveHosted={liveHosted}
         retry={retry}
         showRetry={!(failedRun && run.error?.retry)}
+        mutation={injected}
       />
 
       <div className="console-tools">

@@ -114,6 +114,22 @@ function IdleSide() {
   );
 }
 
+export function beatSeconds(mismatched: number): number {
+  return Math.max(0.75, 1.15 - 0.045 * Math.log2(1 + Math.max(0, mismatched)));
+}
+
+function Rift() {
+  return (
+    <svg className="verdict__rift" viewBox="0 0 400 18" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <path
+        className="verdict__rift-gap"
+        d="M0 9 L34 8 L52 11 L80 7 L104 10 L126 6 L150 11 L171 8 L196 12 L222 7 L247 10 L268 6 L293 11 L318 8 L340 12 L366 7 L400 9"
+      />
+      <path className="verdict__rift-branch" d="M104 10 L112 16 M171 8 L178 2 M247 10 L240 17 M318 8 L327 2 M52 11 L46 17" />
+    </svg>
+  );
+}
+
 export function useNow(active: boolean): number {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
@@ -171,9 +187,10 @@ export function Circle(props: Props) {
       className={`verdict verdict--${tone}${running ? " is-running" : ""}${rising ? " is-rising" : ""}`}
       aria-labelledby="circle-title"
       id="circle"
-      style={{ "--glow": glow.toFixed(3) } as React.CSSProperties}
+      style={{ "--glow": glow.toFixed(3), "--beat": `${beatSeconds(run.mismatched).toFixed(2)}s` } as React.CSSProperties}
     >
       <div className="verdict__glow" aria-hidden="true" />
+      {running ? <div className={`verdict__heart${run.mismatched > 0 ? " is-bad" : ""}`} aria-hidden="true" /> : null}
       {rising ? <div className="verdict__haunt" aria-hidden="true" /> : null}
       {run.replay && props.recorded ? (
         <div className="run-head">
@@ -263,6 +280,7 @@ export function Circle(props: Props) {
                       : `out of ${count(compared)} cases compared`}
                     {context ? `, ${context}` : ""}
                   </p>
+                  {!running && run.status === "MISMATCH" && run.mismatched > 0 ? <Rift key={run.runId ?? "rift"} /> : null}
                 </>
               ) : (
                 <p className="verdict__headline">
