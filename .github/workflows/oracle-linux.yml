@@ -14,11 +14,19 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-24.04
-    container: amazonlinux:2023
+    container: amazonlinux:2023@sha256:8ee95c4096d455555cb208d1dcea7b759235afab02253351d566d22d904f2198
     steps:
       - name: Install build tools
-        run: dnf install -y gcc make tar xz gzip glibc-static git findutils which m4 diffutils file
+        run: dnf install -y gcc make tar xz gzip glibc-static git findutils which m4 diffutils file dnf-plugins-core
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Record the glibc used
+        run: |
+          rpm -q glibc glibc-static glibc-common | tee glibc-versions.txt
+          GV=$(rpm -q --qf '%{VERSION}-%{RELEASE}' glibc)
+          echo "$GV" > glibc-version.txt
+          dnf download --source "glibc-$GV"
+          ls -l glibc-*.src.rpm
+          sha256sum glibc-*.src.rpm | tee glibc-src-rpm.sha256
       - name: Build GMP
         run: |
           curl -fsSL -o gmp.tar.xz https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz
@@ -48,6 +56,8 @@ jobs:
       - name: Collect artifacts
         run: |
           cp bin/uicalc uicalc-linux-x64
+          cp gmp.tar.xz gmp-6.3.0.tar.xz
+          cp gnucobol.tar.gz gnucobol-3.1.2.tar.gz
           sha256sum legacy/UICALC.cbl | cut -d' ' -f1 > uicalc-source.sha256
           sha256sum uicalc-linux-x64 | cut -d' ' -f1 > uicalc-linux-x64.sha256
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -57,6 +67,11 @@ jobs:
             uicalc-linux-x64
             uicalc-source.sha256
             uicalc-linux-x64.sha256
+            gmp-6.3.0.tar.xz
+            gnucobol-3.1.2.tar.gz
+            glibc-*.src.rpm
+            glibc-versions.txt
+            glibc-src-rpm.sha256
 
   publish:
     needs: build
@@ -71,6 +86,6 @@ jobs:
       - name: Publish release asset
         run: |
           gh release delete oracle-latest --yes --cleanup-tag --repo "$GITHUB_REPOSITORY" || true
-          gh release create oracle-latest uicalc-linux-x64 uicalc-linux-x64.sha256 uicalc-source.sha256 THIRD_PARTY_NOTICES.md licenses/GPL-3.0.txt licenses/LGPL-3.0.txt licenses/LGPL-2.1.txt --repo "$GITHUB_REPOSITORY" --title "Oracle binary" --notes "Static Linux build of UICALC compiled with GnuCOBOL 3.1.2.0"
+          gh release create oracle-latest uicalc-linux-x64 uicalc-linux-x64.sha256 uicalc-source.sha256 gmp-6.3.0.tar.xz gnucobol-3.1.2.tar.gz glibc-*.src.rpm glibc-versions.txt glibc-src-rpm.sha256 THIRD_PARTY_NOTICES.md licenses/GPL-3.0.txt licenses/LGPL-3.0.txt licenses/LGPL-2.1.txt --repo "$GITHUB_REPOSITORY" --title "Oracle binary" --notes "Static Linux build of UICALC compiled with GnuCOBOL 3.1.2.0"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
