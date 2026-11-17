@@ -7,6 +7,7 @@ import { casesOf, count, toneOf } from "../status";
 import type { Counterexample, Profile, Snapshot, Status } from "../types";
 import { CounterexampleCard } from "./CounterexampleCard";
 import { RisingCount, useResurrection } from "./Resurrection";
+import { Rite } from "./Rite";
 import { StatusIcon } from "./StatusBadge";
 
 export interface DemoStep {
@@ -184,6 +185,7 @@ export function Circle(props: Props) {
     setHeartbeat(period);
   }, [period]);
   useEffect(() => () => setHeartbeat(null), []);
+  const classes = Array.from(new Set(run.counterexamples.map((cx) => cx.class).filter(Boolean)));
   const context = [props.seed !== null ? `seed ${props.seed}` : null, props.profile ? `${props.profile} profile` : null]
     .filter(Boolean)
     .join(", ");
@@ -196,6 +198,15 @@ export function Circle(props: Props) {
       style={{ "--glow": glow.toFixed(3), "--beat": `${beatSeconds(run.mismatched).toFixed(2)}s` } as React.CSSProperties}
     >
       <div className="verdict__glow" aria-hidden="true" />
+      <Rite
+        tone={tone}
+        running={running}
+        progress={run.planned > 0 ? run.cases / run.planned : 0}
+        mismatched={run.mismatched}
+        classes={classes}
+        runId={run.runId}
+        finished={run.phase === "finished" && !failed}
+      />
       {running ? <div className={`verdict__heart${run.mismatched > 0 ? " is-bad" : ""}`} aria-hidden="true" /> : null}
       {rising ? <div className="verdict__haunt" aria-hidden="true" /> : null}
       {run.replay && props.recorded ? (

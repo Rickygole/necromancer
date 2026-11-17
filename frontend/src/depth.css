@@ -59,3 +59,31 @@ html[data-deep="on"] .hero__copy::before {
     display: none;
   }
 }
+
+.rite {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 600ms var(--ease-out);
+}
+
+.rite.is-ready {
+  opacity: 1;
+}
+
+@media (max-width: 860px) {
+  .rite {
+    height: min(100%, 20rem);
+  }
+}
+
+@media (min-width: 1100px) {
+  .verdict .verdict__candle {
+    margin-left: var(--s-6);
+  }
+}
