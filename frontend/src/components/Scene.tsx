@@ -1,5 +1,6 @@
 import { useEffect, useRef, type CSSProperties } from "react";
 import { useMotion } from "../motion";
+import { thunder } from "../sound";
 import { Cobweb, Spider, Swoop } from "./Crawlers";
 import { Bat, Crack, DeadTree } from "./Doodles";
 import { Embers } from "./Embers";
@@ -29,6 +30,13 @@ export function Scene() {
   const motion = useMotion();
   const enabled = motion.enabled;
   const visibleRef = useRef(true);
+
+  useEffect(() => {
+    const flash = ref.current?.querySelector(".lightning");
+    if (!flash || !enabled) return;
+    flash.addEventListener("animationiteration", thunder);
+    return () => flash.removeEventListener("animationiteration", thunder);
+  }, [enabled]);
 
   useEffect(() => {
     const el = ref.current;

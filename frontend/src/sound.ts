@@ -8,6 +8,8 @@ interface Rig {
   ctx: AudioContext;
   master: GainNode;
   drone: GainNode;
+  whisper: GainNode;
+  noise: AudioBuffer;
 }
 
 function readOn(): boolean {
@@ -29,6 +31,9 @@ function writeOn(on: boolean) {
 let on = typeof window === "undefined" ? false : readOn();
 let rig: Rig | null = null;
 let armed = false;
+let beatPeriod: number | null = null;
+let beatTimer = 0;
+let nextBeat = 0;
 const listeners = new Set<() => void>();
 const reducedQuery = typeof window === "undefined" ? null : window.matchMedia("(prefers-reduced-motion: reduce)");
 
@@ -82,7 +87,39 @@ function build(): Rig | null {
   lfo.connect(depth).connect(filter.frequency);
   lfo.start();
 
-  return { ctx, master, drone };
+  const noise = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+  const data = noise.getChannelData(0);
+  for (let i = 0; i < data.length; i += 1) data[i] = Math.random() * 2 - 1;
+
+  const whisper = ctx.createGain();
+  whisper.gain.value = 0;
+  whisper.connect(master);
+  const breath = ctx.createGain();
+  breath.gain.value = 0.5;
+  breath.connect(whisper);
+  const hiss = ctx.createBufferSource();
+  hiss.buffer = noise;
+  hiss.loop = true;
+  const band = ctx.createBiquadFilter();
+  band.type = "bandpass";
+  band.frequency.value = 1500;
+  band.Q.value = 1.4;
+  hiss.connect(band).connect(breath);
+  hiss.start();
+  const sweep = ctx.createOscillator();
+  sweep.frequency.value = 0.09;
+  const sweepDepth = ctx.createGain();
+  sweepDepth.gain.value = 700;
+  sweep.connect(sweepDepth).connect(band.frequency);
+  sweep.start();
+  const swell = ctx.createOscillator();
+  swell.frequency.value = 0.17;
+  const swellDepth = ctx.createGain();
+  swellDepth.gain.value = 0.45;
+  swell.connect(swellDepth).connect(breath.gain);
+  swell.start();
+
+  return { ctx, master, drone, whisper, noise };
 }
 
 function fadeDrone(target: number, seconds: number) {
@@ -92,6 +129,10 @@ function fadeDrone(target: number, seconds: number) {
   g.cancelScheduledValues(now);
   g.setValueAtTime(g.value, now);
   g.linearRampToValueAtTime(target, now + seconds);
+  const w = rig.whisper.gain;
+  w.cancelScheduledValues(now);
+  w.setValueAtTime(w.value, now);
+  w.linearRampToValueAtTime(target * 0.32, now + seconds);
 }
 
 function wake() {
@@ -99,9 +140,11 @@ function wake() {
   if (!rig) return;
   if (rig.ctx.state === "suspended") void rig.ctx.resume();
   fadeDrone(0.05, 2.5);
+  pump();
 }
 
 function sleep() {
+  stopPump();
   if (!rig) return;
   fadeDrone(0, 0.4);
   const ctx = rig.ctx;
@@ -158,6 +201,63 @@ function tone(ctx: AudioContext, out: AudioNode, type: OscillatorType, freq: num
   osc.start(start);
   osc.stop(start + decay + 0.05);
   return osc;
+}
+
+function thump(ctx: AudioContext, out: AudioNode, at: number, peak: number) {
+  const low = tone(ctx, out, "sine", 70, at, peak, 0.2);
+  low.frequency.exponentialRampToValueAtTime(42, at + 0.14);
+  tone(ctx, out, "triangle", 110, at, peak * 0.22, 0.12);
+}
+
+function stopPump() {
+  window.clearInterval(beatTimer);
+  beatTimer = 0;
+}
+
+function pump() {
+  stopPump();
+  if (!on || !rig || beatPeriod === null) return;
+  const { ctx, master } = rig;
+  nextBeat = ctx.currentTime + 0.05;
+  const schedule = () => {
+    if (!rig || beatPeriod === null || ctx.state !== "running") return;
+    if (nextBeat < ctx.currentTime) nextBeat = ctx.currentTime + 0.05;
+    while (nextBeat < ctx.currentTime + 0.25) {
+      thump(ctx, master, nextBeat, 0.2);
+      thump(ctx, master, nextBeat + beatPeriod * 0.22, 0.13);
+      nextBeat += beatPeriod;
+    }
+  };
+  schedule();
+  beatTimer = window.setInterval(schedule, 100);
+}
+
+export function setHeartbeat(period: number | null) {
+  if (period === beatPeriod) return;
+  const was = beatPeriod;
+  beatPeriod = period;
+  if (period === null) stopPump();
+  else if (was === null || !beatTimer) pump();
+}
+
+export function thunder() {
+  if (!on || !rig || rig.ctx.state !== "running") return;
+  const { ctx, master, noise } = rig;
+  const t = ctx.currentTime + 0.05;
+  const src = ctx.createBufferSource();
+  src.buffer = noise;
+  src.loop = true;
+  const low = ctx.createBiquadFilter();
+  low.type = "lowpass";
+  low.frequency.setValueAtTime(380, t);
+  low.frequency.exponentialRampToValueAtTime(90, t + 3);
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.22, t + 0.35);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 3.4);
+  src.connect(low).connect(g).connect(master);
+  src.start(t);
+  src.stop(t + 3.5);
 }
 
 export function sting(kind: Sting) {

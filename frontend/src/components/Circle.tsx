@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { setHeartbeat } from "../sound";
 import { SAMPLE_CLAIMS } from "../data";
 import { TRACE_POSITIONS } from "../records";
 import type { RunState } from "../runner";
@@ -178,6 +179,11 @@ export function Circle(props: Props) {
   const rising = useResurrection(
     !failed && run.phase === "finished" && run.status === "MISMATCH" && run.mismatched > 0 ? run.runId : null,
   );
+  const period = running ? Number(beatSeconds(run.mismatched).toFixed(2)) : null;
+  useEffect(() => {
+    setHeartbeat(period);
+  }, [period]);
+  useEffect(() => () => setHeartbeat(null), []);
   const context = [props.seed !== null ? `seed ${props.seed}` : null, props.profile ? `${props.profile} profile` : null]
     .filter(Boolean)
     .join(", ");
