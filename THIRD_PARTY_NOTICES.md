@@ -12,7 +12,7 @@ GMP is dual licensed under the GNU LGPL version 3 or later and the GNU GPL versi
 
 ## GNU C Library
 
-The prebuilt oracle binary is linked statically against glibc, which is licensed under the GNU LGPL version 2.1 or later. Source: https://ftp.gnu.org/gnu/glibc/. The binary is built on Amazon Linux 2023 and the glibc version is the one shipped in that image. For the corresponding glibc source, fetch the matching release from the URL above or from the Amazon Linux 2023 source package repository. To relink the oracle against a modified glibc, libcob or GNU MP, change the build steps in `.github/workflows/oracle-linux.yml` and run the workflow, which rebuilds and relinks the binary statically.
+The prebuilt oracle binary is linked statically against glibc, which is licensed under the GNU LGPL version 2.1 or later. The binary is built in the container image `amazonlinux:2023@sha256:8ee95c4096d455555cb208d1dcea7b759235afab02253351d566d22d904f2198`, with glibc and glibc-static 2.34-231.amzn2023.0.6. The corresponding source package, `glibc-2.34-231.amzn2023.0.6.src.rpm`, its sha256 and the package versions are attached to the `oracle-latest` release, together with the GNU MP 6.3.0 and GnuCOBOL 3.1.2 source tarballs. To relink the oracle against a modified glibc, libcob or GNU MP, change the build steps in `.github/workflows/oracle-linux.yml` and run the workflow, which rebuilds and relinks the binary statically.
 
 ## Prebuilt oracle binary
 

@@ -12,7 +12,7 @@ The workflow runs when `legacy/UICALC.cbl` or the workflow file changes on main,
 4. Write it to the pin: `printf '%s\n' "<hash>" > oracle/pinned-sha256.txt`.
 5. Commit the pin and redeploy.
 
-Current pin: `1078f9fd56012d8df7b55b7b2596748b9d1f5400baa065c518eaf4700f7be1a0`.
+Current pin: `9b4e4c984ab3045b839bbd82f00f34f6eeadba0b435c0632c769e1ea42094266`.
 
 ## Test the refusal path locally
 
