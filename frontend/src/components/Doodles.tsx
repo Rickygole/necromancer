@@ -96,6 +96,22 @@ export function PencilLine({ className }: Props) {
   );
 }
 
+export function DeadTree({ className }: Props) {
+  return (
+    <svg {...base} className={className} viewBox="0 0 220 400" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M170 400 C 166 330, 176 280, 160 232 C 150 200, 156 160, 140 128" strokeWidth="16" />
+      <path d="M160 232 C 130 214, 104 216, 72 190 C 56 178, 40 176, 18 182" strokeWidth="7" />
+      <path d="M100 210 C 92 190, 96 170, 84 150" strokeWidth="4" />
+      <path d="M140 128 C 128 100, 134 70, 118 40 C 112 28, 104 20, 96 6" strokeWidth="7" />
+      <path d="M140 128 C 160 110, 176 108, 196 84 C 204 74, 210 70, 218 68" strokeWidth="5" />
+      <path d="M124 62 C 106 56, 92 60, 74 50" strokeWidth="3" />
+      <path d="M72 190 C 66 204, 54 210, 46 226" strokeWidth="3" />
+      <path d="M178 104 C 182 90, 180 80, 186 66" strokeWidth="2.5" />
+      <path d="M40 178 C 30 166, 28 156, 20 148" strokeWidth="2" />
+    </svg>
+  );
+}
+
 export function Bat({ className }: Props) {
   return (
     <svg {...base} className={className} viewBox="0 0 64 28" fill="currentColor">

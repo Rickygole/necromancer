@@ -1,0 +1,399 @@
+html[data-tab="hidden"] *,
+html[data-tab="hidden"] *::before,
+html[data-tab="hidden"] *::after {
+  animation-play-state: paused !important;
+}
+
+.lightning {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(70% 60% at 70% 0%, rgba(196, 206, 236, 0.2), rgba(150, 160, 200, 0.06) 50%, transparent 78%);
+  opacity: 0;
+  animation: lightning 23s linear -16s infinite;
+}
+
+@keyframes lightning {
+  0%,
+  96.8% {
+    opacity: 0;
+  }
+  97.4% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.scene__tree {
+  position: absolute;
+  z-index: 0;
+  top: 3%;
+  right: -1.5rem;
+  height: 80%;
+  width: auto;
+  aspect-ratio: 220 / 400;
+  color: #060509;
+}
+
+.eyes {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.eyes__pair {
+  --dur: 19s;
+  --delay: 2.4s;
+  position: absolute;
+  display: flex;
+  gap: 0.6rem;
+  opacity: 0;
+  animation: eyes-watch var(--dur) linear var(--delay) infinite both;
+}
+
+.eyes__pair--one {
+  top: 13%;
+  right: 3.5%;
+}
+
+.eyes__pair--two {
+  --dur: 23s;
+  --delay: 8s;
+  bottom: 6%;
+  left: 1.4%;
+  gap: 0.45rem;
+}
+
+.eyes__pair--three {
+  --dur: 29s;
+  --delay: 14s;
+  top: 54%;
+  right: 27%;
+  gap: 0.5rem;
+}
+
+.eye {
+  position: relative;
+  width: 1.25rem;
+  height: 0.6rem;
+  overflow: hidden;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 55%, #fff1b8 0, #f2c24c 32%, #b9621a 72%, #4a2208 100%);
+  box-shadow: 0 0 9px 1px rgba(243, 170, 60, 0.4);
+  transform: scaleY(0.08);
+  animation: eye-blink var(--dur) linear var(--delay) infinite both;
+}
+
+.eye:first-child {
+  rotate: 14deg;
+}
+
+.eye:last-child {
+  rotate: -14deg;
+}
+
+.eyes__pair--two .eye {
+  width: 0.9rem;
+  height: 0.44rem;
+}
+
+.eye__pupil {
+  position: absolute;
+  top: 8%;
+  left: 50%;
+  width: 0.2rem;
+  height: 84%;
+  margin-left: -0.1rem;
+  border-radius: 50%;
+  background: #140904;
+  transition: transform 180ms var(--ease-out);
+}
+
+@keyframes eyes-watch {
+  0% {
+    opacity: 0;
+  }
+  5%,
+  72% {
+    opacity: 1;
+  }
+  78%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes eye-blink {
+  0% {
+    transform: scaleY(0.08);
+  }
+  7%,
+  30%,
+  32.4%,
+  55%,
+  57%,
+  59%,
+  73% {
+    transform: scaleY(1);
+  }
+  31%,
+  56%,
+  58%,
+  78%,
+  100% {
+    transform: scaleY(0.08);
+  }
+}
+
+.wordmark {
+  width: fit-content;
+  animation: word-jolt 320ms var(--ease-out) 1100ms 1 both;
+}
+
+.wordmark + .hero__sub {
+  margin-top: clamp(1.4rem, 4.2vw, 3.6rem);
+}
+
+.wound__probe {
+  display: inline-block;
+  width: 0;
+  height: 0;
+}
+
+.wound {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.wound__crack {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  overflow: visible;
+  fill: none;
+  stroke-linejoin: round;
+  opacity: 0;
+  animation: crack-in 240ms var(--ease-out) 1100ms 1 both;
+}
+
+.wound__split {
+  stroke: var(--ink-0);
+  stroke-width: 5px;
+  vector-effect: non-scaling-stroke;
+}
+
+.wound__split--thin {
+  stroke-width: 2.5px;
+}
+
+.wound__blood {
+  stroke: #8c1a13;
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+.drip {
+  position: absolute;
+  left: 0;
+  top: 70%;
+  width: 0.042em;
+  height: 0.2em;
+  margin: -0.03em 0 0 -0.021em;
+  border-radius: 0 0 0.03em 0.03em;
+  background: linear-gradient(180deg, #6e100b, #a11c14 65%, #bf281c);
+  transform-origin: 50% 0;
+  transform: scaleY(0);
+  animation: drip-grow 6s var(--ease-out) 1.6s 1 both;
+}
+
+.drip:nth-child(2) {
+  height: 0.27em;
+  animation-delay: 2.4s;
+  animation-duration: 8s;
+}
+
+.drip:nth-child(3) {
+  height: 0.12em;
+  width: 0.034em;
+  animation-delay: 1.9s;
+}
+
+.drip:nth-child(4) {
+  height: 0.23em;
+  animation-delay: 3.1s;
+  animation-duration: 9s;
+}
+
+.drip:nth-child(5) {
+  height: 0.17em;
+  animation-delay: 2.1s;
+  animation-duration: 7s;
+}
+
+.drip__drop {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 0.074em;
+  height: 0.094em;
+  margin: -0.05em 0 0 -0.037em;
+  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+  background: radial-gradient(circle at 38% 34%, #d9483a, #8f1810 72%);
+  animation: drop-fall 7s var(--ease-in) 8s infinite;
+}
+
+.drip:nth-child(2) .drip__drop {
+  animation-duration: 9.5s;
+  animation-delay: 11s;
+}
+
+.drip:nth-child(3) .drip__drop {
+  animation-duration: 12s;
+  animation-delay: 9s;
+}
+
+.drip:nth-child(4) .drip__drop {
+  animation-duration: 8.5s;
+  animation-delay: 13s;
+}
+
+.drip:nth-child(5) .drip__drop {
+  animation-duration: 10.5s;
+  animation-delay: 10s;
+}
+
+@keyframes word-jolt {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  25% {
+    transform: translate3d(-3px, 2px, 0);
+  }
+  55% {
+    transform: translate3d(2px, -1px, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes crack-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes drip-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes drop-fall {
+  0%,
+  78% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+  90% {
+    transform: translate3d(0, 0.16em, 0) scale(0.85, 1.15);
+    opacity: 0;
+  }
+  91% {
+    transform: translate3d(0, 0, 0) scale(0.2);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 1000px) {
+  .eyes__pair--three {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .eyes__pair--one {
+    display: none;
+  }
+
+  .eyes__pair--two {
+    left: auto;
+    right: 6%;
+    bottom: 3%;
+  }
+
+  .scene__tree {
+    display: none;
+  }
+}
+
+html[data-motion="off"] .lightning,
+html[data-motion="off"] .eyes {
+  display: none;
+}
+
+html[data-motion="off"] .wordmark,
+html[data-motion="off"] .drip__drop {
+  animation: none;
+}
+
+html[data-motion="off"] .wound__crack {
+  animation: none;
+  opacity: 1;
+}
+
+html[data-motion="off"] .drip {
+  animation: none;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lightning,
+  .eyes {
+    display: none;
+  }
+
+  .wordmark,
+  .drip__drop {
+    animation: none;
+  }
+
+  .wound__crack {
+    animation: none;
+    opacity: 1;
+  }
+
+  .drip {
+    animation: none;
+    transform: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .lightning,
+  .eyes,
+  .scene__tree,
+  .wound {
+    display: none;
+  }
+
+  .wordmark {
+    animation: none;
+  }
+}

@@ -3,6 +3,7 @@ import { Reveal } from "../components/Reveal";
 import { Scene } from "../components/Scene";
 import { Stamp } from "../components/Stamp";
 import { TiltCard } from "../components/TiltCard";
+import { Wound } from "../components/Wound";
 import { DEMO_CASES, DEMO_SEED, FULL_CASES, MUTATION_CASES, QUIRKS, useMutationScore } from "../content";
 import { DEMO_HREF } from "../router";
 import { count } from "../status";
@@ -43,6 +44,7 @@ export function Home() {
           </p>
           <h1 id="hero-title" className="wordmark" tabIndex={-1} data-text="necromancer">
             necromancer
+            <Wound />
           </h1>
           <p className="hero__sub mono">verification for legacy COBOL</p>
           <p className="hero__pitch">

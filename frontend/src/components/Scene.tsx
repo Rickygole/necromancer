@@ -1,7 +1,8 @@
 import { useEffect, useRef, type CSSProperties } from "react";
 import { useMotion } from "../motion";
-import { Bat, Crack } from "./Doodles";
+import { Bat, Crack, DeadTree } from "./Doodles";
 import { Embers } from "./Embers";
+import { Eyes } from "./Eyes";
 
 const SLICES = 11;
 const NOISE = [0, 0.6, -0.4, 0.9, 0.2, -0.8, -5.5, -7, -2, 0.4, -0.3, 0.8, -0.6, 0.3, 1.2, -0.9, 0.1, -1.6, -3.2, 0.5, 0];
@@ -96,6 +97,9 @@ export function Scene() {
 
   return (
     <div ref={ref} className="scene" aria-hidden="true">
+      <span className="lightning" />
+      <DeadTree className="scene__tree" />
+      <Eyes />
       <div className="scene__sky">
         <div className="moon">
           <span className="moon__halo" />

@@ -37,6 +37,15 @@ query?.addEventListener("change", (event) => {
 
 apply();
 
+function markTab() {
+  document.documentElement.dataset.tab = document.hidden ? "hidden" : "shown";
+}
+
+if (typeof document !== "undefined") {
+  markTab();
+  document.addEventListener("visibilitychange", markTab);
+}
+
 export function toggleMotion() {
   const paused = !state.paused;
   try {
