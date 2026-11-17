@@ -23,47 +23,21 @@
     }
   },
   "classes": {
-    "monthly_size_error": 14,
-    "monthly_size_error+total_size_error": 549,
-    "monthly_truncated_not_rounded": 20192,
-    "monthly_truncated_not_rounded+total_size_error": 931,
-    "total_size_error": 907
+    "monthly_overflow": 505,
+    "monthly_overflow+total_overflow": 58,
+    "total_overflow": 907,
+    "truncation": 20192,
+    "truncation+rounding_over_limit": 8,
+    "truncation+total_overflow": 923
   },
   "unexplained": 0,
   "cause_model_disagreements_with_oracle": 0,
   "counterexamples": [
     {
       "id": "cs_01",
-      "class": "monthly_size_error",
+      "class": "monthly_overflow",
       "seed": 731942,
-      "cases_in_class": 14,
-      "shrunk": false,
-      "input_record": "-99999999999+99999166674+120001",
-      "input_values": {
-        "initial_total_cents": -99999999999,
-        "balance_cents": 99999166674,
-        "annual_rate_hundredths_of_percent": 120001
-      },
-      "oracle_output": "+00000000000-99999999999................",
-      "twin_output": "SIZE ERROR  +00000000001................",
-      "diff": [
-        {
-          "field": "monthly",
-          "oracle": "+00000000000",
-          "twin": "SIZE ERROR  "
-        },
-        {
-          "field": "total",
-          "oracle": "-99999999999",
-          "twin": "+00000000001"
-        }
-      ]
-    },
-    {
-      "id": "cs_02",
-      "class": "monthly_size_error+total_size_error",
-      "seed": 731942,
-      "cases_in_class": 549,
+      "cases_in_class": 505,
       "shrunk": true,
       "input_record": "+00000000000+58568869670+204887",
       "input_values": {
@@ -87,8 +61,57 @@
       ]
     },
     {
+      "id": "cs_02",
+      "class": "monthly_overflow+total_overflow",
+      "seed": 731942,
+      "cases_in_class": 58,
+      "shrunk": false,
+      "input_record": "+99999221921+99999944747+120001",
+      "input_values": {
+        "initial_total_cents": 99999221921,
+        "balance_cents": 99999944747,
+        "annual_rate_hundredths_of_percent": 120001
+      },
+      "oracle_output": "+00000778079+00000000000................",
+      "twin_output": "SIZE ERROR  SIZE ERROR  ................",
+      "diff": [
+        {
+          "field": "monthly",
+          "oracle": "+00000778079",
+          "twin": "SIZE ERROR  "
+        },
+        {
+          "field": "total",
+          "oracle": "+00000000000",
+          "twin": "SIZE ERROR  "
+        }
+      ]
+    },
+    {
       "id": "cs_03",
-      "class": "monthly_truncated_not_rounded",
+      "class": "total_overflow",
+      "seed": 731942,
+      "cases_in_class": 907,
+      "shrunk": true,
+      "input_record": "+00383852211+49999530430+239081",
+      "input_values": {
+        "initial_total_cents": 383852211,
+        "balance_cents": 49999530430,
+        "annual_rate_hundredths_of_percent": 239081
+      },
+      "oracle_output": "+99616147789+00000000000................",
+      "twin_output": "+99616147789SIZE ERROR  ................",
+      "diff": [
+        {
+          "field": "total",
+          "oracle": "+00000000000",
+          "twin": "SIZE ERROR  "
+        }
+      ]
+    },
+    {
+      "id": "cs_04",
+      "class": "truncation",
       "seed": 731942,
       "cases_in_class": 20192,
       "shrunk": true,
@@ -114,16 +137,16 @@
       ]
     },
     {
-      "id": "cs_04",
-      "class": "monthly_truncated_not_rounded+total_size_error",
+      "id": "cs_05",
+      "class": "truncation+rounding_over_limit",
       "seed": 731942,
-      "cases_in_class": 931,
+      "cases_in_class": 8,
       "shrunk": true,
-      "input_record": "+99999999999+00000000002+030000",
+      "input_record": "+99999999999+00000000088+000682",
       "input_values": {
         "initial_total_cents": 99999999999,
-        "balance_cents": 2,
-        "annual_rate_hundredths_of_percent": 30000
+        "balance_cents": 88,
+        "annual_rate_hundredths_of_percent": 682
       },
       "oracle_output": "+00000000000+99999999999................",
       "twin_output": "+00000000001SIZE ERROR  ................",
@@ -141,20 +164,25 @@
       ]
     },
     {
-      "id": "cs_05",
-      "class": "total_size_error",
+      "id": "cs_06",
+      "class": "truncation+total_overflow",
       "seed": 731942,
-      "cases_in_class": 907,
+      "cases_in_class": 923,
       "shrunk": true,
-      "input_record": "+00383852211+49999530430+239081",
+      "input_record": "+99999999999+00000000004+045000",
       "input_values": {
-        "initial_total_cents": 383852211,
-        "balance_cents": 49999530430,
-        "annual_rate_hundredths_of_percent": 239081
+        "initial_total_cents": 99999999999,
+        "balance_cents": 4,
+        "annual_rate_hundredths_of_percent": 45000
       },
-      "oracle_output": "+99616147789+00000000000................",
-      "twin_output": "+99616147789SIZE ERROR  ................",
+      "oracle_output": "+00000000001+00000000000................",
+      "twin_output": "+00000000002SIZE ERROR  ................",
       "diff": [
+        {
+          "field": "monthly",
+          "oracle": "+00000000001",
+          "twin": "+00000000002"
+        },
         {
           "field": "total",
           "oracle": "+00000000000",
