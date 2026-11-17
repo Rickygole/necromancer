@@ -1,0 +1,47 @@
+Third party source vendored in this directory
+
+Project:   CardDemo (aws-samples/aws-mainframe-modernization-carddemo)
+URL:       https://github.com/aws-samples/aws-mainframe-modernization-carddemo
+Commit:    59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e (main, committed 2025-10-16T19:14:30Z)
+License:   Apache License, Version 2.0 (SPDX Apache-2.0)
+Copyright: Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+License evidence, checked by reading the files at that commit:
+- LICENSE at the repository root is the unmodified Apache License 2.0 text.
+  Git blob 67db8588217f266eb561f75fae738656325deac9, sha256
+  09e8a9bcec8067104652c168685ab0931e7868f9c8284b66f5ae6edae5f1130b.
+- NOTICE at the repository root reads: "Copyright Amazon.com, Inc. or its
+  affiliates. All Rights Reserved." Git blob
+  616fc5889451895dbf9768e6787c8308c33bef22.
+- README.md, section License: "This project is intended to be a community
+  resource and is released under the Apache 2.0 license."
+- app/cbl/CBACT04C.cbl carries its own header: "Copyright Amazon.com, Inc. or
+  its affiliates. All Rights Reserved. Licensed under the Apache License,
+  Version 2.0 (the "License"). You may not use this file except in compliance
+  with the License." The header is kept in the vendored copy.
+- The two copybooks have no header of their own. They are part of the same
+  repository and fall under its LICENSE and README statement above.
+
+Files copied byte for byte into vendor/ (the git blob SHA of each equals the
+upstream blob SHA at the commit above, and tests/test_case_study_carddemo.py
+checks the sha256 below):
+
+  vendor/LICENSE       from LICENSE
+  vendor/NOTICE        from NOTICE
+  vendor/CBACT04C.cbl  from app/cbl/CBACT04C.cbl
+                       git blob 1da48c0015ca11995d2c02d8ece3fcbc63b84ec1
+                       sha256 5084bb8b0c9a0f0199f737487ae1863f12e43cabbdc459a62b6b67bedc683cc4
+  vendor/CVTRA01Y.cpy  from app/cpy/CVTRA01Y.cpy
+                       git blob 1ef40c4f38ea3aaccf3225f0c674fa5de5c48f70
+                       sha256 50637f13692c89b17a2fc60d249dc54e9eb3569d933afca3cdcf65b491a9d5ba
+  vendor/CVTRA02Y.cpy  from app/cpy/CVTRA02Y.cpy
+                       git blob 42a30e10269fed1f8e5af9fa0c12f29bd967b325
+                       sha256 7828fae489c59944b4310e223028a8d3a525ccf4ead113c062bcaff04b52bf9c
+
+No vendored file was edited. The harness wrapper (INTWRAP.cbl) and everything
+else in this directory outside vendor/ was written for this repository and is
+covered by the repository MIT license.
+
+The Apache License 2.0 requires that the license text and the copyright
+notices travel with the source. This directory does that. This repository as a
+whole stays MIT, and the vendored files stay Apache-2.0.
