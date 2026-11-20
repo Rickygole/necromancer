@@ -189,6 +189,14 @@ export function Build() {
               pasted into the chat, Kiro fixed both and added three tests.
             </li>
             <li>
+              Kiro migrated a real CardDemo paragraph through the IDE spec workflow, from{" "}
+              <span className="mono">migration/TASK.md</span> alone. Its first version differed from the compiled COBOL
+              in 2,393 of 51,251 cases, all overflows, where it raised an error and the COBOL wraps. After the owner
+              decided to keep the wrap, the second version had 3 mismatches, all negative zero. After the owner decided to
+              keep that too, the third had none. Kiro never ran its own code, so every check ran outside it. The three
+              versions are on the Legacy page.
+            </li>
+            <li>
               The <span className="mono">failure-analyst</span> agent ran through the Kiro CLI and wrote three class files
               to evidence/classes. They are its raw output. The fields it quotes from{" "}
               <span className="mono">cx_0002</span> were checked by hand.
@@ -201,8 +209,8 @@ export function Build() {
           <h3 className="kiro__subhead">limits</h3>
           <ul className="kiro__list">
             <li>
-              Kiro's shell did not work inside the IDE, so Kiro could not run its own tests. They were run outside
-              Kiro.
+              Kiro's shell did not work inside the IDE, so Kiro could not run its own tests or its migration code. They were run
+              outside Kiro.
             </li>
             <li>
               Workspace steering was not shown to load. Asked directly, Kiro said no steering was in its context, also

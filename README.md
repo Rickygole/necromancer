@@ -19,7 +19,7 @@ Results are evidence over the cases counted in each run, with the count and the 
 
 All code in this repository was written on or after October 30, 2026, except the CardDemo files vendored in `case_studies/carddemo_interest/vendor/`, which are third party Apache-2.0 source and are listed in `THIRD_PARTY_NOTICES.md`. Before that date a short feasibility spike checked whether GnuCOBOL could act as an oracle. No spike code was copied into this repository.
 
-The repository was built over a few days in November 2026, so the commit history is dense and recent. Commits were made in batches from the working tree, so their times show when files were committed, not when the work was done. It was produced by a human owner working with several AI coding agents. The `.kiro` directory holds steering, specs, custom agent definitions and an MCP registration. How those files were produced is described in `KIRO.md`.
+The repository was built over a few days in November 2026, so the commit history is dense and recent. Commits were made in batches from the working tree, so their times show when files were committed, not when the work was done. It was produced by a human owner working with several AI coding agents. The `.kiro` directory holds steering, specs, custom agent definitions and an MCP registration. How those files were produced is described in `KIRO.md`. `migration/` holds a real CardDemo paragraph that Kiro translated to Python in three versions, each checked against the compiled COBOL (2,393 mismatches, then 3, then 0 of 51,251 cases).
 
 ## How it works
 

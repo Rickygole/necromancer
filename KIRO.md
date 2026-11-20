@@ -36,6 +36,15 @@ Most of the repository, including three of the four specs, the steering docs, th
 - Kiro's shell did not work in the IDE (its terminal output was replaced by a trust prompt from another tool), so Kiro could not run its own tests. The first version had two failing tests, caused by default arguments bound at definition time, and the report printed the 612 demo mismatches without saying the snapshot is the run with mutation M4 injected. After the owner pasted that review into the Kiro chat, Kiro fixed both and added an `Injected mutation` line and three tests.
 - The tests were then run outside Kiro: 16 in `tests/test_report.py` and 205 in the full suite passed at that point. All four tasks are ticked. The last two were ticked by Kiro at the owner's request after that outside run, so those two ticks rest on it, not on a test run by Kiro.
 
+### Migration of a real paragraph
+
+- The task was written in `migration/TASK.md`: the verbatim AWS CardDemo paragraph `1300-COMPUTE-INTEREST`, its field definitions, and a Python function contract. Kiro was told to work from that file alone and to use the spec workflow. In the IDE it wrote `.kiro/specs/interest/requirements.md`, `design.md`, `tasks.md` and `migration/interest.py`. The design chose to raise an error when a result does not fit the field.
+- Kiro's shell failed in that session, so it never ran its own code. Every check below was run outside Kiro by `python -m migration.verify`, which feeds the same inputs to the compiled COBOL and to the candidate and compares the 40 byte answers.
+- First translation (`kiro_v1`): it truncated correctly and did not fall into the rounding trap. It differed from the COBOL in 2,393 of 51,251 cases (338 of the 3,251 cases the hosted site runs). Every one was an overflow, where the COBOL has no ON SIZE ERROR and keeps the low order digits and Kiro's function raises.
+- The owner decided to preserve the legacy wrap. The finding was pasted into the Kiro chat. Second version (`kiro_v2`): 3 mismatches in 51,251. In each, a wrapped result is exactly zero and the COBOL stores negative zero where Kiro returned positive zero. Kiro's own later notes had listed that sign as unconfirmed against the COBOL.
+- The owner decided to preserve that too. Third version (`kiro_v3`): no mismatch in 51,251 cases. That is evidence over those cases and not a proof. The file contains comments Kiro wrote and is kept byte for byte, as the manifest hash requires.
+- The three versions are on the Legacy page of the site, each with a button that runs it live against the compiled COBOL.
+
 ### Custom agents
 
 - The `failure-analyst` agent ran through the CLI, read `evidence/` and `decisions/`, and wrote three class files to `evidence/classes/`. They are raw agent output. The decoded fields of `cx_0002` that it quotes were checked against the record by hand and match. The owner has not reviewed them line by line.
@@ -55,7 +64,7 @@ Most of the repository, including three of the four specs, the steering docs, th
 ## What was not run or not shown
 
 - Kiro powers and Kiro web were not tried.
-- Kiro's shell never worked inside the IDE, so no test run in this repository was executed by Kiro in the IDE.
+- Kiro's shell never worked inside the IDE, so no test run in this repository was executed by Kiro in the IDE, and the migration code was never run by Kiro either.
 - Workspace steering did not load, as described above.
 - The `migration-engineer` agent has not been shown to call the oracle tools.
 - The three agent output files in `evidence/` have not been reviewed line by line.
