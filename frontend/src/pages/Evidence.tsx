@@ -7,7 +7,7 @@ import { Stamp } from "../components/Stamp";
 import { StatusBadge } from "../components/StatusBadge";
 import { TiltCard } from "../components/TiltCard";
 import { TraceTable } from "../components/TraceTable";
-import { DEMO_SEED, HIDDEN_MUTANTS, MUTATIONS, useMutationScore } from "../content";
+import { DEMO_SEED, HIDDEN_MUTANTS, MUTATIONS, REPO_URL, useMutationScore } from "../content";
 import { INPUT_FIELDS, OUTPUT_FIELDS, formatValue } from "../records";
 import { CARDDEMO_HREF } from "../router";
 import { count, toStatus } from "../status";
@@ -492,6 +492,26 @@ export function Evidence() {
           </p>
           <a className="pencil-link" href={CARDDEMO_HREF}>
             read the CardDemo case study
+            <PencilLine className="pencil-link__line" />
+          </a>
+        </Reveal>
+      </section>
+
+      <section className="also" aria-labelledby="report-title">
+        <Reveal className="also__card">
+          <h2 id="report-title" className="also__title">
+            evidence report, built with Kiro
+          </h2>
+          <p>
+            A Markdown summary of the three recorded evidence files: counts over the cases run, not a proof of
+            equivalence, and the UICALC snapshot in it is the demo run with mutation M4 injected.
+          </p>
+          <a className="pencil-link" href="/api/report">
+            read the report as Markdown
+            <PencilLine className="pencil-link__line" />
+          </a>
+          <a className="pencil-link" href={`${REPO_URL}/tree/main/.kiro/specs/evidence-report`} rel="noreferrer">
+            read the evidence-report spec
             <PencilLine className="pencil-link__line" />
           </a>
         </Reveal>

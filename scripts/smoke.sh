@@ -59,6 +59,12 @@ request GET /api/mutation-score ""
 expect_status 200
 pass "GET /api/mutation-score 200"
 
+request GET /api/report ""
+expect_status 200
+expect_body '^# Necromancer evidence report'
+expect_body 'not a proof of equivalence'
+pass "GET /api/report returns the evidence report"
+
 request GET /api/decisions ""
 expect_status 200
 records=$(grep -o '"id" *: *"dec_' "$tmp" | wc -l | tr -d ' ')

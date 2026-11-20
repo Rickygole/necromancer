@@ -10,7 +10,7 @@ from typing import List, Literal, Optional
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, StrictInt
 from sse_starlette.sse import EventSourceResponse
@@ -18,6 +18,7 @@ from sse_starlette.sse import EventSourceResponse
 from backend import errors, patches, runs, store
 from harness import engine
 from harness import decisions as decision_store
+from harness import report as evidence_report
 from harness.profiles import DEFAULT_SEED, PROFILES
 from modern.mutations import MUTATIONS
 from oracle import runner
@@ -423,6 +424,32 @@ def mutation_score():
     if not path.exists():
         raise errors.ApiError("NOT_FOUND", "no mutation score has been recorded")
     return cached_json(json.loads(path.read_text()))
+
+
+@app.get("/api/report")
+def report():
+    sources = (evidence_report.SNAPSHOT_PATH, evidence_report.MUTATION_PATH, evidence_report.CARDDEMO_PATH)
+    try:
+        snapshot, mutation, carddemo = evidence_report.load_evidence()
+        text = evidence_report.build_report(
+            snapshot,
+            evidence_report.relative_label(sources[0]),
+            mutation,
+            evidence_report.relative_label(sources[1]),
+            carddemo,
+            evidence_report.relative_label(sources[2]),
+        )
+    except evidence_report.ReportError:
+        missing = [evidence_report.relative_label(p) for p in sources if not Path(p).exists()]
+        raise errors.ApiError(
+            "EVIDENCE_UNAVAILABLE",
+            "the evidence report could not be built from the recorded files on this host",
+            {"missing": missing},
+        )
+    headers = {}
+    if hosted():
+        headers["Cache-Control"] = "public, max-age=60, s-maxage=60"
+    return Response(text, media_type="text/markdown; charset=utf-8", headers=headers)
 
 
 @app.get("/api/patches")
