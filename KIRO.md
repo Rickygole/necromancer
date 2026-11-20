@@ -43,6 +43,7 @@ Most of the repository, including three of the four specs, the steering docs, th
 - First translation (`kiro_v1`): it truncated correctly and did not fall into the rounding trap. It differed from the COBOL in 2,393 of 51,251 cases (338 of the 3,251 cases the hosted site runs). Every one was an overflow, where the COBOL has no ON SIZE ERROR and keeps the low order digits and Kiro's function raises.
 - The owner decided to preserve the legacy wrap. The finding was pasted into the Kiro chat. Second version (`kiro_v2`): 3 mismatches in 51,251. In each, a wrapped result is exactly zero and the COBOL stores negative zero where Kiro returned positive zero. Kiro's own later notes had listed that sign as unconfirmed against the COBOL.
 - The owner decided to preserve that too. Third version (`kiro_v3`): no mismatch in 51,251 cases. That is evidence over those cases and not a proof. The file contains comments Kiro wrote and is kept byte for byte, as the manifest hash requires.
+- The two decisions are drafted as `migration/decisions/mig_0001.json` and `mig_0002.json`. Both are marked unconfirmed until the owner sets a reviewer and a status.
 - The three versions are on the Legacy page of the site, each with a button that runs it live against the compiled COBOL.
 
 ### Custom agents

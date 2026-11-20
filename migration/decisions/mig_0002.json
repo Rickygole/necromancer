@@ -1,0 +1,21 @@
+{
+  "id": "mig_0002",
+  "class": "negative zero",
+  "subject": "1300-COMPUTE-INTEREST, wrapped results that are exactly zero",
+  "candidate_before": "kiro_v2",
+  "candidate_after": "kiro_v3",
+  "evidence": "migration/results/kiro_v2.json",
+  "mismatches_before": 3,
+  "cases": 51251,
+  "options_considered": [
+    "preserve",
+    "correct"
+  ],
+  "choice": "preserve",
+  "detail": "When a wrapped result is exactly zero the COBOL stores a negative zero. kiro_v2 returned a positive zero. The choice was to reproduce the negative zero.",
+  "reviewer": null,
+  "decided_by": "the owner, through the Kiro chat",
+  "status": "unconfirmed",
+  "date": "2026-11-20",
+  "note": "Drafted from the owner's instruction to Kiro. The owner confirms it by setting reviewer and status. Dropping the sign would be the other option, and a negative zero is rarely wanted downstream."
+}

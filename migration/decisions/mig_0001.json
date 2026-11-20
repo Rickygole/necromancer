@@ -1,0 +1,21 @@
+{
+  "id": "mig_0001",
+  "class": "overflow wrap",
+  "subject": "1300-COMPUTE-INTEREST, results that do not fit PIC S9(09)V99",
+  "candidate_before": "kiro_v1",
+  "candidate_after": "kiro_v2",
+  "evidence": "migration/results/kiro_v1.json",
+  "mismatches_before": 2393,
+  "cases": 51251,
+  "options_considered": [
+    "preserve",
+    "correct"
+  ],
+  "choice": "preserve",
+  "detail": "The COBOL has no ON SIZE ERROR, so it keeps the low order digits. kiro_v1 raised an error instead. The choice was to make the translation wrap like the COBOL.",
+  "reviewer": null,
+  "decided_by": "the owner, through the Kiro chat",
+  "status": "unconfirmed",
+  "date": "2026-11-20",
+  "note": "Drafted from the owner's instruction to Kiro. The owner confirms it by setting reviewer and status. Correcting to raise on overflow would be the other option, and it is arguably safer engineering."
+}

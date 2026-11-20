@@ -82,3 +82,15 @@ def test_kiro_third_version_matches_the_cobol(binary):
     path = verify.ROOT / "candidates" / "kiro_v3.py"
     report = verify.verify(path, random_cases=2000, binary=binary, shrink_classes=False)
     assert report["mismatched"] == 0
+
+
+def test_migration_decision_records_point_at_real_evidence():
+    import json
+
+    base = verify.ROOT / "decisions"
+    for path in sorted(base.glob("mig_*.json")):
+        rec = json.loads(path.read_text())
+        assert rec["choice"] in rec["options_considered"]
+        evidence = json.loads((verify.ROOT.parent / rec["evidence"]).read_text())
+        assert evidence["mismatched"] == rec["mismatches_before"]
+        assert evidence["cases"] == rec["cases"]
