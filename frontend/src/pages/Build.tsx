@@ -192,6 +192,10 @@ export function Build() {
               to evidence/classes. They are its raw output. The fields it quotes from{" "}
               <span className="mono">cx_0002</span> were checked by hand.
             </li>
+            <li>
+              Through the Kiro CLI, Kiro wrote seven Hypothesis properties for the CardDemo interest twin, in{" "}
+              <span className="mono">tests/test_carddemo_twin_properties.py</span>. They pass when run.
+            </li>
           </ul>
           <h3 className="kiro__subhead">limits</h3>
           <ul className="kiro__list">
