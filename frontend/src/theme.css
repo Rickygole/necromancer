@@ -2799,8 +2799,26 @@ html[data-motion="off"] .evidence__spinner {
   line-height: 1.6;
 }
 
-.kiro__card .pencil-link {
-  margin-top: var(--s-4);
+.kiro__subhead {
+  margin-top: var(--s-5);
+  font-size: var(--t-md);
+}
+
+.kiro__list {
+  margin: var(--s-2) 0 0;
+  padding-left: var(--s-5);
+  display: grid;
+  gap: var(--s-3);
+  font-family: var(--font-text);
+  line-height: 1.6;
+  max-width: 64ch;
+}
+
+.kiro__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3) var(--s-5);
+  margin-top: var(--s-5);
 }
 
 .missing {

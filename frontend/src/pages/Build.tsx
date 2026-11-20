@@ -161,21 +161,64 @@ export function Build() {
             Kiro
           </h2>
           <p>
-            Specs, steering, hooks and custom agents live in the .kiro directory of the repository, along with the
-            registration for the oracle MCP server.
+            Most of this repository was built before Kiro was used on it, with other coding agents. The steering, agents,
+            hooks and first three specs in .kiro were written as plain files, not through the Kiro spec
+            workflow. KIRO.md records what was then run in Kiro and what was not. This is a summary of it.
           </p>
-          <p>
-            Two hook files sit in .kiro/hooks, <span className="mono">rederive-properties</span> and{" "}
-            <span className="mono">test-guard</span>. The files exist. They have not been confirmed through the Kiro hook
-            panel, so this page makes no claim that either one ever fired.
-          </p>
-          <p className="hint">
-            The MCP server code lives in oracle_mcp/. Only its registration, .kiro/settings/mcp.json, is in .kiro.
-          </p>
-          <a className="pencil-link" href={`${REPO_URL}/tree/main/.kiro`} rel="noreferrer">
-            read the .kiro directory
-            <PencilLine className="pencil-link__line" />
-          </a>
+          <h3 className="kiro__subhead">what ran in Kiro</h3>
+          <ul className="kiro__list">
+            <li>
+              The oracle MCP tools were called on counterexample <span className="mono">cx_0002</span> from both the Kiro
+              CLI and the Kiro IDE. In the CLI, <span className="mono">run_oracle</span> returned the recorded oracle
+              output. In the IDE, <span className="mono">parse_record</span> decoded the record, through a server entry in
+              the owner's user settings; the workspace entry in .kiro/settings/mcp.json was not available to the IDE
+              chat, and the cause was not confirmed.
+            </li>
+            <li>
+              Both hooks fired in the IDE. <span className="mono">Re-derive properties</span> reported that the
+              twin's design.md listed only 4 properties, P5, P8, P9 and P10, while the tests implement P1 to P11. Kiro then rewrote that section
+              to list P1 to P11, which was checked against the test code before it was committed.{" "}
+              <span className="mono">Test guard</span> undid a blank line saved into oracle/__init__.py, saying the edit had
+              not been requested.
+            </li>
+            <li>
+              The <span className="mono">evidence-report</span> spec went through the IDE spec workflow, one task at a
+              time, and produced <span className="mono">python -m harness.report</span> and its tests. The first version
+              had two failing tests and did not say the snapshot was the run with M4 injected. After that review was
+              pasted into the chat, Kiro fixed both and added three tests.
+            </li>
+            <li>
+              The <span className="mono">failure-analyst</span> agent ran through the Kiro CLI and wrote three class files
+              to evidence/classes. They are its raw output. The fields it quotes from{" "}
+              <span className="mono">cx_0002</span> were checked by hand.
+            </li>
+          </ul>
+          <h3 className="kiro__subhead">limits</h3>
+          <ul className="kiro__list">
+            <li>
+              Kiro's shell did not work inside the IDE, so Kiro could not run its own tests. They were run outside
+              Kiro.
+            </li>
+            <li>
+              Workspace steering was not shown to load. Asked directly, Kiro said no steering was in its context, also
+              after a window reload, so no claim is made that steering changed any answer.
+            </li>
+            <li>Kiro powers and Kiro on the web were not tried.</li>
+            <li>
+              Custom agents run from the CLI could not use the shell in non-interactive mode, and one reported that no
+              MCP tools were registered.
+            </li>
+          </ul>
+          <div className="kiro__links">
+            <a className="pencil-link" href={`${REPO_URL}/blob/main/KIRO.md`} rel="noreferrer">
+              read KIRO.md
+              <PencilLine className="pencil-link__line" />
+            </a>
+            <a className="pencil-link" href={`${REPO_URL}/tree/main/.kiro`} rel="noreferrer">
+              read the .kiro directory
+              <PencilLine className="pencil-link__line" />
+            </a>
+          </div>
         </Reveal>
       </section>
     </article>

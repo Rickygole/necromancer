@@ -229,7 +229,7 @@ export const REPO_TREE: { path: string; text: string }[] = [
   { path: "decisions/", text: "decision records (the coding agents made the three choices for the owner, unconfirmed) and the incident log" },
   { path: "evidence/", text: "probe report, counterexamples, mutation score, snapshot" },
   { path: "tests/", text: "unit, property, mutation and API tests" },
-  { path: ".kiro/", text: "specs, steering, hooks, agents, and the oracle MCP server registration" },
+  { path: ".kiro/", text: "specs, steering, hooks, agents and the oracle MCP registration; KIRO.md says what ran in Kiro" },
 ];
 
 export const UNCONFIRMED_REVIEWER = "Unconfirmed, pending owner";
