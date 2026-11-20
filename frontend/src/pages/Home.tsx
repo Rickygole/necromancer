@@ -128,7 +128,7 @@ export function Home() {
 
         <div className="beats__cta">
           <a className="slab-button" href={DEMO_HREF}>
-            see the demo in 15 seconds
+            see the demo in about 20 seconds
           </a>
           <p className="beats__cta-note">
             Opens the console with the guided demo ready. A clean baseline, one injected bug caught and shrunk, the
