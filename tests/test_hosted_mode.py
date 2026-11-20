@@ -236,3 +236,26 @@ def test_unparseable_body_is_a_bad_request(hosted):
     res = hosted.post("/api/live", content=b"{not json", headers={"content-type": "application/json"})
     assert res.status_code in (400, 422)
     assert res.json()["error"]["code"] == "BAD_REQUEST"
+
+
+def test_hosted_full_profile_refuses_other_seeds(monkeypatch):
+    from fastapi.testclient import TestClient
+    from backend.app import app
+
+    monkeypatch.setenv("NECRO_HOSTED", "1")
+    res = TestClient(app).post("/api/live", json={"profile": "full", "seed": 5})
+    assert res.status_code == 400
+
+
+def test_cache_hit_is_marked_cached(monkeypatch):
+    from fastapi.testclient import TestClient
+    from backend import app as app_module
+
+    monkeypatch.setenv("NECRO_HOSTED", "1")
+    app_module.LIVE_CACHE.clear()
+    client = TestClient(app_module.app)
+    first = client.post("/api/live", json={"profile": "dev", "seed": 424242}).json()
+    second = client.post("/api/live", json={"profile": "dev", "seed": 424242}).json()
+    assert not first.get("cached")
+    assert second["cached"] is True
+    assert second["run_id"] == first["run_id"]

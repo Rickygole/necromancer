@@ -1,0 +1,59 @@
+{
+  "candidate_sha256": "c751ac8715865520124d872884b0006243d2b28b4a1eed46fc7c5f07d5feea51",
+  "seed": 731942,
+  "cases": 51251,
+  "matched": 51248,
+  "mismatched": 3,
+  "classes": {
+    "monthly_overflow": 1,
+    "total_overflow": 2
+  },
+  "counterexamples": [
+    {
+      "id": "mg_01",
+      "class": "monthly_overflow",
+      "explanation": "The monthly interest does not fit PIC S9(09)V99. The COBOL has no ON SIZE ERROR, so it keeps the low order digits.",
+      "seed": 731942,
+      "cases_in_class": 1,
+      "shrunk": false,
+      "input": {
+        "balance": "-600000000.00",
+        "annual_rate_percent": "2000.00",
+        "total_interest": "0.00"
+      },
+      "input_record": "+00000000000-60000000000+200000",
+      "oracle_output": "-00000000000+00000000000................",
+      "candidate_output": "+00000000000+00000000000................",
+      "diff": [
+        {
+          "field": "monthly",
+          "oracle": "-00000000000",
+          "candidate": "+00000000000"
+        }
+      ]
+    },
+    {
+      "id": "mg_02",
+      "class": "total_overflow",
+      "explanation": "The running total does not fit PIC S9(09)V99. The COBOL keeps the low order digits.",
+      "seed": 731942,
+      "cases_in_class": 2,
+      "shrunk": false,
+      "input": {
+        "balance": "-1000.00",
+        "annual_rate_percent": "5.00",
+        "total_interest": "-999999995.84"
+      },
+      "input_record": "-99999999584-00000100000+000500",
+      "oracle_output": "-00000000416-00000000000................",
+      "candidate_output": "-00000000416+00000000000................",
+      "diff": [
+        {
+          "field": "total",
+          "oracle": "-00000000000",
+          "candidate": "+00000000000"
+        }
+      ]
+    }
+  ]
+}

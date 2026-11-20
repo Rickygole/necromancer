@@ -158,8 +158,9 @@ function MigrationResult({ result }: { result: Result }) {
   return (
     <div className="paper migration__paper">
       <h3>
-        {clean ? "no mismatch found" : "mismatch"}: {result.matched.toLocaleString("en-US")} of{" "}
-        {result.cases.toLocaleString("en-US")} cases agree
+        {clean
+          ? `no mismatch found in ${result.cases.toLocaleString("en-US")} cases`
+          : `${result.mismatched.toLocaleString("en-US")} of ${result.cases.toLocaleString("en-US")} cases disagree with the COBOL`}
       </h3>
       <p className="carddemo__caption">
         Live run on this server, seed {result.seed}
@@ -201,8 +202,9 @@ function MigrationResult({ result }: { result: Result }) {
             </article>
           ))}
           <p className="carddemo__caption">
-            Where the translation raises, it chose to. Where the COBOL wraps, it never fails. Necromancer cannot say which is
-            right. A person decides, and the decision is written down.
+            Necromancer only reports where the translation and the COBOL differ. It cannot say which one is right. A person
+            decides, and each decision here was the owner's: first to keep the COBOL wrap on overflow, then to keep its
+            negative zero.
           </p>
         </>
       )}

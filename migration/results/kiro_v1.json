@@ -1,0 +1,98 @@
+{
+  "candidate_sha256": "1702679a882e936c3fd3b118febbe7b4202a8381261dc02fca26d8c4ace0a535",
+  "seed": 731942,
+  "cases": 51251,
+  "matched": 48858,
+  "mismatched": 2393,
+  "classes": {
+    "raised+monthly_overflow": 505,
+    "raised+monthly_overflow+total_overflow": 58,
+    "raised+total_overflow": 1830
+  },
+  "counterexamples": [
+    {
+      "id": "mg_01",
+      "class": "raised+monthly_overflow",
+      "explanation": "The candidate raised an exception. The COBOL does not fail, it stores a value. The monthly interest does not fit PIC S9(09)V99. The COBOL has no ON SIZE ERROR, so it keeps the low order digits.",
+      "seed": 731942,
+      "cases_in_class": 505,
+      "shrunk": true,
+      "input": {
+        "balance": "585688696.70",
+        "annual_rate_percent": "2048.87",
+        "total_interest": "0.00"
+      },
+      "input_record": "+00000000000+58568869670+204887",
+      "oracle_output": "+00000000000+00000000000................",
+      "candidate_output": "RAISED      RAISED      ................",
+      "diff": [
+        {
+          "field": "monthly",
+          "oracle": "+00000000000",
+          "candidate": "RAISED      "
+        },
+        {
+          "field": "total",
+          "oracle": "+00000000000",
+          "candidate": "RAISED      "
+        }
+      ]
+    },
+    {
+      "id": "mg_02",
+      "class": "raised+monthly_overflow+total_overflow",
+      "explanation": "The candidate raised an exception. The COBOL does not fail, it stores a value. The monthly interest does not fit PIC S9(09)V99. The COBOL has no ON SIZE ERROR, so it keeps the low order digits. The running total does not fit PIC S9(09)V99. The COBOL keeps the low order digits.",
+      "seed": 731942,
+      "cases_in_class": 58,
+      "shrunk": false,
+      "input": {
+        "balance": "999999447.47",
+        "annual_rate_percent": "1200.01",
+        "total_interest": "999992219.21"
+      },
+      "input_record": "+99999221921+99999944747+120001",
+      "oracle_output": "+00000778079+00000000000................",
+      "candidate_output": "RAISED      RAISED      ................",
+      "diff": [
+        {
+          "field": "monthly",
+          "oracle": "+00000778079",
+          "candidate": "RAISED      "
+        },
+        {
+          "field": "total",
+          "oracle": "+00000000000",
+          "candidate": "RAISED      "
+        }
+      ]
+    },
+    {
+      "id": "mg_03",
+      "class": "raised+total_overflow",
+      "explanation": "The candidate raised an exception. The COBOL does not fail, it stores a value. The running total does not fit PIC S9(09)V99. The COBOL keeps the low order digits.",
+      "seed": 731942,
+      "cases_in_class": 1830,
+      "shrunk": true,
+      "input": {
+        "balance": "999999999.99",
+        "annual_rate_percent": "1200.00",
+        "total_interest": "0.01"
+      },
+      "input_record": "+00000000001+99999999999+120000",
+      "oracle_output": "+99999999999+00000000000................",
+      "candidate_output": "RAISED      RAISED      ................",
+      "diff": [
+        {
+          "field": "monthly",
+          "oracle": "+99999999999",
+          "candidate": "RAISED      "
+        },
+        {
+          "field": "total",
+          "oracle": "+00000000000",
+          "candidate": "RAISED      "
+        }
+      ]
+    }
+  ]
+}

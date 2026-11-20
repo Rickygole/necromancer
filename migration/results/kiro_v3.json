@@ -1,0 +1,9 @@
+{
+  "candidate_sha256": "b7751f4de1527b582d7b3789c32b394d6da285a58598758d353a08ba910c0575",
+  "seed": 731942,
+  "cases": 51251,
+  "matched": 51251,
+  "mismatched": 0,
+  "classes": {},
+  "counterexamples": []
+}

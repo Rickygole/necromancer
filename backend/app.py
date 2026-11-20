@@ -249,12 +249,17 @@ def live_run(req: RunRequest):
     seed = DEFAULT_SEED if req.seed is None else req.seed
     if not 0 <= seed <= SEED_MAX:
         raise bad("seed out of range", {"max": SEED_MAX})
+    if hosted() and req.profile == "full" and seed != DEFAULT_SEED:
+        raise bad(
+            "the hosted site runs the full profile with the published seed only",
+            {"profile": "full", "seed": DEFAULT_SEED},
+        )
     key = (req.profile, seed, req.mutation)
     now = time.monotonic()
     with LIVE_CACHE_LOCK:
         hit = LIVE_CACHE.get(key)
     if hit and now - hit[0] < LIVE_CACHE_SECONDS:
-        return hit[1]
+        return {**hit[1], "cached": True, "cached_age_seconds": int(now - hit[0])}
     if not LIVE_SLOTS.acquire(blocking=False):
         raise errors.ApiError("BUSY", "the oracle is busy, try again in a moment", {"retry": True})
     try:

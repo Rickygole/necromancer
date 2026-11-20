@@ -37,11 +37,11 @@ const HOSTED_LABELS = [
   "Baseline run, twin with the three preserved legacy behaviors",
   "Simulated injection of mutation M4",
   "Live run with M4 injected",
-  "Recorded patch, live full rerun",
+  "Canned patch, live full rerun",
   "Approval card",
 ];
 
-const HOSTED_SHORT = ["Baseline", "Simulated inject", "Run with M4", "Recorded patch, live rerun", "Approval"];
+const HOSTED_SHORT = ["Baseline", "Simulated inject", "Run with M4", "Canned patch, live rerun", "Approval"];
 
 const DEMO_SHORT = ["Baseline", "Inject M4", "Run with M4", "Patch and rerun", "Approval"];
 
@@ -154,9 +154,10 @@ export function Console({ health, healthError }: Props) {
   const runIdRef = useRef<string | null>(null);
   runIdRef.current = run.runId;
 
-  const replayOnly = health !== null ? !health.oracle_available : healthError !== null;
   const hosted = Boolean(health?.hosted);
-  const liveHosted = hosted && !replayOnly;
+  const blocked = health !== null ? hosted && !health.oracle_available : healthError !== null;
+  const replayOnly = health !== null && !hosted && !health.oracle_available;
+  const liveHosted = hosted && !blocked;
   const running = run.phase !== "idle" && run.phase !== "finished";
   const busy = running || demoRunning;
 
@@ -233,9 +234,13 @@ export function Console({ health, healthError }: Props) {
   const launch = useCallback(
     (body: RunRequest) => {
       setRequested({ seed: body.seed ?? null, profile: body.profile });
+      if (blocked) {
+        runner.fail("ORACLE_UNAVAILABLE", "The oracle is not reachable, so no run was made. Nothing is replayed in its place.");
+        return Promise.resolve("RUNTIME ERROR" as Status);
+      }
       return runner.start(body);
     },
-    [runner],
+    [runner, blocked],
   );
 
   const loadSnapshot = useCallback(async (): Promise<Snapshot> => {

@@ -5,7 +5,7 @@ This file is a plain account of what the `.kiro` directory contains, how it was 
 ## What is in `.kiro`
 
 - `steering/`: six steering docs with `inclusion: always` (product, tech, structure, COBOL semantics, test integrity, no floats).
-- `specs/`: requirements, design and tasks for four features (`uicalc-twin`, `diff-harness`, `workbench-ui`, `evidence-report`).
+- `specs/`: requirements, design and tasks for five features (`uicalc-twin`, `diff-harness`, `workbench-ui`, `evidence-report`, `interest`).
 - `agents/`: three custom agent definitions (COBOL analyst, migration engineer, failure analyst) with scoped write paths. The Kiro CLI upgraded these files to its V3 format, adding permission rules.
 - `hooks/`: two hook files (re-derive properties on spec or legacy source edits, and a test guard for the oracle, evidence and decisions). They are still in the legacy format.
 - `settings/mcp.json`: registers the local oracle MCP server in `oracle_mcp/`.

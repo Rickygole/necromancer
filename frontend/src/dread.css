@@ -1022,3 +1022,9 @@ html[data-motion="off"] .drip {
 .migration__fields dd {
   overflow-wrap: anywhere;
 }
+
+.kirostrip{max-width:64rem;margin:3rem auto;padding:0 1rem}
+.kirostrip__lead{margin:.5rem 0 1rem}
+.kirostrip__row{list-style:none;padding:0;margin:0 0 1rem;display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr))}
+.kirostrip__row li{display:flex;flex-direction:column;gap:.35rem;padding:1rem;border:1px solid currentColor}
+.kirostrip__n{font-size:1.75rem}

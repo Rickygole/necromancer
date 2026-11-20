@@ -12,9 +12,10 @@ CANDIDATES = ROOT / "candidates"
 MANIFEST = CANDIDATES / "manifest.json"
 TASK = ROOT / "TASK.md"
 PREBUILT = runner.ROOT / "bin" / "intwrap"
-PREBUILT_VERSION = runner.ROOT / "bin" / "ORACLE_VERSION"
+PREBUILT_VERSION = runner.ROOT / "bin" / "INTWRAP_VERSION"
 RANDOM_CASES = 2000
 LOCK = threading.Lock()
+CACHE = {}
 
 
 class MigrationError(Exception):
@@ -61,8 +62,11 @@ def run(candidate_id):
     entries = {entry["id"]: entry for entry in load_manifest()}
     if candidate_id not in entries:
         raise MigrationError("BAD_REQUEST", "unknown candidate", {"candidate": candidate_id, "known": sorted(entries)})
-    path, _ = read_candidate(entries[candidate_id])
+    path, source = read_candidate(entries[candidate_id])
     binary, compiler = oracle_binary()
+    key = (candidate_id, hashlib.sha256(source.encode()).hexdigest(), RANDOM_CASES, compiler)
+    if key in CACHE:
+        return dict(CACHE[key])
     if not LOCK.acquire(blocking=False):
         raise MigrationError("BUSY", "a verification is already running, try again in a moment")
     try:
@@ -71,4 +75,5 @@ def run(candidate_id):
         LOCK.release()
     report["compiler"] = compiler
     report["candidate"] = candidate_id
+    CACHE[key] = dict(report)
     return report

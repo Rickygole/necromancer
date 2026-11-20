@@ -128,10 +128,10 @@ export function Home() {
 
         <div className="beats__cta">
           <a className="slab-button" href={DEMO_HREF}>
-            run the live demo
+            open the guided demo
           </a>
           <p className="beats__cta-note">
-            Opens the console with the guided demo ready. A clean baseline, one injected bug caught and shrunk, the
+            Opens the console with the guided demo ready, then press start. A clean baseline, one injected bug caught and shrunk, the
             patch, the approval card.
           </p>
         </div>
@@ -176,6 +176,32 @@ export function Home() {
           <span className="proof__also-note">one paragraph of AWS CardDemo, with its own counts and limits</span>
         </p>
       </section>
+
+        <section className="kirostrip" aria-labelledby="kirostrip-title">
+          <h2 id="kirostrip-title">Kiro rewrote real COBOL. We checked it.</h2>
+          <p className="kirostrip__lead">
+            Kiro translated one paragraph of AWS CardDemo to Python from its spec. Each version was run against the compiled
+            COBOL over 51,251 cases. Two decisions in between were the owner's.
+          </p>
+          <ol className="kirostrip__row">
+            <li>
+              <span className="kirostrip__n num">2,393 wrong</span>
+              <span>version 1 raised an error on overflow, where the COBOL wraps</span>
+            </li>
+            <li>
+              <span className="kirostrip__n num">3 wrong</span>
+              <span>version 2 wrapped, but lost the minus sign when the result was zero</span>
+            </li>
+            <li>
+              <span className="kirostrip__n num">0 wrong</span>
+              <span>version 3 matches, which is evidence over those cases and not a proof</span>
+            </li>
+          </ol>
+          <a className="pencil-link" href="#/legacy?carddemo">
+            run all three live against the COBOL
+            <PencilLine className="pencil-link__line" />
+          </a>
+        </section>
 
       <section className="tags" aria-labelledby="tags-title">
         <Reveal className="tags__intro">

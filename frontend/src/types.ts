@@ -94,6 +94,8 @@ export interface Snapshot extends Report {
   counterexamples: Counterexample[];
   events: RunEvent[];
   mutation_label?: string;
+  cached?: boolean;
+  cached_age_seconds?: number;
   families?: Record<string, { cases: number; mismatches: number }>;
   runs?: Partial<Record<"baseline" | "injected" | "after_patch", Snapshot>>;
   story?: Partial<Record<"baseline" | "injected" | "after_patch", StoryRun>>;

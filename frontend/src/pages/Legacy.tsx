@@ -192,8 +192,8 @@ export function Legacy() {
         </div>
       </section>
 
-      <CaseStudySlot />
       <Migration />
+      <CaseStudySlot />
     </article>
   );
 }

@@ -320,7 +320,10 @@ export function useRunner() {
         if (liveMode) {
           const snapshot = await api.liveRun(body);
           if (gen !== genRef.current) return "NOT RUN";
-          return await replay(snapshot, true);
+          const note = snapshot.cached
+            ? `Same inputs as a live run ${snapshot.cached_age_seconds ?? 0} s ago, served from the server cache, not rerun`
+            : null;
+          return await replay(snapshot, true, note);
         }
         const { run_id } = await api.startRun(body);
         if (gen !== genRef.current) return "NOT RUN";

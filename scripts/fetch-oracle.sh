@@ -51,16 +51,20 @@ have=$(digest "$root/legacy/UICALC.cbl")
 [ "$want" = "$have" ] || die "verified UICALC binary was built from a different UICALC.cbl than this checkout"
 
 curl -fsSL --retry 2 -o "$bin/intwrap-source.sha256" "$base/intwrap-source.sha256" || die "release CardDemo source hashes not available"
+checked=0
 while read -r hash file; do
   [ -n "$file" ] || continue
+  checked=$((checked + 1))
   have=$(digest "$root/case_studies/carddemo_interest/$file")
   [ "$hash" = "$have" ] || die "verified CardDemo binary was built from a different $file than this checkout"
 done < "$bin/intwrap-source.sha256"
+[ "$checked" -gt 0 ] || die "release CardDemo source hash list is empty"
 
 mv "$bin/uicalc.download" "$bin/uicalc"
 mv "$bin/intwrap.download" "$bin/intwrap"
 chmod +x "$bin/uicalc" "$bin/intwrap"
 rm -f "$bin/source.sha256" "$bin/intwrap-source.sha256"
 echo "cobc (GnuCOBOL) 3.1.2.0 (prebuilt, sha256 $uicalc_pin)" > "$bin/ORACLE_VERSION"
+echo "cobc (GnuCOBOL) 3.1.2.0 (prebuilt, sha256 $intwrap_pin)" > "$bin/INTWRAP_VERSION"
 echo "oracle: both binaries verified against their pinned sha256 and installed"
 exit 0
