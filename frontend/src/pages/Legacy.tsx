@@ -48,6 +48,12 @@ export function Legacy() {
           UICALC works out a weekly unemployment benefit. It reads one 80 byte claim per line, writes one 40 byte answer
           per line, and has never once explained itself. We compile it with GnuCOBOL 3.1.2 and treat it as the oracle.
         </p>
+        <p className="page-head__jump">
+          <a className="pencil-link" href="#/legacy?carddemo" onClick={() => document.getElementById("migration")?.scrollIntoView({ behavior: "smooth" })}>
+            jump to the Kiro translation, verified live
+            <PencilLine className="pencil-link__line" />
+          </a>
+        </p>
         <div className="synthetic" role="note">
           <Stamp tone="red" tilt={-4}>
             synthetic

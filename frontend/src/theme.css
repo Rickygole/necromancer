@@ -4484,3 +4484,9 @@ html[data-motion="off"] .stepper__fill--wait {
     outline: 2px solid Highlight;
   }
 }
+
+@media (max-width: 600px) {
+  body { font-size: 15px; }
+  .site-head { min-height: 56px; padding-top: 0.25rem; padding-bottom: 0.25rem; gap: 0.25rem 0.75rem; }
+  .mono, .eyebrow, .carddemo__caption { font-size: max(0.8125rem, 13px); }
+}
