@@ -6,6 +6,13 @@
       "file": "kiro_v1.py",
       "sha256": "1702679a882e936c3fd3b118febbe7b4202a8381261dc02fca26d8c4ace0a535",
       "note": "Written in the Kiro IDE spec workflow from migration/TASK.md alone (requirements, design, tasks, then code). Kiro's shell failed in that session, so it never ran its own code. Copied byte for byte from migration/interest.py."
+    },
+    {
+      "id": "kiro_v2",
+      "label": "Kiro, after the reviewer decision",
+      "file": "kiro_v2.py",
+      "sha256": "c751ac8715865520124d872884b0006243d2b28b4a1eed46fc7c5f07d5feea51",
+      "note": "Written after the reviewer decided to preserve the legacy wrap on overflow. Kiro's shell still failed, so it never ran its own code. Copied byte for byte from migration/interest.py. Three of 51,251 cases still differ: where a wrapped result is exactly zero, the COBOL keeps the minus sign and this version returns +0.00."
     }
   ]
 }

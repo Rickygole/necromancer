@@ -2,6 +2,7 @@ from decimal import Decimal, ROUND_DOWN, localcontext
 
 _CENT = Decimal("0.01")
 _ZERO = Decimal("0.00")
+_FIELD_LIMIT = Decimal(10) ** 9
 
 
 def _fit(value, name, int_digits):
@@ -22,7 +23,8 @@ def _check(value, name, int_digits):
 
 
 def _store(value):
-    return _ZERO if value.is_zero() else value
+    wrapped = value % _FIELD_LIMIT
+    return _ZERO if wrapped.is_zero() else wrapped
 
 
 def compute_interest(balance, annual_rate_percent, total_interest):
@@ -35,8 +37,7 @@ def compute_interest(balance, annual_rate_percent, total_interest):
         monthly = (balance * annual_rate_percent / Decimal(1200)).quantize(
             _CENT, rounding=ROUND_DOWN
         )
-        _fit(monthly, "monthly_interest", 9)
-        new_total = total_interest.quantize(_CENT) + monthly
-        _fit(new_total, "new_total_interest", 9)
+        monthly = _store(monthly)
+        new_total = _store(total_interest.quantize(_CENT) + monthly)
 
-    return _store(monthly), _store(new_total)
+    return monthly, new_total
