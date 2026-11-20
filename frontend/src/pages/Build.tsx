@@ -46,15 +46,16 @@ export function Build() {
             the blind twin protocol
           </h2>
           <p>
-            The twin was written from the rules table only, and committed before the first oracle run. So there is a
-            record of what it looked like before anything had a chance to tell it it was wrong.
+            The twin was written from the rules table only. In the git history its first commit comes one minute before
+            the first oracle run. Commit times show when files were committed, not when the work was done, so the
+            history is consistent with the protocol and cannot prove it.
           </p>
           <p>
             That matters because the interesting findings are the places where an honest reading of the rules gives a
             different answer from the program. Peek at the COBOL first and you copy the bugs without noticing them.
           </p>
           <Stamp tone="ink" tilt={5} className="protocol__stamp">
-            committed first
+            first in history
           </Stamp>
         </Reveal>
       </section>

@@ -182,7 +182,7 @@ export function Home() {
           <h2 id="tags-title">the numbers, with their denominators</h2>
           <p>
             A number without a denominator is a rumor. These come from the recorded demo run and the mutation sweep,
-            seed {DEMO_SEED}. The three classes of legacy behavior were found on the first blind run, 45 cases on the dev
+            seed {DEMO_SEED}. The three classes of legacy behavior showed up in the earliest recorded run, 45 cases on the dev
             profile. All of it is evidence over the cases counted, not a proof of anything.
           </p>
         </Reveal>

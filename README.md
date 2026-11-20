@@ -24,7 +24,7 @@ The repository was built over a few days in November 2026, so the commit history
 ## How it works
 
 1. `legacy/UICALC.cbl` is compiled with GnuCOBOL 3.1.2.0 and is the oracle.
-2. `modern/` holds a Python twin that was first written from the business rules table only, before the first differential run against UICALC.
+2. `modern/` holds a Python twin that was first written from the business rules table only. Its first commit precedes the first differential run in the history, which is consistent with that but cannot prove it.
 3. `harness/` generates golden, boundary, invalid and property based cases, runs both sides on identical bytes, compares every field exactly, and shrinks each failure to a minimal claimant.
 4. Each class of difference needs a decision: preserve the legacy behavior or correct it.
 5. Five named mutations check that the tests have teeth. All five are caught. Five further hidden mutants, found by reviews of the corpus, are also caught.
