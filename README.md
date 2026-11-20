@@ -39,6 +39,10 @@ Requirements: Python 3.12, GnuCOBOL 3.1.2 (`cobc` on the path), Node 22 for the 
 
 The hosted build runs the same harness against prebuilt Linux copies of the oracles, verified against pinned hashes. If they cannot be verified the build fails, and there is no replay in their place.
 
+## Reproduce the Kiro migration numbers
+
+With GnuCOBOL 3.1.2 installed, `python -m migration.verify --candidate migration/candidates/kiro_v1.py --random 50000` gives 2,393 mismatches in 51,251 cases. `kiro_v2.py` gives 3 and `kiro_v3.py` gives 0. The committed output is in `migration/results/`. The hosted site runs 2,000 random cases (3,251 in all), so it shows 338, 2 and 0.
+
 ## Layout
 
     legacy/      UICALC.cbl and semantics probes

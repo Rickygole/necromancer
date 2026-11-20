@@ -55,5 +55,8 @@
         }
       ]
     }
-  ]
+  ],
+  "command": "python -m migration.verify --candidate migration/candidates/kiro_v2.py --random 50000 --json",
+  "compiler": "GnuCOBOL 3.1.2.0, CardDemo INTWRAP oracle built by case_studies/carddemo_interest/build.py",
+  "note": "1,251 fixed golden and boundary cases plus 50,000 random cases, Hypothesis seed as recorded in seed. The hosted site runs 2,000 random cases, 3,251 in all."
 }
