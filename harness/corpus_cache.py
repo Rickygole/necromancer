@@ -13,7 +13,7 @@ from harness.profiles import CORPUS_VERSION, DEFAULT_SEED, PROFILES
 
 CACHE_DIR = Path(__file__).resolve().parent / "corpus_cache"
 SOURCES = ("corpus.py", "records.py", "profiles.py", "provider.py")
-PRECOMPUTED_PROFILES = ("dev", "demo")
+PRECOMPUTED_PROFILES = ("dev", "demo", "full")
 MEMORY_LIMIT = 8
 
 MEMORY = {}

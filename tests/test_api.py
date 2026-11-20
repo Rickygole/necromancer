@@ -42,7 +42,7 @@ def assert_error(response, code, status):
 
 def test_health(client):
     body = client.get("/api/health").json()
-    assert set(body) == {"app_version", "compiler_version", "oracle_available", "hosted"}
+    assert set(body) == {"app_version", "compiler_version", "oracle_available", "hosted", "corpus_cache"}
     assert body["hosted"] is False
     assert isinstance(body["oracle_available"], bool)
 
