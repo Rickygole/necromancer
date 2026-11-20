@@ -46,10 +46,26 @@ def test_raising_candidate_is_reported(tmp_path, binary):
     path.write_text("def compute_interest(a, b, c):\n    raise ValueError\n")
     report = verify.verify(path, random_cases=50, binary=binary)
     assert report["matched"] == 0
-    assert set(report["classes"]) == {"raised"}
+    assert all(sig.startswith("raised") for sig in report["classes"])
 
 
 def test_feedback_text_lists_each_class(binary):
     report = verify.verify(FIXTURES / "migration_rounding.py", random_cases=100, binary=binary, shrink_classes=False)
     text = verify.feedback(report)
     assert "rounds_instead_of_truncating" in text and "COBOL output" in text
+
+
+def test_recorded_kiro_candidate_matches_its_manifest_hash():
+    import hashlib
+    import json
+
+    manifest = json.loads((verify.ROOT / "candidates" / "manifest.json").read_text())["candidates"]
+    for entry in manifest:
+        assert hashlib.sha256((verify.ROOT / "candidates" / entry["file"]).read_bytes()).hexdigest() == entry["sha256"]
+
+
+def test_kiro_first_translation_only_fails_where_the_cobol_wraps(binary):
+    path = verify.ROOT / "candidates" / "kiro_v1.py"
+    report = verify.verify(path, random_cases=500, binary=binary, shrink_classes=False)
+    assert report["mismatched"] > 0
+    assert all(sig.startswith("raised") for sig in report["classes"])

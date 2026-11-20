@@ -30,7 +30,7 @@ EXPLANATIONS = {
     "rounds_instead_of_truncating": "The COBOL has no ROUNDED phrase, so it drops the digits past the cent. The candidate rounds.",
     "monthly_overflow": "The monthly interest does not fit PIC S9(09)V99. The COBOL has no ON SIZE ERROR, so it keeps the low order digits.",
     "total_overflow": "The running total does not fit PIC S9(09)V99. The COBOL keeps the low order digits.",
-    "raised": "The candidate raised an exception where the COBOL produced a value.",
+    "raised": "The candidate raised an exception. The COBOL does not fail, it stores a value.",
     "not_in_cents": "The candidate returned a value with more than two decimal places.",
     "other": "A difference that none of the named causes explains.",
 }
@@ -88,12 +88,15 @@ def causes(comparison):
     monthly_raw = analysis.truncated_monthly(case)
     total_raw = case.total + analysis.stored_value(monthly_raw)
     flags = []
-    if RAISED in (got["monthly"], got["total"]):
-        return ["raised"]
+    raised = RAISED in (got["monthly"], got["total"])
+    if raised:
+        flags.append("raised")
     if NOT_CENTS in (got["monthly"], got["total"]):
         return ["not_in_cents"]
     if abs(monthly_raw) >= analysis.WRAP:
         flags.append("monthly_overflow")
+    elif raised:
+        pass
     elif got["monthly"] != want["monthly"]:
         rounded = (exact + 60000) // analysis.UNITS_PER_CENT
         sign = analysis.sign_of(case.balance) * analysis.sign_of(case.rate)

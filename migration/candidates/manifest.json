@@ -1,0 +1,11 @@
+{
+  "candidates": [
+    {
+      "id": "kiro_v1",
+      "label": "Kiro, first translation",
+      "file": "kiro_v1.py",
+      "sha256": "1702679a882e936c3fd3b118febbe7b4202a8381261dc02fca26d8c4ace0a535",
+      "note": "Written in the Kiro IDE spec workflow from migration/TASK.md alone (requirements, design, tasks, then code). Kiro's shell failed in that session, so it never ran its own code. Copied byte for byte from migration/interest.py."
+    }
+  ]
+}
