@@ -2,6 +2,7 @@ from decimal import Decimal, ROUND_DOWN, localcontext
 
 _CENT = Decimal("0.01")
 _ZERO = Decimal("0.00")
+_NEG_ZERO = Decimal("-0.00")
 _FIELD_LIMIT = Decimal(10) ** 9
 
 
@@ -23,8 +24,17 @@ def _check(value, name, int_digits):
 
 
 def _store(value):
+    # Mimic a MOVE into PIC S9(09)V99 with no ON SIZE ERROR: keep the
+    # low-order 9.2 digits and the sign of the original value.
     wrapped = value % _FIELD_LIMIT
-    return _ZERO if wrapped.is_zero() else wrapped
+    if not wrapped.is_zero():
+        return wrapped
+    if abs(value) >= _FIELD_LIMIT:
+        # Overflow that wraps to zero: COBOL keeps the sign, so a negative
+        # result is stored as negative zero (differential check).
+        return _NEG_ZERO if value.is_signed() else _ZERO
+    # A result that is zero without overflow is always positive zero.
+    return _ZERO
 
 
 def compute_interest(balance, annual_rate_percent, total_interest):

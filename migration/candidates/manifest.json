@@ -13,6 +13,13 @@
       "file": "kiro_v2.py",
       "sha256": "c751ac8715865520124d872884b0006243d2b28b4a1eed46fc7c5f07d5feea51",
       "note": "Written after the reviewer decided to preserve the legacy wrap on overflow. Kiro's shell still failed, so it never ran its own code. Copied byte for byte from migration/interest.py. Three of 51,251 cases still differ: where a wrapped result is exactly zero, the COBOL keeps the minus sign and this version returns +0.00."
+    },
+    {
+      "id": "kiro_v3",
+      "label": "Kiro, after the negative zero finding",
+      "file": "kiro_v3.py",
+      "sha256": "b7751f4de1527b582d7b3789c32b394d6da285a58598758d353a08ba910c0575",
+      "note": "Written after the reviewer also decided to preserve the legacy negative zero. Kiro's shell still failed, so it never ran its own code. Copied byte for byte from migration/interest.py, including Kiro's own comments. No mismatch in 51,251 cases, which is evidence over those cases and not a proof."
     }
   ]
 }

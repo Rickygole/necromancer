@@ -76,3 +76,9 @@ def test_kiro_second_version_only_fails_on_negative_zero_after_wrap(binary):
     report = verify.verify(path, random_cases=2000, binary=binary, shrink_classes=False)
     assert 0 < report["mismatched"] <= 10
     assert not any(sig.startswith("raised") for sig in report["classes"])
+
+
+def test_kiro_third_version_matches_the_cobol(binary):
+    path = verify.ROOT / "candidates" / "kiro_v3.py"
+    report = verify.verify(path, random_cases=2000, binary=binary, shrink_classes=False)
+    assert report["mismatched"] == 0
