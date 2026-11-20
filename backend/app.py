@@ -16,7 +16,7 @@ from pydantic import BaseModel, StrictInt
 from sse_starlette.sse import EventSourceResponse
 
 from backend import errors, patches, runs, store
-from harness import engine
+from harness import corpus_cache, engine
 from harness import decisions as decision_store
 from harness import report as evidence_report
 from harness.profiles import DEFAULT_SEED, PROFILES
@@ -188,6 +188,15 @@ def summary(row):
     }
 
 
+def corpus_cache_state():
+    state = {}
+    for name in corpus_cache.PRECOMPUTED_PROFILES:
+        cfg = PROFILES[name]
+        stored = corpus_cache.read_cache(corpus_cache.CACHE_DIR, cfg["random_batches"], cfg["batch_size"], DEFAULT_SEED)
+        state[name] = stored is not None
+    return state
+
+
 @app.get("/api/health")
 def health():
     version = None
@@ -201,6 +210,7 @@ def health():
         "compiler_version": version,
         "oracle_available": version is not None,
         "hosted": hosted(),
+        "corpus_cache": corpus_cache_state(),
     }
 
 
