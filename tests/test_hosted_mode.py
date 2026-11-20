@@ -60,8 +60,9 @@ def test_family_cases_sum_to_cases_and_planned(hosted):
     assert total == body["planned"]
 
 
-def test_full_profile_is_refused(hosted):
-    error_of(hosted.post("/api/live", json={"profile": "full"}), "BAD_REQUEST", 400)
+def test_full_profile_runs_live(hosted):
+    body = hosted.post("/api/live", json={"profile": "full"}).json()
+    assert body["cases"] == body["matched"] > 40000
 
 
 @pytest.mark.parametrize("seed", [-1, 2**31])

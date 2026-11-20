@@ -13,7 +13,7 @@ import { count } from "../status";
 import { Twin } from "../components/Twin";
 import { DEMO_SEED } from "../content";
 import { SAMPLE_CLAIMS } from "../data";
-import { RECORDED_FULL_LABEL, useRunner } from "../runner";
+import { useRunner } from "../runner";
 import { bringIntoView, heroInView, revealHero, watchUserScroll } from "../scroll";
 import type { Counterexample, Decision, FocusTrace, Health, Mutation, RunRequest, Snapshot, Status } from "../types";
 
@@ -545,7 +545,7 @@ export function Console({ health, healthError }: Props) {
       const healed = rerunId && !liveHosted ? await runner.follow(rerunId) : await launch({ profile: "full", seed });
       guard();
       if (stepFailed(healed)) throw new Error("The rerun after the patch did not finish.");
-      update(3, { state: "done", result: healed, note: liveHosted ? RECORDED_FULL_LABEL : undefined });
+      update(3, { state: "done", result: healed });
 
       current = 4;
       finishApproval(healed, liveHosted);

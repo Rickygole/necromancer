@@ -37,7 +37,7 @@ The repository was built over a few days in November 2026, so the commit history
 
 Requirements: Python 3.12, GnuCOBOL 3.1.2 (`cobc` on the path), Node 22 for the console.
 
-The hosted build runs the same harness against a prebuilt Linux copy of the oracle when it is available, and otherwise replays a recorded run and says so on the page.
+The hosted build runs the same harness against prebuilt Linux copies of the oracles, verified against pinned hashes. If they cannot be verified the build fails, and there is no replay in their place.
 
 ## Layout
 

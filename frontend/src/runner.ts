@@ -4,27 +4,9 @@ import { toStatus } from "./status";
 import type { Counterexample, Report, RunEvent, RunRequest, Snapshot, Status } from "./types";
 
 let liveMode = false;
-let snapshotCache: Promise<Snapshot> | null = null;
 
 export function setLiveMode(value: boolean) {
   liveMode = value;
-}
-
-export const RECORDED_FULL_LABEL =
-  "Recorded full run: the full profile takes longer than the hosted time limit, run it locally for a live one";
-
-function recordedFullRun(): Promise<Snapshot> {
-  if (!snapshotCache) {
-    snapshotCache = api.snapshot().catch((error) => {
-      snapshotCache = null;
-      throw error;
-    });
-  }
-  return snapshotCache.then((snapshot) => {
-    const after = snapshot.runs?.after_patch;
-    if (!after || !Array.isArray(after.events)) throw new Error("The snapshot has no recorded full run to replay.");
-    return after;
-  });
 }
 
 export interface RunError {
@@ -333,13 +315,8 @@ export function useRunner() {
     async (body: RunRequest): Promise<Status> => {
       stop();
       const gen = ++genRef.current;
-      dispatch({ type: "starting", live: liveMode && body.profile !== "full" });
+      dispatch({ type: "starting", live: liveMode });
       try {
-        if (liveMode && body.profile === "full") {
-          const after = await recordedFullRun();
-          if (gen !== genRef.current) return "NOT RUN";
-          return await replay(after, false, RECORDED_FULL_LABEL);
-        }
         if (liveMode) {
           const snapshot = await api.liveRun(body);
           if (gen !== genRef.current) return "NOT RUN";

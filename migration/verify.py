@@ -110,7 +110,12 @@ def classify(comparison):
     return "+".join(causes(comparison))
 
 
-def shrink(sig, first, fn, binary, seed, seen):
+def size_of(record):
+    case = decode(record)
+    return abs(case.total) + abs(case.balance) + abs(case.rate)
+
+
+def shrink(sig, first, fn, binary, seed, seen, search=True, members=()):
     def line_for(record):
         line = seen.get(record)
         if line is None:
@@ -129,6 +134,10 @@ def shrink(sig, first, fn, binary, seed, seen):
             return False
         return (not one.matches) and classify(one) == sig
 
+    if not search:
+        start = min([first.record, *members], key=size_of)
+        case = local_minimum(decode(start), predicate)
+        return compared(encode(case)), False
     try:
         case = find(
             case_strategy(),
@@ -172,7 +181,7 @@ def counterexample(index, seed, comparison, sig, shrunk, count):
     }
 
 
-def verify(candidate=CANDIDATE, seed=gen.DEFAULT_SEED, random_cases=2000, binary=None, shrink_classes=True):
+def verify(candidate=CANDIDATE, seed=gen.DEFAULT_SEED, random_cases=2000, binary=None, shrink_classes=True, search=True):
     fn = load_candidate(candidate)
     compiler = None
     if binary is None:
@@ -187,13 +196,14 @@ def verify(candidate=CANDIDATE, seed=gen.DEFAULT_SEED, random_cases=2000, binary
     for comparison in comparisons:
         sig = classify(comparison)
         if sig:
-            entry = classes.setdefault(sig, {"count": 0, "first": comparison})
+            entry = classes.setdefault(sig, {"count": 0, "first": comparison, "records": []})
             entry["count"] += 1
+            entry["records"].append(comparison.record)
     found = []
     for index, sig in enumerate(sorted(classes), 1):
         first = classes[sig]["first"]
         if shrink_classes:
-            minimal, shrunk = shrink(sig, first, fn, binary, seed, seen)
+            minimal, shrunk = shrink(sig, first, fn, binary, seed, seen, search, classes[sig]["records"])
         else:
             minimal, shrunk = first, False
         found.append(counterexample(index, seed, minimal, sig, shrunk, classes[sig]["count"]))

@@ -71,20 +71,30 @@ records=$(grep -o '"id" *: *"dec_' "$tmp" | wc -l | tr -d ' ')
 [ "$records" = "3" ] || fail "GET /api/decisions returned $records records, expected 3"
 pass "GET /api/decisions returns 3 records"
 
-if [ "$oracle" = "true" ]; then
-  request POST /api/live '{"profile":"dev"}'
-  expect_status 200
-  grep -Eq '"verdict" *: *"MATCH"' "$tmp" || fail "POST /api/live dev verdict was not MATCH"
-  pass "POST /api/live dev verdict MATCH"
-elif [ -n "${HOSTED_EXPECT_ORACLE:-}" ] && [ "$HOSTED_EXPECT_ORACLE" != "0" ]; then
-  fail "oracle_available is false but HOSTED_EXPECT_ORACLE is set"
-else
-  pass "POST /api/live dev skipped, oracle_available is false"
-fi
+[ "$oracle" = "true" ] || fail "oracle_available is false, there is no recorded replay in its place"
+
+request POST /api/live '{"profile":"dev"}'
+expect_status 200
+grep -Eq '"verdict" *: *"MATCH"' "$tmp" || fail "POST /api/live dev verdict was not MATCH"
+pass "POST /api/live dev verdict MATCH"
 
 request POST /api/live '{"profile":"full"}'
-expect_status 400
-pass "POST /api/live full returns 400"
+expect_status 200
+grep -Eq '"verdict" *: *"APPROVAL REQUIRED"' "$tmp" || fail "POST /api/live full verdict was not APPROVAL REQUIRED"
+pass "POST /api/live full runs live and ends in APPROVAL REQUIRED"
+
+request GET /api/migration ""
+expect_status 200
+expect_body '1300-COMPUTE-INTEREST'
+pass "GET /api/migration lists the candidate translations"
+
+ids=$(grep -o '"id": *"[a-z0-9_]*"' "$tmp" | sed 's/.*"\([a-z0-9_]*\)"$/\1/' | head -n 4)
+for id in $ids; do
+  request POST /api/migration/verify "{\"candidate\":\"$id\"}"
+  expect_status 200
+  expect_body '"mismatched"'
+  pass "POST /api/migration/verify $id ran against the live CardDemo oracle"
+done
 
 request GET /api/no-such-route ""
 expect_status 404

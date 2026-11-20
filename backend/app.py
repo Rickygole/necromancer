@@ -20,6 +20,7 @@ from harness import engine
 from harness import decisions as decision_store
 from harness import report as evidence_report
 from harness.profiles import DEFAULT_SEED, PROFILES
+from migration import service as migration_service
 from modern.mutations import MUTATIONS
 from oracle import runner
 
@@ -161,8 +162,8 @@ def start_run(profile, seed, mutation):
     if hosted() and not oracle_available():
         raise errors.ApiError(
             "RUNTIME_ERROR",
-            "the legacy compiler is not available on this host, see /api/snapshot for the pre-rendered result",
-            {"snapshot": "/api/snapshot"},
+            "the legacy compiler is not available on this host, so no run was made",
+            {},
         )
     return runs.start(profile, DEFAULT_SEED if seed is None else seed, mutation)
 
@@ -223,16 +224,11 @@ def live_run(req: RunRequest):
     if req.profile not in PROFILES:
         raise bad("unknown profile", {"profile": req.profile, "known": sorted(PROFILES)})
     check_mutation(req.mutation)
-    if hosted() and req.profile == "full":
-        raise bad(
-            "the full profile takes longer than the hosted time limit, use /api/snapshot for the recorded full run or run it locally",
-            {"snapshot": "/api/snapshot"},
-        )
     if not oracle_available():
         raise errors.ApiError(
             "RUNTIME_ERROR",
-            "the legacy oracle is not available on this host, see /api/snapshot for the pre-rendered result",
-            {"snapshot": "/api/snapshot"},
+            "the legacy oracle is not available on this host, so no run was made",
+            {},
         )
     events = []
     seed = DEFAULT_SEED if req.seed is None else req.seed
@@ -424,6 +420,30 @@ def mutation_score():
     if not path.exists():
         raise errors.ApiError("NOT_FOUND", "no mutation score has been recorded")
     return cached_json(json.loads(path.read_text()))
+
+
+class MigrationRequest(BaseModel):
+    candidate: str
+
+
+def migration_error(exc):
+    return errors.ApiError(exc.code, exc.message, exc.detail)
+
+
+@app.get("/api/migration")
+def migration_listing():
+    try:
+        return cached_json(migration_service.listing())
+    except migration_service.MigrationError as exc:
+        raise migration_error(exc)
+
+
+@app.post("/api/migration/verify")
+def migration_verify(req: MigrationRequest):
+    try:
+        return migration_service.run(req.candidate)
+    except migration_service.MigrationError as exc:
+        raise migration_error(exc)
 
 
 @app.get("/api/report")

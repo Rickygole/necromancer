@@ -81,7 +81,7 @@ def test_hosted_without_compiler(client, monkeypatch):
     assert_error(response, "BAD_REQUEST", 400)
     live = client.post("/api/live", json={"profile": "dev"})
     assert_error(live, "RUNTIME_ERROR", 500)
-    assert "/api/snapshot" in live.json()["error"]["message"]
+    assert "snapshot" not in live.json()["error"]["message"]
 
 
 def test_hosted_rejects_decision_writes(client, monkeypatch):

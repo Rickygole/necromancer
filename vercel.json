@@ -4,8 +4,8 @@
   "outputDirectory": "frontend/dist",
   "functions": {
     "api/index.py": {
-      "includeFiles": "{backend,harness,modern,oracle,decisions,evidence,legacy,bin}/**",
-      "maxDuration": 60
+      "includeFiles": "{backend,harness,modern,oracle,migration,case_studies,decisions,evidence,legacy,bin}/**",
+      "maxDuration": 300
     }
   },
   "rewrites": [

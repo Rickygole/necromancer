@@ -98,8 +98,8 @@ The demo mutation is applied by patching `evidence/demo/twin.config.json` with `
 
 Set by `NECRO_HOSTED=1` and by what is installed.
 
-- Live: `scripts/fetch-oracle.sh` downloads a prebuilt Linux oracle (built by `.github/workflows/oracle-linux.yml`) into `bin/` during the Vercel build, only if its source hash matches `legacy/UICALC.cbl`. `/api/live` then runs a real verification in one request and returns the report, events and counterexamples. Without `cobc`, the runner uses the prebuilt binary.
-- Replay: with no oracle on the host, run endpoints return an error pointing to `/api/snapshot`, and the console replays `evidence/snapshot.json`. The snapshot holds three real recorded runs: baseline, injected mutation (M4) and after patch. Hosted approvals are marked simulated.
+- Live only: `scripts/fetch-oracle.sh` downloads two prebuilt Linux oracles (UICALC and the CardDemo paragraph, built by `.github/workflows/oracle-linux.yml`) into `bin/` during the Vercel build, only if their hashes match the pins and their sources match this checkout. If that fails the build fails. `/api/live` runs a real verification in one request, including the full profile, and `/api/migration/verify` checks a committed candidate translation against the CardDemo oracle. Without `cobc`, the runner uses the prebuilt binary.
+- With no oracle on the host, run endpoints return an error and nothing is shown in its place. `/api/snapshot` is a separate, labelled read of recorded evidence used by the Evidence page. Hosted approvals are marked simulated.
 
 Locally, `cobc` builds the oracle and `/api/runs` starts real runs.
 
@@ -107,7 +107,7 @@ Locally, `cobc` builds the oracle and `/api/runs` starts real runs.
 
 - Results are counts over generated and curated cases, never a proof of equivalence.
 - Every report carries limitations: one pinned compiler, ASCII 80 byte lines only, no tabs, CRLF or missing final newline.
-- Replayed evidence is labelled as recorded, not live.
+- Recorded evidence on the Evidence page is labelled as recorded, and no run button replays it.
 - Preserve versus correct is a human decision. The harness reports classes and does not choose.
 - Tests are checked by mutation: if a known fault is not caught, the tests are weak.
 - All data is synthetic and the rules are not any state's law.
