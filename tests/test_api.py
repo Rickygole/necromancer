@@ -198,13 +198,13 @@ def test_snapshot_missing_or_present(client):
 def test_approval_flow_and_simulated_flag(client, monkeypatch):
     from backend import store
 
-    store.create_run("run_x", "full", 1, None)
-    store.finish_run("run_x", "done", "APPROVAL REQUIRED", {"verdict": "APPROVAL REQUIRED", "profile": "full"})
-    plain = client.post("/api/runs/run_x/approval", json={"approved": True, "reviewer": "r", "note": "ok"}).json()
+    store.create_run("run_20261115041758_bf0b16", "full", 1, None)
+    store.finish_run("run_20261115041758_bf0b16", "done", "APPROVAL REQUIRED", {"verdict": "APPROVAL REQUIRED", "profile": "full"})
+    plain = client.post("/api/runs/run_20261115041758_bf0b16/approval", json={"approved": True, "reviewer": "r", "note": "ok"}).json()
     assert plain["verdict"] == "APPROVED"
     assert "simulated" not in plain
     monkeypatch.setenv("NECRO_HOSTED", "1")
-    hosted = client.post("/api/runs/run_x/approval", json={"approved": False, "reviewer": "r"}).json()
+    hosted = client.post("/api/runs/run_20261115041758_bf0b16/approval", json={"approved": False, "reviewer": "r"}).json()
     assert hosted["verdict"] == "REJECTED"
     assert hosted["simulated"] is True
 
@@ -217,7 +217,7 @@ def test_mutation_score_endpoint(client):
 
 def test_hosted_approval_is_simulated_and_stateless(client, monkeypatch):
     monkeypatch.setenv("NECRO_HOSTED", "1")
-    body = client.post("/api/runs/run_recorded/approval", json={"approved": True, "reviewer": "r", "note": "n"}).json()
+    body = client.post("/api/runs/run_20261115041758_bf0b16/approval", json={"approved": True, "reviewer": "r", "note": "n"}).json()
     assert body["simulated"] is True
     assert body["verdict"] == "APPROVED"
-    assert_error(client.post("/api/runs/run_recorded/approval", json={"approved": True, "reviewer": " "}), "BAD_REQUEST", 400)
+    assert_error(client.post("/api/runs/run_20261115041758_bf0b16/approval", json={"approved": True, "reviewer": " "}), "BAD_REQUEST", 400)

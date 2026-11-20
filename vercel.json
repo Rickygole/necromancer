@@ -1,11 +1,11 @@
 {
   "framework": null,
-  "buildCommand": "sh scripts/fetch-oracle.sh && sh scripts/precompute-corpus.sh && cd frontend && npm install && npm run build",
+  "buildCommand": "sh scripts/fetch-oracle.sh && cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/dist",
   "functions": {
     "api/index.py": {
       "includeFiles": "{backend,harness,modern,oracle,migration,case_studies,decisions,evidence,legacy,bin}/**",
-      "maxDuration": 300
+      "maxDuration": 120
     }
   },
   "rewrites": [

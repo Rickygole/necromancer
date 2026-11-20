@@ -37,11 +37,11 @@ const HOSTED_LABELS = [
   "Baseline run, twin with the three preserved legacy behaviors",
   "Simulated injection of mutation M4",
   "Live run with M4 injected",
-  "Recorded patch and recorded full rerun",
+  "Recorded patch, live full rerun",
   "Approval card",
 ];
 
-const HOSTED_SHORT = ["Baseline", "Simulated inject", "Run with M4", "Recorded patch and rerun", "Approval"];
+const HOSTED_SHORT = ["Baseline", "Simulated inject", "Run with M4", "Recorded patch, live rerun", "Approval"];
 
 const DEMO_SHORT = ["Baseline", "Inject M4", "Run with M4", "Patch and rerun", "Approval"];
 

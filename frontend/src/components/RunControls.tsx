@@ -56,7 +56,7 @@ export function RunControls({ controls, onControls, mutations, injected, replayO
             >
               <option value="dev">dev, quick</option>
               <option value="demo">demo, stage sized</option>
-              <option value="full">{liveHosted ? "full (recorded replay on the hosted build)" : "full, thorough"}</option>
+              <option value="full">{liveHosted ? "full (live, about a minute on a cold server)" : "full, thorough"}</option>
             </select>
           </div>
           <div className="field">

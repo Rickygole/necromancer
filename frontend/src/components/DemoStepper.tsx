@@ -98,7 +98,7 @@ export function DemoStepper({ steps, started, run, busy, replayOnly, liveHosted,
           {replayOnly
             ? "Recorded runs, in order"
             : liveHosted
-              ? "Live runs, with a simulated inject and a recorded rerun"
+              ? "Live runs, with a simulated inject and a recorded patch diff"
               : "Real API calls, in order"}
           <span aria-hidden="true">{" · "}</span>
           <span className="stepper__where">{where}</span>

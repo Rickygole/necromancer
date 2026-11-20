@@ -12,7 +12,6 @@ evidence/snapshot_runs/
 evidence/runs/
 docs/pitch-notes.md
 docs/submission-drafts/
-harness/corpus_cache/
 case_studies/*/build/
 case_studies/*/build_rounded/
 case_studies/*/build_probes/

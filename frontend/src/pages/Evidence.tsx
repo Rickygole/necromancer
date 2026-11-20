@@ -471,7 +471,7 @@ export function Evidence() {
                     <span className="mono">{d.id}</span> <span className="mono chip">{d.class}</span>
                   </p>
                   <p className="hint">
-                    {d.choice}, field {d.field}, {d.reviewer}
+                    {d.choice}, field {d.field}, {d.reviewer || "reviewer delegated, not confirmed"}
                     {d.date ? `, ${d.date}` : ""}
                   </p>
                 </li>

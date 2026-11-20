@@ -79,6 +79,7 @@ def test_unknown_profile_is_refused(hosted):
 
 
 def test_busy_slots_return_retry(hosted):
+    app_module.LIVE_CACHE.clear()
     slots = app_module.LIVE_SLOTS
     assert slots.acquire(blocking=False)
     try:
@@ -122,7 +123,7 @@ def test_approvals_are_simulated_and_stateless(hosted):
 
 
 def test_approval_still_requires_a_reviewer(hosted):
-    response = hosted.post("/api/runs/run_x/approval", json={"approved": True, "reviewer": "  "})
+    response = hosted.post("/api/runs/run_20261115041758_bf0b16/approval", json={"approved": True, "reviewer": "  "})
     error_of(response, "BAD_REQUEST", 400)
 
 
@@ -213,3 +214,25 @@ def test_recorded_evidence_is_not_cached_off_host(client_off_host):
 def client_off_host(monkeypatch):
     monkeypatch.delenv("NECRO_HOSTED", raising=False)
     return TestClient(app_module.app)
+
+
+def test_identical_live_request_is_served_from_the_cache(hosted):
+    from backend import app as app_module
+
+    app_module.LIVE_CACHE.clear()
+    first = hosted.post("/api/live", json={"profile": "dev", "seed": 4242}).json()
+    second = hosted.post("/api/live", json={"profile": "dev", "seed": 4242}).json()
+    assert first["run_id"] == second["run_id"]
+    other = hosted.post("/api/live", json={"profile": "dev", "seed": 4243}).json()
+    assert other["run_id"] != first["run_id"]
+
+
+def test_hosted_approval_rejects_run_ids_that_were_never_issued(hosted):
+    res = hosted.post("/api/runs/anything/approval", json={"approved": True, "reviewer": "x"})
+    error_of(res, "NOT_FOUND", 404)
+
+
+def test_unparseable_body_is_a_bad_request(hosted):
+    res = hosted.post("/api/live", content=b"{not json", headers={"content-type": "application/json"})
+    assert res.status_code in (400, 422)
+    assert res.json()["error"]["code"] == "BAD_REQUEST"

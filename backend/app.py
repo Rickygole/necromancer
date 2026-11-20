@@ -92,6 +92,11 @@ class BodyLimit:
 
 app.add_middleware(BodyLimit)
 LIVE_SLOTS = threading.BoundedSemaphore(2)
+LIVE_CACHE = {}
+LIVE_CACHE_LOCK = threading.Lock()
+LIVE_CACHE_SECONDS = 300
+LIVE_CACHE_MAX = 16
+RUN_ID = re.compile(r"^run_\d{14}_[0-9a-f]{6}$")
 SEED_MAX = 2**31 - 1
 STREAM_SECONDS = 180
 errors.install(app)
@@ -234,6 +239,12 @@ def live_run(req: RunRequest):
     seed = DEFAULT_SEED if req.seed is None else req.seed
     if not 0 <= seed <= SEED_MAX:
         raise bad("seed out of range", {"max": SEED_MAX})
+    key = (req.profile, seed, req.mutation)
+    now = time.monotonic()
+    with LIVE_CACHE_LOCK:
+        hit = LIVE_CACHE.get(key)
+    if hit and now - hit[0] < LIVE_CACHE_SECONDS:
+        return hit[1]
     if not LIVE_SLOTS.acquire(blocking=False):
         raise errors.ApiError("BUSY", "the oracle is busy, try again in a moment", {"retry": True})
     try:
@@ -250,6 +261,10 @@ def live_run(req: RunRequest):
     result["run_id"] = report.get("run_id") or runs.new_run_id()
     result["events"] = events
     result["counterexamples"] = found
+    with LIVE_CACHE_LOCK:
+        if len(LIVE_CACHE) >= LIVE_CACHE_MAX:
+            LIVE_CACHE.clear()
+        LIVE_CACHE[key] = (time.monotonic(), result)
     return result
 
 
@@ -293,6 +308,8 @@ def run_counterexamples(run_id: str):
 @app.post("/api/runs/{run_id}/approval")
 def approve(run_id: str, req: ApprovalRequest):
     if hosted():
+        if not RUN_ID.match(run_id):
+            raise errors.ApiError("NOT_FOUND", "no such run", {"run_id": run_id[:80]})
         if not req.reviewer.strip():
             raise bad("reviewer is required")
         return {

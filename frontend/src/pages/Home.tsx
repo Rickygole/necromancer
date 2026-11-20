@@ -50,7 +50,7 @@ export function Home() {
           </h1>
           <p className="hero__sub mono">verification for legacy COBOL</p>
           <p className="hero__pitch">
-            The legacy program says one thing. The rewrite says another. <em>Nobody knew.</em>
+            COBOL says 0.00. The rewrite says 650.00. <em>Nobody knew.</em>
           </p>
           <p className="hero__body">
             We wrote a small benefit calculator in COBOL, rewrote it in Python from the rules alone, and then made the
@@ -128,7 +128,7 @@ export function Home() {
 
         <div className="beats__cta">
           <a className="slab-button" href={DEMO_HREF}>
-            see the demo in about 20 seconds
+            run the live demo
           </a>
           <p className="beats__cta-note">
             Opens the console with the guided demo ready. A clean baseline, one injected bug caught and shrunk, the

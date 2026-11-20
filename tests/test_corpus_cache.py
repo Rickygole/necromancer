@@ -184,3 +184,12 @@ def test_one_oracle_pass_matches_per_batch_runs(oracle_binary):
     assert together == separate
     singles = [runner.run_batch([r], oracle_binary)[0] for r in flat[:150]]
     assert together[:150] == singles
+
+
+def test_committed_cache_matches_the_generator_and_versions():
+    from harness.profiles import DEFAULT_SEED, PROFILES
+
+    for name in corpus_cache.PRECOMPUTED_PROFILES:
+        cfg = PROFILES[name]
+        stored = corpus_cache.read_cache(corpus_cache.CACHE_DIR, cfg["random_batches"], cfg["batch_size"], DEFAULT_SEED)
+        assert stored is not None, "run scripts/precompute-corpus.sh and commit harness/corpus_cache"

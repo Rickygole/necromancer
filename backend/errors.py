@@ -47,6 +47,8 @@ def install(app):
             return JSONResponse(body("NOT_FOUND", "not found"), status_code=404)
         if exc.status_code == 405:
             return JSONResponse(body("BAD_REQUEST", "method not allowed"), status_code=405)
+        if exc.status_code == 400:
+            return JSONResponse(body("BAD_REQUEST", str(exc.detail)), status_code=400)
         return JSONResponse(body("RUNTIME_ERROR", str(exc.detail)), status_code=exc.status_code)
 
     @app.exception_handler(Exception)
