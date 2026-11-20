@@ -1,0 +1,24 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "Build the Markdown report with source labels and the closing line": [
+      {
+        "executionId": "38e3ab43-1991-4f89-b315-94fa7268cc71",
+        "chatSessionId": "sess_f5d0b9e8-4116-43eb-819d-80251d93edfd",
+        "timestamp": 1795137896322
+      },
+      {
+        "executionId": "38e3ab43-1991-4f89-b315-94fa7268cc71",
+        "chatSessionId": "sess_f5d0b9e8-4116-43eb-819d-80251d93edfd",
+        "timestamp": 1795138051618
+      }
+    ],
+    "CLI entry point that prints the report and fails clearly": [
+      {
+        "executionId": "bb8dc11a-a164-4c21-914d-90207b68605d",
+        "chatSessionId": "sess_d25d7941-8f34-4676-99b7-6be47e51e8ca",
+        "timestamp": 1795138067224
+      }
+    ]
+  }
+}
