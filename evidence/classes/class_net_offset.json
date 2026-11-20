@@ -1,0 +1,37 @@
+{
+  "class": "net+offset",
+  "field": "offset",
+  "cause": "offset_field_wrap",
+  "counterexample_ids": ["cx_0003"],
+  "run_id": "run_20261113025841_1d9235",
+  "seed": 731942,
+  "profile": "dev",
+  "cases_in_run": 45,
+  "mismatches_in_run": 5,
+  "decision": "dec_0003",
+  "decision_status": "unconfirmed",
+  "decision_choice": "preserve",
+  "decision_decided_by": "coding agents acting for the owner, delegated",
+  "explanation": {
+    "location": "4400-OFFSET, WS-OFFSET PIC 9(5)V99 (7 digits, max 99999.99)",
+    "mechanism": "WS-OFFSET is a 7-digit unsigned field (PIC 9(5)V99, max 99999.99). The COMPUTE WS-OFFSET = CL-PEN + CL-SEV * 0.50 evaluates the pension plus half the severance. When the raw result exceeds 99999.99, GnuCOBOL silently wraps to the last 7 digits, dropping the high digits. The overflow probe in evidence/probes/report.json confirms the general mechanism: ADD 900+150=1050 in PIC 9(3) gives 050 (silent wrap). The same wrap applies to any PIC clause when the value overflows its digit capacity. The wrapped offset then flows into the net calculation (4500-NET-PAYOUT), where it may also trigger the unsigned-subtraction quirk if the wrapped offset exceeds the combined benefit.",
+    "counterexample_detail": "cx_0003: input has Q3=4124926.00 (highest quarter), flag=Y (Q4 zeroed), pension=0.00, severance=2000.02, age=18, retirement=N. The oracle wraps the raw offset to 1000.01 (output offset 0100001), which exceeds the combined benefit of 650.00, so the unsigned net stores |650.00 - 1000.01| = 350.01 (output net 0035001). The twin does not wrap and produces offset=0.01 (output 0000001), giving net = 650.00 - 0.01 = 649.99 (output 0064999). The trace is identical (0100110010): base capped at 650, wage ceiling not triggered, offset > 0. The diff spans two fields: offset (1000.01 vs 0.01) and net (350.01 vs 649.99).",
+    "trigger_condition": "The raw offset (CL-PEN + CL-SEV * 0.50) exceeds the capacity of PIC 9(5)V99, i.e., the raw value has more than 7 digits (integer + decimal combined). The wrap drops the high-order digits, producing a smaller wrapped value that then enters the net subtraction.",
+    "interaction_with_unsigned_subtraction": "After the offset wraps, the wrapped value can exceed the combined benefit. In cx_0003 the wrapped offset (1000.01) exceeds the combined (650.00), so the unsigned-subtraction quirk also fires: net = |650.00 - 1000.01| = 350.01. This is why the class is 'net+offset' rather than 'offset' alone."
+  },
+  "options": [
+    {
+      "name": "preserve",
+      "description": "The twin reproduces the legacy wrap behavior: compute CL-PEN + CL-SEV * 0.50, store the result in a 7-digit field with silent wrap (modulo 1000000 on the integer representation, keeping the last 7 digits), and use the wrapped value in the net subtraction.",
+      "tradeoffs": "Output matches the oracle on all inputs where the raw offset overflows the field. The twin carries forward a silent-data-corruption quirk that can produce a smaller offset from a larger one, and the wrapped value can interact with the unsigned-subtraction quirk to produce unexpected net payouts. No downstream correction is needed because the twin already matches.",
+      "status": "currently applied, decision unconfirmed"
+    },
+    {
+      "name": "correct",
+      "description": "The twin computes the offset without the 7-digit wrap: evaluate CL-PEN + CL-SEV * 0.50 with full Decimal precision and use the true value in the net subtraction. If the result exceeds 99999.99, the twin keeps the full value rather than wrapping.",
+      "tradeoffs": "The twin would diverge from the oracle on every input where the raw offset exceeds 99999.99. The oracle would show a wrapped (smaller) offset and a net derived from the wrapped value; the twin would show the true (larger) offset and a net derived from the true value. The decision record would need to change from preserve to correct, and the owner must confirm. The unsigned-subtraction interaction would also change: with the true large offset, the net would be |combined - true_offset|, which could be much larger than the wrapped case.",
+      "status": "not applied"
+    }
+  ],
+  "probe_evidence": "evidence/probes/report.json overflow probe: ADD 900+150=1050 in PIC 9(3) gives 050 (silent wrap). The same mechanism applies to PIC 9(5)V99 for 7-digit fields."
+}

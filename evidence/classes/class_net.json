@@ -1,0 +1,36 @@
+{
+  "class": "net",
+  "field": "net",
+  "cause": "unsigned_subtraction",
+  "counterexample_ids": ["cx_0002"],
+  "run_id": "run_20261113025841_1d9235",
+  "seed": 731942,
+  "profile": "dev",
+  "cases_in_run": 45,
+  "mismatches_in_run": 5,
+  "decision": "dec_0002",
+  "decision_status": "unconfirmed",
+  "decision_choice": "preserve",
+  "decision_decided_by": "coding agents acting for the owner, delegated",
+  "explanation": {
+    "location": "4500-NET-PAYOUT, WS-NET PIC 9(5)V99 (unsigned)",
+    "mechanism": "WS-NET is an unsigned field (PIC 9(5)V99, no sign). The COMPUTE WS-NET = WS-COMBINED - WS-OFFSET subtracts the offset from the combined benefit. When WS-COMBINED < WS-OFFSET, the result is negative. Because the field is unsigned, GnuCOBOL stores the absolute value of the negative result rather than clamping to zero or signaling an error. The sign probe in evidence/probes/report.json confirms this: COMPUTE 9(5)V99 = 0 - 0.01 gives 00000.01 (absolute value), not -0.01 or zero.",
+    "counterexample_detail": "cx_0002: input has Q2=0.01, Q3=2499.99, flag=Y (Q4 zeroed), pension=0.00, severance=62.52, age=18, retirement=N. WS-TOTAL = 0.00 + 0.01 + 2499.99 + 0.00 = 2500.00. WS-CEILING = 0.65 * 2500.00 / 52 = 31.25. WS-COMBINED is capped to 31.25 (combined = base + allow exceeds ceiling). WS-OFFSET = 0.00 + 62.52 * 0.50 = 31.26. WS-NET = 31.25 - 31.26 = -0.01. The oracle stores the absolute value 0.01 (output 0000001). The twin clamps to 0.00 (output 0000000). The trace is identical on both sides (0100100110), confirming the same rule path was taken.",
+    "trigger_condition": "WS-COMBINED < WS-OFFSET, i.e., the pension-and-severance offset exceeds the capped combined benefit. This happens when the offset is small but slightly larger than the combined amount."
+  },
+  "options": [
+    {
+      "name": "preserve",
+      "description": "The twin reproduces the legacy unsigned-subtraction behavior: when combined < offset, store the absolute value of (combined - offset) in the unsigned net field, matching the GnuCOBOL behavior for PIC 9(5)V99.",
+      "tradeoffs": "Output matches the oracle on all inputs where the subtraction goes negative. The twin produces a positive net from a negative intermediate, which is semantically surprising but faithful to the legacy field definition. No downstream correction is needed because the twin already matches.",
+      "status": "currently applied, decision unconfirmed"
+    },
+    {
+      "name": "correct",
+      "description": "The twin clamps the net to zero when the subtraction result is negative, treating the unsigned field as a floor at zero. This is the mathematically intuitive behavior for a payout that cannot be negative.",
+      "tradeoffs": "The twin would diverge from the oracle on every input where combined < offset. Each such case would show a mismatch (oracle shows a small positive absolute value, twin shows zero). The decision record would need to change from preserve to correct, and the owner must confirm.",
+      "status": "not applied"
+    }
+  ],
+  "probe_evidence": "evidence/probes/report.json sign probe: COMPUTE 9(5)V99 = 0 - 0.01 gives 00000.01 (absolute value), not -0.01 or 99999.99."
+}

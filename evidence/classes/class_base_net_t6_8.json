@@ -1,0 +1,36 @@
+{
+  "class": "base+net|t6.8",
+  "field": "base",
+  "cause": "narrow_quotient_wrap",
+  "counterexample_ids": ["cx_0001"],
+  "run_id": "run_20261113025841_1d9235",
+  "seed": 731942,
+  "profile": "dev",
+  "cases_in_run": 45,
+  "mismatches_in_run": 5,
+  "decision": "dec_0001",
+  "decision_status": "unconfirmed",
+  "decision_choice": "preserve",
+  "decision_decided_by": "coding agents acting for the owner, delegated",
+  "explanation": {
+    "location": "4100-BASE-BENEFIT, WS-QUOTIENT PIC 9(3)",
+    "mechanism": "WS-QUOTIENT is a 3-digit integer field (PIC 9(3), max 999). The COMPUTE WS-QUOTIENT = WS-HIGH / 26 divides the highest quarterly wage by 26 and truncates to an integer. When WS-HIGH / 26 >= 1000, the result overflows the 3-digit field and GnuCOBOL silently wraps to the last 3 digits. The overflow probe in evidence/probes/report.json confirms this: MOVE 1234 TO 9(3) gives 234, COMPUTE 9(3)=1234 gives 234, ADD 900+150=1050 gives 050. The wrapped quotient then flows into WS-BASE via MOVE WS-QUOTIENT TO WS-BASE (PIC 9(5)V99). The comparison IF WS-QUOTIENT > 650 tests the wrapped value, not the true quotient, so the cap logic fires on the wrong value.",
+    "counterexample_detail": "cx_0001: input has Q3=26000.00 (highest quarter), flag=Y (Q4 zeroed). 26000.00 / 26 = 1000, which wraps to 000 in PIC 9(3). The oracle produces base=0.00 with trace 0100100000 (base computed, not capped because 000 <= 650). The twin produces base=650.00 with trace 0100110100 (base computed, capped at 650, then wage-ceiling caps combined to 325.00). The diff spans three fields: base (0.00 vs 650.00), net (0.00 vs 325.00), and trace bit 6 (0 vs 1, cap not applied vs applied).",
+    "trigger_condition": "WS-HIGH >= 26000.00 (i.e., the highest quarterly wage divided by 26 produces a quotient >= 1000, which wraps in the 3-digit field)."
+  },
+  "options": [
+    {
+      "name": "preserve",
+      "description": "The twin reproduces the legacy wrap behavior: compute WS-HIGH / 26 as an integer, wrap to 3 digits (modulo 1000), MOVE the wrapped value to WS-BASE, and compare the wrapped value against 650 for the cap.",
+      "tradeoffs": "Output matches the oracle on all inputs, including those above the wrap threshold. The twin carries the legacy quirk forward, which may surprise users who expect correct arithmetic. No downstream correction is needed because the twin already matches.",
+      "status": "currently applied, decision unconfirmed"
+    },
+    {
+      "name": "correct",
+      "description": "The twin computes the quotient without the 3-digit wrap: divide WS-HIGH by 26, truncate to integer, compare against 650, and cap if needed. This produces the mathematically correct base benefit.",
+      "tradeoffs": "The twin would diverge from the oracle on every input where the quotient exceeds 999. All such cases would become mismatches until the oracle itself is fixed or the migration owner accepts the correction. The decision record would need to change from preserve to correct, and the owner must confirm.",
+      "status": "not applied"
+    }
+  ],
+  "probe_evidence": "evidence/probes/report.json overflow probe: MOVE 1234 TO 9(3) gives 234, COMPUTE 9(3)=1234 gives 234, ADD 900+150=1050 gives 050."
+}
