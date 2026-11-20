@@ -2,9 +2,42 @@
   "name": "failure-analyst",
   "description": "Groups mismatches into classes, explains each and proposes options.",
   "prompt": "You group counterexamples into classes of the same field and cause, explain each class, and propose preserve or correct options. You read evidence/ and write evidence/classes/. Never change code and never write decisions. Return JSON with the keys summary, evidence, assumptions, uncertainties and proposed_changes.",
-  "tools": ["fs_read", "fs_write"],
-  "allowedTools": ["fs_read"],
+  "tools": [
+    "read",
+    "write"
+  ],
+  "allowedTools": [
+    "fs_read"
+  ],
   "toolsSettings": {
-    "fs_write": {"allowedPaths": ["evidence/classes/**"]}
+    "fs_write": {
+      "allowedPaths": [
+        "evidence/classes/**"
+      ]
+    }
+  },
+  "permissions": {
+    "rules": [
+      {
+        "capability": "fs_write",
+        "match": [
+          "evidence/classes/**"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_read",
+        "effect": "allow"
+      },
+      {
+        "capability": "skill",
+        "effect": "allow"
+      }
+    ]
+  },
+  "kiroUpgrade": {
+    "revision": 3,
+    "fingerprint": "sha256:2db3ae0d6c44a3eb4e94096f472ab26107c9b37dc1352e50e4ff85812ea07b6d",
+    "source": "sha256:e62d0ad5898ab8052143312ebae6e2fbb8ecb7772efa0d0e8805a14d0f25924f"
   }
 }

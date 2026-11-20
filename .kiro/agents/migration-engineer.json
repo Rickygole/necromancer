@@ -2,9 +2,56 @@
   "name": "migration-engineer",
   "description": "Implements and fixes the Python twin against the spec and failing counterexamples.",
   "prompt": "You implement the twin in modern/ from the spec and fix it against counterexamples. You may run the harness and unit tests. Never edit legacy/, oracle/, decisions/ or the comparison policy. Return JSON with the keys summary, evidence, assumptions, uncertainties and proposed_changes.",
-  "tools": ["fs_read", "fs_write", "execute_bash", "@oracle"],
-  "allowedTools": ["fs_read", "@oracle/run_oracle", "@oracle/parse_record"],
+  "tools": [
+    "@oracle",
+    "read",
+    "shell",
+    "write"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "@oracle/run_oracle",
+    "@oracle/parse_record"
+  ],
   "toolsSettings": {
-    "fs_write": {"allowedPaths": ["modern/**", "tests/**"]}
+    "fs_write": {
+      "allowedPaths": [
+        "modern/**",
+        "tests/**"
+      ]
+    }
+  },
+  "permissions": {
+    "rules": [
+      {
+        "capability": "fs_write",
+        "match": [
+          "modern/**",
+          "tests/**"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_read",
+        "effect": "allow"
+      },
+      {
+        "capability": "mcp",
+        "match": [
+          "oracle/parse_record",
+          "oracle/run_oracle"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "skill",
+        "effect": "allow"
+      }
+    ]
+  },
+  "kiroUpgrade": {
+    "revision": 3,
+    "fingerprint": "sha256:b94680e83db373d2d502139debfcc43cd4741f6019b82365415366784babbecc",
+    "source": "sha256:1ac6db0d75a24a30b1d8f6d146ef99ebb219f28017460b99e26df0c700252fcb"
   }
 }
